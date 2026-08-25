@@ -500,6 +500,17 @@ export function CollectionCoverflow({
                         <p className="mt-3 text-center text-[9px] uppercase tracking-[0.18em] text-[var(--rq-ink)]/35">
                           {labels.numberPrefix} {String(index + 1).padStart(2, "0")} / {count}
                         </p>
+                        <a
+                          href={`https://wa.me/212710260501?text=${encodeURIComponent(
+                            `Bonjour, je suis intéressé(e) par "${piece.title}" — ${piece.size} — ${piece.price} DH (N° ${String(index + 1).padStart(2, "0")} / 43)`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(event) => event.stopPropagation()}
+                          className="mt-3 flex w-full items-center justify-center gap-2 rounded-sm bg-[var(--rq-gold)] py-2 text-[9px] font-medium uppercase tracking-[0.2em] text-[var(--rq-ink)]"
+                        >
+                          Commander sur WhatsApp
+                        </a>
                       </div>
                     </div>
                   </button>
