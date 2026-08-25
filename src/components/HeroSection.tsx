@@ -73,6 +73,10 @@ export default function HeroSection() {
   // Light parallax between headline text and background artwork —
   // mouse position + scroll offset, capped to a small max travel.
   useEffect(() => {
+    if (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      window.innerWidth < 768
+    ) return
     if (isMobile) return
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const el = contentRef.current
