@@ -1,0 +1,246 @@
+@import "tailwindcss";
+
+@theme {
+  --color-parchment:      #F1E3C8;
+  --color-parchment-dark: #E3CBA0;
+  --color-charcoal:       #5A1220;
+  --color-charcoal-mid:   #7B1B2C;
+  --color-gold:           #C89B3C;
+  --color-gold-light:     #D4B060;
+  --color-terracotta:     #B85C38;
+  --color-sage:           #5B7C6A;
+  --color-canvas:         #F4E9D2;
+  /* Mirrors the existing --background/--foreground vars below under the
+     --color- prefix Tailwind v4 requires to generate bg-background /
+     text-foreground utilities — same values, no visual change, just makes
+     the tokens usable by shadcn/ui components (e.g. card-21's demo). */
+  --color-background:     var(--background);
+  --color-foreground:     var(--foreground);
+
+  /* Nova seal — provenance-mark palette. Deliberately its own namespace,
+     not aliased to --color-charcoal/--color-canvas above: the seal's
+     "canvas" (#F0E5D1, the pressed-emboss ground) and the site's
+     --color-canvas (#F4E9D2, the gallery mat/cream) are close but
+     distinct tones with different jobs — collapsing them would make the
+     next palette edit accidentally change both. */
+  --color-nova-almond:            #F4EBDC;
+  --color-nova-almond-deep:       #E8D8BE;
+  --color-nova-canvas:            #F0E5D1;
+  --color-nova-crimson:           #6E1420;
+  --color-nova-crimson-lit:       #8F2030;
+  --color-nova-crimson-deep:      #4A0B14;
+  --color-nova-crimson-shadow:    #3A0A11;
+  --color-nova-crimson-highlight: #C9736F;
+  --color-nova-emboss-shadow:     #A98F6B;
+  --color-nova-emboss-light:      #FFFAF0;
+  --color-nova-emboss-face:       #E2D2B6;
+  --color-nova-ink:               #201E1D;
+
+  --font-display: var(--font-playfair);
+  --font-body:    var(--font-dm-sans);
+  --font-seal:    var(--font-source-serif);
+
+  --ease-out-strong:    cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-gallery:       cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+:root {
+  --background: #F1E3C8;
+  --foreground: #5A1220;
+  --color-electric-gold: #D4A574;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Gallery filter pill */
+.pill {
+  border: 1px solid transparent;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.pill.active {
+  background: #5A1220;
+  color: #F4E9D2;
+  border-color: #5A1220;
+}
+.pill:not(.active) {
+  background: transparent;
+  color: #5A1220;
+  border-color: rgba(90,18,32,0.25);
+}
+.pill:not(.active):hover {
+  border-color: rgba(90,18,32,0.55);
+}
+
+/* Mobile gallery card lift */
+.gallery-card-mobile {
+  transition: transform 0.3s var(--ease-out-strong), box-shadow 0.3s ease;
+}
+.gallery-card-mobile:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 48px rgba(90,18,32,0.14);
+}
+
+/* Hero masonry gallery frame lift */
+.hero-gallery-frame {
+  transition: transform 0.35s var(--ease-out-strong), box-shadow 0.35s ease;
+  will-change: transform;
+}
+.hero-gallery-frame:hover {
+  transform: scale(1.03);
+  box-shadow: 0 28px 60px rgba(90,18,32,0.22);
+}
+
+/* Nova seal — provenance mark, two dimensional states (raised "out" /
+   embossed "in") cross-faded on press. Plain CSS, not Tailwind utilities:
+   the :hover/:active/:focus-visible cross-fade needs real selectors, the
+   same reasoning as .pill/.hero-gallery-frame above. */
+.nova-weave {
+  background-image:
+    repeating-linear-gradient(0deg,  rgba(32,30,29,.04) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(32,30,29,.04) 0 1px, transparent 1px 4px);
+}
+
+.nova-seal {
+  background: none;
+  border: 0;
+  padding: 0;
+  line-height: 0;
+  transition: transform 180ms var(--ease-out-strong), filter 180ms ease-out;
+  filter: drop-shadow(0 10px 18px rgba(58,10,17,.18));
+}
+.nova-seal--interactive {
+  cursor: pointer;
+}
+.nova-seal--plate {
+  transform: perspective(1400px) rotateX(11deg) rotateY(-11deg);
+}
+.nova-seal--interactive.nova-seal--plate:hover {
+  transform: perspective(1400px) rotateX(9deg) rotateY(-9deg) scale(1.015);
+  filter: drop-shadow(0 16px 26px rgba(58,10,17,.24));
+}
+.nova-seal--interactive:focus-visible {
+  outline: 2px solid var(--color-nova-crimson);
+  outline-offset: 8px;
+}
+.nova-seal--interactive.nova-seal--plate:active {
+  transform: perspective(1400px) rotateX(11deg) rotateY(-11deg) scale(.994);
+  filter: drop-shadow(0 2px 4px rgba(58,10,17,.12));
+}
+.nova-seal--interactive:not(.nova-seal--plate):active {
+  filter: drop-shadow(0 2px 4px rgba(58,10,17,.12));
+}
+.nova-seal .nova-seal-out,
+.nova-seal .nova-seal-in {
+  transition: opacity 160ms ease-out;
+}
+.nova-seal .nova-seal-in { opacity: 0; }
+.nova-seal--interactive:active .nova-seal-out { opacity: 0; }
+.nova-seal--interactive:active .nova-seal-in  { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nova-seal,
+  .nova-seal .nova-seal-out,
+  .nova-seal .nova-seal-in {
+    transition: none;
+  }
+  .nova-seal--interactive.nova-seal--plate:hover {
+    transform: perspective(1400px) rotateX(11deg) rotateY(-11deg);
+  }
+}
+
+/* Gallery flythrough waypoint label — remounted (via key) on collection change */
+.gallery-waypoint {
+  animation: waypointIn 0.5s var(--ease-out-strong) forwards;
+}
+@keyframes waypointIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Gallery scroll-to-explore hint */
+.gallery-scroll-hint {
+  animation: scrollHintBob 1.8s ease-in-out infinite;
+}
+@keyframes scrollHintBob {
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50%      { transform: translateY(6px); opacity: 1; }
+}
+
+/* Piece detail overlay animation */
+.detail-panel {
+  animation: detailIn 0.35s var(--ease-out-strong) forwards;
+}
+@keyframes detailIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating 3D QR cards (Carte section) */
+.qr-float {
+  animation: qrFloat 5s ease-in-out infinite;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+@keyframes qrFloat {
+  0%, 100% { transform: translateY(0) rotateZ(0deg); }
+  50%      { transform: translateY(-16px) rotateZ(1deg); }
+}
+
+/* Philosophy line reveal — a single gold-leaf sweep once the blur-in
+   settles. Not ShinyText (its loop can't be constrained to one pass);
+   a plain one-shot keyframe reads as controlled instead of a loading
+   shimmer. Reads var(--rq-gold) from the showcase section it's nested in,
+   falling back to a matching tone if used outside that scope. */
+.philosophy-gold-sweep {
+  background-image: linear-gradient(
+    100deg,
+    transparent 42%,
+    color-mix(in srgb, var(--rq-gold, #c89b3c) 70%, white) 50%,
+    transparent 58%
+  );
+  background-size: 240% 100%;
+  background-repeat: no-repeat;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: philosophyGoldSweep 1000ms ease-out forwards;
+}
+@keyframes philosophyGoldSweep {
+  0%   { background-position: -70% center; opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { background-position: 170% center; opacity: 0; }
+}
+
+/* Arabic / RTL overrides */
+html[dir="rtl"] {
+  --font-display: var(--font-cairo);
+  --font-body:    var(--font-cairo);
+}
+
+html[dir="rtl"] body {
+  font-family: var(--font-cairo), system-ui, sans-serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
