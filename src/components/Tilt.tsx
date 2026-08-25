@@ -20,6 +20,12 @@ export default function Tilt({ children, className = '', max = 7, scale = 1.015,
   const glossRef = useRef<HTMLDivElement>(null)
   const quick = useRef<{ x: (v: number) => void; y: (v: number) => void; s: (v: number) => void } | null>(null)
   const reduced = useRef(false)
+  // rAF-throttles the pointermove handler: pointermove can fire faster than
+  // the display refreshes, and each event was doing a synchronous
+  // getBoundingClientRect() layout read — batching both that and the GSAP
+  // update to once per frame is the actual win, not just the GSAP calls.
+  const ticking = useRef(false)
+  const lastPoint = useRef<{ x: number; y: number; target: HTMLDivElement } | null>(null)
 
   useEffect(() => {
     reduced.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -35,16 +41,24 @@ export default function Tilt({ children, className = '', max = 7, scale = 1.015,
 
   const handleMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     if (reduced.current || e.pointerType !== 'mouse' || !quick.current) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const px = (e.clientX - rect.left) / rect.width
-    const py = (e.clientY - rect.top) / rect.height
-    quick.current.x(-(py - 0.5) * 2 * max)
-    quick.current.y((px - 0.5) * 2 * max)
-    quick.current.s(scale)
-    if (gloss && glossRef.current) {
-      glossRef.current.style.backgroundPosition = `${px * 100}% ${py * 100}%`
-      glossRef.current.style.opacity = '0.22'
-    }
+    lastPoint.current = { x: e.clientX, y: e.clientY, target: e.currentTarget }
+    if (ticking.current) return
+    ticking.current = true
+    requestAnimationFrame(() => {
+      ticking.current = false
+      const point = lastPoint.current
+      if (!point || !quick.current) return
+      const rect = point.target.getBoundingClientRect()
+      const px = (point.x - rect.left) / rect.width
+      const py = (point.y - rect.top) / rect.height
+      quick.current.x(-(py - 0.5) * 2 * max)
+      quick.current.y((px - 0.5) * 2 * max)
+      quick.current.s(scale)
+      if (gloss && glossRef.current) {
+        glossRef.current.style.backgroundPosition = `${px * 100}% ${py * 100}%`
+        glossRef.current.style.opacity = '0.22'
+      }
+    })
   }, [max, scale, gloss])
 
   const handleLeave = useCallback(() => {
@@ -60,6 +74,7 @@ export default function Tilt({ children, className = '', max = 7, scale = 1.015,
       onPointerMove={handleMove}
       onPointerLeave={handleLeave}
       className={`relative ${className}`}
+      style={{ willChange: 'transform' }}
     >
       {children}
       {gloss && (

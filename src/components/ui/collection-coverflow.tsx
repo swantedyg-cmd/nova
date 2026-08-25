@@ -265,8 +265,6 @@ export function CollectionCoverflow({
     drag.v = ((posRef.current - previous) / Math.max(now - drag.t, 1)) * 1000;
     drag.t = now;
 
-    const index = indexAt(posRef.current);
-    if (index !== selected) setSelected(index);
     paint();
   };
 
@@ -380,6 +378,7 @@ export function CollectionCoverflow({
                     width: "var(--cf-card)",
                     aspectRatio: "4 / 5",
                     transformStyle: "preserve-3d",
+                    contain: "layout style",
                   }}
                 >
                   <button
@@ -403,6 +402,8 @@ export function CollectionCoverflow({
                       transform: isRevealed
                         ? "rotateY(180deg)"
                         : "rotateY(0deg)",
+                      willChange: "transform",
+                      contain: "layout style",
                     }}
                   >
                     {/* Front — the artwork */}
@@ -417,7 +418,9 @@ export function CollectionCoverflow({
                         fill
                         draggable={false}
                         priority={index === 0}
-                        sizes="(max-width: 640px) 190px, (max-width: 1400px) 26vw, 300px"
+                        loading={index === 0 ? "eager" : "lazy"}
+                        quality={65}
+                        sizes="(max-width: 768px) 280px, 380px"
                         className="select-none object-cover"
                       />
                       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/0 to-black/0" />
