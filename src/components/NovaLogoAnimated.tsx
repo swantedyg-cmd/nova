@@ -5,39 +5,45 @@ import { motion } from 'motion/react'
 import Tilt from './Tilt'
 
 /* ─── Nova Canvas Art logo — animated gold paintbrush mark ────────────────
-   Static counterpart lives at public/nova-logo.svg (same gradient/glyph,
-   no motion — used for favicons, OG images, anywhere a plain asset is
-   needed). This component re-renders the same composition inline so each
-   piece (stroke, sparkles, letters) can be animated independently.
+   Built from the actual reference artwork (client-supplied
+   NOVA_Canvas_Art_Logo.pdf), not a hand-drawn approximation: the PDF's
+   embedded 1254×1254 render was extracted, background-keyed to
+   transparent, and cropped into layers so each piece can be animated
+   independently without ever redrawing the art itself —
 
-   The brush stroke here is a STROKED open spine (not the static file's
-   filled ribbon) — strokeDashoffset can only animate a stroked path, so
-   the "draws itself" effect needs an open line with a thick round-capped
-   stroke rather than a closed filled shape. Visually it reads the same
-   gold ribbon once fully drawn. `pathLength={1}` normalizes the dash math
-   so the draw-in doesn't depend on the curve's real geometric length. ── */
+     public/nova-logo.png        — full lockup, exact source (icon + word + tagline)
+     public/nova-logo-icon.png   — brush stroke + both sparkles, exact crop
+     public/nova-logo-sparkle-*  — the two sparkles, isolated, for the glow pulse
+     public/nova-logo-word.png   — "NOVA"
+     public/nova-logo-tagline.png — "— CANVAS ART —"
+
+   The sparkle overlays are additive (mix-blend-mode: screen) rather than
+   opaque duplicates sitting on top of the base icon — screen-blending
+   only brightens, so a slightly-off crop boundary never shows a seam the
+   way an opaque patch would. That's also why there's no true per-letter
+   stagger on "NOVA" here: it's one photographic crop, and slicing a
+   serif wordmark into per-letter fragments risks visible cut lines
+   through kerning — the word animates in as one block instead. */
 
 const STROKE_DURATION = 1.2
-const LETTER_STAGGER = 0.08
-const SPARKLE_STAGGER = 0.15
 const TAGLINE_DELAY = 1.8
 const SHIMMER_START = 2.3
 const SHIMMER_SWEEP_DURATION = 1.2
 const SHIMMER_CYCLE = 4
 
-const SPINE_PATH =
-  'M90,80 C130,55 170,60 195,95 C215,122 205,145 180,155 C165,161 168,172 180,185 C205,210 230,225 252,232'
+// Native crop dimensions (px) — every block's height is derived from this
+// shared width so the whole lockup stays in its original proportions.
+const ICON_W = 644
+const ICON_H = 526
+const WORD_H = 180
+const TAGLINE_H = 62
 
-const SPARKLE_PATH =
-  'M12 0C12 0 12.6 6.2 15 8.6C17.4 11 24 12 24 12C24 12 17.4 13 15 15.4C12.6 17.8 12 24 12 24C12 24 11.4 17.8 9 15.4C6.6 13 0 12 0 12C0 12 6.6 11 9 8.6C11.4 6.2 12 0 12 0Z'
-
+// Sparkle positions as % of the icon crop — matches exactly where each
+// sparkle sits in nova-logo-icon.png.
 const SPARKLES = [
-  { x: 278, y: 58, scale: 1.5 },
-  { x: 78, y: 214, scale: 0.85 },
-  { x: 246, y: 188, scale: 0.45 },
+  { src: '/nova-logo-sparkle-lg.png', left: (345 / ICON_W) * 100, top: (0 / ICON_H) * 100, width: (275 / ICON_W) * 100, height: (195 / ICON_H) * 100, delay: 0 },
+  { src: '/nova-logo-sparkle-sm.png', left: (98 / ICON_W) * 100, top: (298 / ICON_H) * 100, width: (172 / ICON_W) * 100, height: (150 / ICON_H) * 100, delay: 0.6 },
 ]
-
-const LETTERS = ['N', 'O', 'V', 'A']
 
 const PARTICLES = [
   { x: -70, y: -30, size: 3, dur: 7, delay: 0 },
@@ -48,46 +54,12 @@ const PARTICLES = [
   { x: -20, y: 100, size: 2, dur: 11, delay: 2.5 },
 ]
 
-function Sparkle({ x, y, scale, delay, reducedMotion }: { x: number; y: number; scale: number; delay: number; reducedMotion: boolean }) {
-  const [pulsing, setPulsing] = useState(reducedMotion)
-
-  if (reducedMotion) {
-    return (
-      <g transform={`translate(${x},${y}) scale(${scale}) translate(-12,-12)`}>
-        <path d={SPARKLE_PATH} fill="url(#novaGoldAnimated)" />
-      </g>
-    )
-  }
-
-  return (
-    <motion.g
-      style={{ transformOrigin: `${x}px ${y}px` }}
-      transform={`translate(${x},${y}) scale(${scale}) translate(-12,-12)`}
-      initial={{ scale: 0, opacity: 0 }}
-      animate={
-        pulsing
-          ? { scale: [1, 1.08, 1], opacity: 1 }
-          : { scale: [0, 1.2, 1], opacity: 1 }
-      }
-      transition={
-        pulsing
-          ? { duration: 3, repeat: Infinity, ease: 'easeInOut' }
-          : { duration: 0.5, delay, ease: 'easeOut' }
-      }
-      onAnimationComplete={() => {
-        if (!pulsing) setPulsing(true)
-      }}
-    >
-      <path d={SPARKLE_PATH} fill="url(#novaGoldAnimated)" />
-    </motion.g>
-  )
-}
-
 interface NovaLogoAnimatedProps {
-  /** Rendered icon size in CSS px. */
+  /** Rendered width in CSS px (height follows the art's own proportions). */
   size?: number
   /** "icon" — just the brush + sparkles mark, for compact contexts like the
-   *  header (no text, no ambient loops — mirrors the old flat-tier seal).
+   *  header (no text, no ambient loops, no wipe-reveal — a plain static
+   *  crop, same spirit as the old flat-tier seal).
    *  "full" — the complete lockup (mark + NOVA + tagline), all animations. */
   variant?: 'full' | 'icon'
   /** Wraps the full lockup in the 3D hover tilt. Ignored for variant="icon". */
@@ -109,114 +81,98 @@ export default function NovaLogoAnimated({
     setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   }, [])
 
-  const iconWidth = size
-  const iconHeight = size * (260 / 400)
-
-  const gradientDefs = (
-    <defs>
-      <linearGradient id="novaGoldAnimated" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#F5D07A" />
-        <stop offset="50%" stopColor="#D4A42E" />
-        <stop offset="100%" stopColor="#A67C00" />
-      </linearGradient>
-    </defs>
-  )
-
-  const glyph = (
-    <svg viewBox="0 0 400 260" width={iconWidth} height={iconHeight} aria-hidden="true">
-      {gradientDefs}
-
-      {reducedMotion ? (
-        <path
-          d={SPINE_PATH}
-          fill="none"
-          stroke="url(#novaGoldAnimated)"
-          strokeWidth={30}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      ) : (
-        <motion.path
-          d={SPINE_PATH}
-          fill="none"
-          stroke="url(#novaGoldAnimated)"
-          strokeWidth={30}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          pathLength={1}
-          strokeDasharray={1}
-          initial={{ strokeDashoffset: 1 }}
-          animate={{ strokeDashoffset: 0 }}
-          transition={{ duration: STROKE_DURATION, ease: 'easeOut' }}
-        />
-      )}
-
-      {SPARKLES.map((s, i) => (
-        <Sparkle
-          key={i}
-          {...s}
-          delay={STROKE_DURATION + i * SPARKLE_STAGGER}
-          reducedMotion={reducedMotion}
-        />
-      ))}
-    </svg>
-  )
+  const iconHeight = size * (ICON_H / ICON_W)
+  const wordHeight = size * (WORD_H / ICON_W)
+  const taglineHeight = size * (TAGLINE_H / ICON_W)
 
   if (variant === 'icon') {
     return (
       <span aria-label={ariaLabel} role="img" className={`inline-block ${className}`} style={{ lineHeight: 0 }}>
-        {glyph}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/nova-logo-icon.png" alt="" width={size} height={iconHeight} style={{ width: size, height: iconHeight }} />
       </span>
     )
   }
 
+  const iconBlock = (
+    <div className="relative" style={{ width: size, height: iconHeight }}>
+      {reducedMotion ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src="/nova-logo-icon.png" alt="" width={size} height={iconHeight} style={{ width: size, height: iconHeight }} />
+      ) : (
+        <motion.div
+          initial={{ clipPath: 'inset(0 100% 0 0)' }}
+          animate={{ clipPath: 'inset(0 0% 0 0)' }}
+          transition={{ duration: STROKE_DURATION, ease: 'easeOut' }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/nova-logo-icon.png" alt="" width={size} height={iconHeight} style={{ width: size, height: iconHeight, display: 'block' }} />
+        </motion.div>
+      )}
+
+      {!reducedMotion &&
+        SPARKLES.map((s, i) => (
+          <motion.div
+            key={i}
+            aria-hidden="true"
+            className="absolute pointer-events-none"
+            style={{ left: `${s.left}%`, top: `${s.top}%`, width: `${s.width}%`, height: `${s.height}%`, mixBlendMode: 'screen' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.9, 0.35, 0.9, 0.35] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: STROKE_DURATION + s.delay }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={s.src} alt="" style={{ width: '100%', height: '100%' }} />
+          </motion.div>
+        ))}
+    </div>
+  )
+
   const wordmark = (
-    <div className="flex flex-col items-center select-none">
-      <div
-        className="flex"
-        style={{ fontFamily: 'Georgia, "Times New Roman", serif', fontSize: size * 0.22, letterSpacing: '0.15em', lineHeight: 1 }}
-      >
-        {LETTERS.map((letter, i) =>
-          reducedMotion ? (
-            <span key={i} style={goldTextStyle}>{letter}</span>
-          ) : (
-            <motion.span
-              key={i}
-              style={goldTextStyle}
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.5, ease: 'easeOut', delay: STROKE_DURATION + i * LETTER_STAGGER }}
-            >
-              {letter}
-            </motion.span>
-          ),
-        )}
-      </div>
+    <div className="flex flex-col items-center select-none" style={{ width: size }}>
+      {reducedMotion ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src="/nova-logo-word.png" alt="Nova" width={size} height={wordHeight} style={{ width: size, height: wordHeight }} />
+      ) : (
+        <motion.img
+          src="/nova-logo-word.png"
+          alt="Nova"
+          width={size}
+          height={wordHeight}
+          style={{ width: size, height: wordHeight }}
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: 'easeOut', delay: STROKE_DURATION }}
+        />
+      )}
 
       {reducedMotion ? (
-        <p
-          className="mt-2 uppercase"
-          style={{ ...goldTextStyle, fontSize: size * 0.045, letterSpacing: '0.32em' }}
-        >
-          — Canvas Art —
-        </p>
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src="/nova-logo-tagline.png"
+          alt="Canvas Art"
+          width={size * 0.6}
+          height={taglineHeight * 0.6}
+          style={{ width: size * 0.6, height: taglineHeight * 0.6, marginTop: size * 0.02 }}
+        />
       ) : (
-        <motion.p
-          className="mt-2 uppercase"
-          style={{ ...goldTextStyle, fontSize: size * 0.045, letterSpacing: '0.32em' }}
+        <motion.img
+          src="/nova-logo-tagline.png"
+          alt="Canvas Art"
+          width={size * 0.6}
+          height={taglineHeight * 0.6}
+          style={{ width: size * 0.6, height: taglineHeight * 0.6, marginTop: size * 0.02 }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, ease: 'easeOut', delay: TAGLINE_DELAY }}
-        >
-          — Canvas Art —
-        </motion.p>
+        />
       )}
     </div>
   )
 
   const content = (
     <div className={`relative inline-flex flex-col items-center ${className}`}>
-      {glyph}
+      {iconBlock}
       {wordmark}
 
       {!reducedMotion && (
@@ -276,12 +232,4 @@ export default function NovaLogoAnimated({
       {content}
     </Tilt>
   )
-}
-
-const goldTextStyle: React.CSSProperties = {
-  backgroundImage: 'linear-gradient(135deg, #F5D07A 0%, #D4A42E 50%, #A67C00 100%)',
-  backgroundClip: 'text',
-  WebkitBackgroundClip: 'text',
-  color: 'transparent',
-  WebkitTextFillColor: 'transparent',
 }
