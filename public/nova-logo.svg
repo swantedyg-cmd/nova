@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <linearGradient id="novaGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F5D07A" />
+      <stop offset="50%" stop-color="#D4A42E" />
+      <stop offset="100%" stop-color="#A67C00" />
+    </linearGradient>
+  </defs>
+
+  <!-- Paintbrush stroke: diagonal S-curve ribbon, tapered to a point at both ends -->
+  <path
+    fill="url(#novaGold)"
+    d="M92,78
+       C128,58 162,64 186,90
+       C200,105 197,118 182,127
+       C172,133 166,139 174,148
+       C196,171 222,188 252,232
+       C246,222 236,214 220,203
+       C198,188 178,178 158,161
+       C142,147 132,138 118,124
+       C104,110 92,100 92,78 Z"
+  />
+
+  <!-- Sparkles: 4-pointed stars -->
+  <g fill="url(#novaGold)">
+    <!-- large, upper right -->
+    <path transform="translate(278,58) scale(1.5) translate(-12,-12)"
+      d="M12 0C12 0 12.6 6.2 15 8.6C17.4 11 24 12 24 12C24 12 17.4 13 15 15.4C12.6 17.8 12 24 12 24C12 24 11.4 17.8 9 15.4C6.6 13 0 12 0 12C0 12 6.6 11 9 8.6C11.4 6.2 12 0 12 0Z" />
+    <!-- medium, lower left -->
+    <path transform="translate(78,214) scale(0.85) translate(-12,-12)"
+      d="M12 0C12 0 12.6 6.2 15 8.6C17.4 11 24 12 24 12C24 12 17.4 13 15 15.4C12.6 17.8 12 24 12 24C12 24 11.4 17.8 9 15.4C6.6 13 0 12 0 12C0 12 6.6 11 9 8.6C11.4 6.2 12 0 12 0Z" />
+    <!-- tiny, near the stroke's tip -->
+    <path transform="translate(246,188) scale(0.45) translate(-12,-12)"
+      d="M12 0C12 0 12.6 6.2 15 8.6C17.4 11 24 12 24 12C24 12 17.4 13 15 15.4C12.6 17.8 12 24 12 24C12 24 11.4 17.8 9 15.4C6.6 13 0 12 0 12C0 12 6.6 11 9 8.6C11.4 6.2 12 0 12 0Z" />
+  </g>
+
+  <!-- Wordmark -->
+  <text x="200" y="322" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="76" letter-spacing="0.15em" fill="url(#novaGold)">NOVA</text>
+  <text x="200" y="360" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="15" letter-spacing="0.32em" fill="url(#novaGold)">&#8212; CANVAS ART &#8212;</text>
+</svg>

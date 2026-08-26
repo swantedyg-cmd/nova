@@ -38,7 +38,7 @@ export default function CollectionShowcaseSection() {
       style={THEME}
       className="relative overflow-hidden bg-[var(--rq-ink)] py-24 sm:py-28"
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_60%_at_50%_0%,rgba(255,232,200,0.16),rgba(113,0,20,0.4)_45%,transparent_75%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_60%_at_50%_0%,rgba(255,232,200,0.16),rgba(212,164,46,0.3)_45%,transparent_75%)]" />
 
       <div className="relative mx-auto max-w-6xl px-6">
         <div className="mx-auto max-w-xl text-center">

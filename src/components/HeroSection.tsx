@@ -7,7 +7,7 @@ import { motion, useReducedMotion } from 'motion/react'
 import ElectricBorder from './ElectricBorder'
 import LazyStrands from './LazyStrands'
 import HeroGallery from './HeroGallery'
-import NovaSeal from './NovaSeal'
+import NovaLogoAnimated from './NovaLogoAnimated'
 import { useLanguage } from '@/i18n/LanguageContext'
 import { TAGLINES } from '@/data/taglines'
 
@@ -157,16 +157,12 @@ export default function HeroSection() {
           animate="show"
         >
           <motion.div variants={revealItem} className="mb-8 self-center lg:self-start">
-            {/* Its own textured ground, not the hero's — the seal is
-                designed to sit on the almond+weave "certificate" surface
-                (see NovaSeal token layer), not float directly over the
-                hero's parchment background and ambient Strands. Sized at
-                the top of the spec's 200-320px "full" tier: the shadow/
-                highlight offsets are fixed viewBox units, so they only read
-                as clearly dimensional (matching the reference render) at
-                the larger end of that range. */}
+            {/* Its own textured ground, not the hero's — the logo is
+                designed to sit on the almond+weave "certificate" surface,
+                not float directly over the hero's parchment background
+                and ambient Strands. */}
             <div className="nova-weave inline-block rounded-2xl px-6 py-8 md:px-10 md:py-12" style={{ backgroundColor: 'var(--color-nova-almond)' }}>
-              <NovaSeal size={280} wordmark />
+              <NovaLogoAnimated size={280} />
             </div>
           </motion.div>
 
@@ -177,7 +173,7 @@ export default function HeroSection() {
               intention" headline below it. */}
           <motion.div variants={revealItem} className="mb-8 self-center text-center lg:self-start lg:text-left">
             <p
-              className={`font-display font-normal text-[var(--color-nova-crimson)] ${lang === 'fr' ? 'italic' : ''}`}
+              className={`font-display font-normal text-[var(--color-nova-gold)] ${lang === 'fr' ? 'italic' : ''}`}
               style={{ fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', lineHeight: 1.2, whiteSpace: 'pre-line' }}
             >
               {lang === 'fr' ? TAGLINE_4A.fr : lang === 'en' ? TAGLINE_4A.en : TAGLINE_4A.ar}
