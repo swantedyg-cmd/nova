@@ -28,13 +28,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
+/* Full-bleed background — fills the entire viewport at whatever
+   resolution it's rendered at, cropping (not letterboxing) via
+   object-fit so it always covers edge to edge regardless of the
+   viewport's aspect ratio vs. the video's own 16:9. */
 .introVideo {
+  position: absolute;
+  inset: 0;
   display: block;
-  width: min(92vw, 900px);
-  height: auto;
-  aspect-ratio: 16 / 9;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
