@@ -48,6 +48,21 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
       return
     }
 
+    // Mobile skips the video overlay outright — same as reduced-motion —
+    // rather than just playing a lighter version of it. The crash this
+    // was chasing wasn't the video's weight alone, it was `startReveal`
+    // synchronously flipping `contentReady` and mounting the ENTIRE
+    // homepage (every section's GSAP/ScrollTrigger init, Framer Motion
+    // stagger, images) in one burst the instant the video ends. Skipping
+    // straight to a normal, un-deferred mount lets the browser paint and
+    // hydrate it progressively instead, which is the actual fix — not
+    // which specific thing was heaviest inside that burst.
+    const isMobile = window.innerWidth < 768
+    if (isMobile) {
+      setContentReady(true)
+      return
+    }
+
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     setReducedMotion(reduced)
     setShouldRenderOverlay(true)
