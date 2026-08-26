@@ -110,7 +110,12 @@ function smoothstep(edge0: number, edge1: number, x: number) {
 
 /* ─── Real photo texture (falls back handled by caller via Suspense) ── */
 function RealArtworkMesh({ image, frameW, frameH, visible }: { image: string; frameW: number; frameH: number; visible: boolean }) {
-  const texture = useLoader(THREE.TextureLoader, `/images/${image}`)
+  // Downscaled (max 1400px) copies made for GPU texture use — the source
+  // photos in /images are up to 2815x4245px, and this scene loads all of
+  // them into GPU memory at once (nothing virtualizes by camera distance).
+  // At full res that's 2GB+ of textures, which crashes mobile Safari's
+  // WebGL context ("This page couldn't load") well before it OOMs desktop.
+  const texture = useLoader(THREE.TextureLoader, `/images-gallery/${image}`)
   texture.colorSpace = THREE.SRGBColorSpace
   return (
     <mesh position={[0, 0, 0.04]}>

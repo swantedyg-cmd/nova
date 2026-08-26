@@ -4,16 +4,17 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import styles from './NovaIntro.module.css'
 
 // Nova's entrance: the brand video plays once, full quality, then the
-// overlay wipes open to reveal the homepage. Much simpler than the old
-// hand-timed logo choreography — the video itself carries all the motion,
-// so this component only has to: hold the page behind an overlay, play
-// the clip, and reveal on `ended` (or on skip / a safety timeout).
+// overlay wipes open to reveal the homepage.
+//
+// The homepage (Hero's WebGL background, GSAP listeners, the logo's several
+// looping animations, everything under `children`) is NOT mounted at all
+// while the video is playing — only visually hiding it behind the overlay
+// still leaves React mounting and initializing all of that at the same
+// moment the video is trying to autoplay and decode, and that contention is
+// exactly what was freezing real laptops. Deferring the mount until the
+// reveal starts means the video has the main thread to itself.
 
 const SESSION_KEY = 'nova-intro'
-// `.nova-page-content` wraps everything else in the body (see layout.tsx)
-// — this is how the overlay reaches "the homepage beneath" it without
-// needing to literally wrap the page's own component tree.
-const CONTENT_SELECTOR = '.nova-page-content'
 
 const REVEAL_DURATION = 650 // ms — overlay wipe + homepage settle
 const REDUCED_HOLD_MS = 900
@@ -23,75 +24,66 @@ const REDUCED_FADE_MS = 500
 // overlay. Comfortably longer than the clip itself.
 const VIDEO_FALLBACK_MS = 9000
 
-export default function NovaIntro() {
-  const [shouldRender, setShouldRender] = useState(false)
+export default function NovaIntro({ children }: { children: React.ReactNode }) {
+  const [shouldRenderOverlay, setShouldRenderOverlay] = useState(false)
+  const [contentReady, setContentReady] = useState(false)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [reducedFadeOut, setReducedFadeOut] = useState(false)
   const [revealing, setRevealing] = useState(false)
 
+  const contentRef = useRef<HTMLDivElement>(null)
   const finishedRef = useRef(false)
   const revealingRef = useRef(false)
 
   // Decide once, synchronously before paint, whether to run at all — a
-  // returning visitor (sessionStorage already set) never sees the overlay
-  // and the homepage is never touched, so there's nothing to flash or undo.
+  // returning visitor (sessionStorage already set) never sees the overlay;
+  // the homepage just mounts normally, immediately.
   useLayoutEffect(() => {
     let seen = false
     try {
       seen = sessionStorage.getItem(SESSION_KEY) === '1'
     } catch {}
-    if (seen) return
+    if (seen) {
+      setContentReady(true)
+      return
+    }
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     setReducedMotion(reduced)
-    setShouldRender(true)
-
+    setShouldRenderOverlay(true)
     document.documentElement.style.overflow = 'hidden'
-    if (!reduced) {
-      const content = document.querySelector<HTMLElement>(CONTENT_SELECTOR)
-      if (content) {
-        content.style.transform = 'scale(1.03)'
-        content.style.opacity = '0.6'
-      }
-    }
   }, [])
 
   const finish = () => {
     if (finishedRef.current) return
     finishedRef.current = true
     document.documentElement.style.overflow = ''
-    const content = document.querySelector<HTMLElement>(CONTENT_SELECTOR)
-    if (content) {
-      content.style.transition = ''
-      content.style.transform = ''
-      content.style.opacity = ''
-    }
     try {
       sessionStorage.setItem(SESSION_KEY, '1')
     } catch {}
-    setShouldRender(false)
+    setShouldRenderOverlay(false)
   }
 
   const startReveal = () => {
     if (revealingRef.current) return
     revealingRef.current = true
     setRevealing(true)
-    const content = document.querySelector<HTMLElement>(CONTENT_SELECTOR)
-    if (content) {
-      content.style.transition = `transform ${REVEAL_DURATION}ms ease, opacity ${REVEAL_DURATION}ms ease`
-      content.style.transform = 'scale(1)'
-      content.style.opacity = '1'
-    }
+    // The homepage starts mounting now — not any earlier — so it never
+    // competes with the video for the main thread while it's playing.
+    setContentReady(true)
     setTimeout(finish, REVEAL_DURATION)
   }
 
   // Reduced motion: skip the video entirely — a static mark, held, then a
-  // plain opacity cross-fade.
+  // plain cross-fade. The homepage mounts as soon as the fade begins.
   useEffect(() => {
-    if (!shouldRender || !reducedMotion) return
-    const hold = setTimeout(() => setReducedFadeOut(true), REDUCED_HOLD_MS)
+    if (!shouldRenderOverlay || !reducedMotion) return
+    const hold = setTimeout(() => {
+      setReducedFadeOut(true)
+      setContentReady(true)
+    }, REDUCED_HOLD_MS)
     return () => clearTimeout(hold)
-  }, [shouldRender, reducedMotion])
+  }, [shouldRenderOverlay, reducedMotion])
 
   useEffect(() => {
     if (!reducedFadeOut) return
@@ -102,7 +94,7 @@ export default function NovaIntro() {
   // Full run: play the intro video, reveal once it ends — or immediately
   // on any interaction (skip), or after the fallback timeout.
   useEffect(() => {
-    if (!shouldRender || reducedMotion) return
+    if (!shouldRenderOverlay || reducedMotion) return
 
     const fallback = setTimeout(startReveal, VIDEO_FALLBACK_MS)
     const onSkip = () => startReveal()
@@ -122,38 +114,59 @@ export default function NovaIntro() {
       window.removeEventListener('wheel', onSkip)
       window.removeEventListener('touchstart', onSkip)
     }
-  }, [shouldRender, reducedMotion])
+  }, [shouldRenderOverlay, reducedMotion])
 
-  if (!shouldRender) return null
+  // The homepage settles in from a held-back scale/opacity exactly once —
+  // the first frame it mounts after the video reveal (never for a returning
+  // visitor, who sees it plainly, and never for reduced motion, which skips
+  // the flourish entirely).
+  useEffect(() => {
+    if (!contentReady || !revealingRef.current) return
+    const el = contentRef.current
+    if (!el) return
+    el.style.transform = 'scale(1.03)'
+    el.style.opacity = '0.6'
+    requestAnimationFrame(() => {
+      el.style.transition = `transform ${REVEAL_DURATION}ms ease, opacity ${REVEAL_DURATION}ms ease`
+      el.style.transform = 'scale(1)'
+      el.style.opacity = '1'
+    })
+  }, [contentReady])
 
   return (
-    <div
-      className={styles.overlay}
-      aria-hidden="true"
-      role="presentation"
-      dir="ltr"
-      data-fade-out={reducedFadeOut || undefined}
-      data-revealing={revealing || undefined}
-    >
-      <div className={styles.stage}>
-        {reducedMotion ? (
-          <div className={`${styles.reducedLogo} ${styles.reducedLogoRest}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/nova-logo.png" alt="Nova — Canvas Art" style={{ width: 200, height: 'auto' }} />
+    <>
+      {shouldRenderOverlay && (
+        <div
+          className={styles.overlay}
+          aria-hidden="true"
+          role="presentation"
+          dir="ltr"
+          data-fade-out={reducedFadeOut || undefined}
+          data-revealing={revealing || undefined}
+        >
+          <div className={styles.stage}>
+            {reducedMotion ? (
+              <div className={`${styles.reducedLogo} ${styles.reducedLogoRest}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/nova-logo.png" alt="Nova — Canvas Art" style={{ width: 200, height: 'auto' }} />
+              </div>
+            ) : (
+              <video
+                className={styles.introVideo}
+                src="/nova-intro.mp4"
+                poster="/nova-logo.png"
+                autoPlay
+                muted
+                playsInline
+                preload="auto"
+                onEnded={startReveal}
+              />
+            )}
           </div>
-        ) : (
-          <video
-            className={styles.introVideo}
-            src="/nova-intro.mp4"
-            poster="/nova-logo.png"
-            autoPlay
-            muted
-            playsInline
-            preload="auto"
-            onEnded={startReveal}
-          />
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+
+      {contentReady && <div ref={contentRef}>{children}</div>}
+    </>
   )
 }

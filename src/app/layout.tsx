@@ -54,17 +54,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-parchment text-charcoal">
         <LanguageProvider>
           <OrderSelectionProvider>
-            {/* NovaIntro reaches this wrapper by class name (not React
-                props) to scale/fade "the homepage beneath" it during the
-                reveal — see CONTENT_SELECTOR in NovaIntro.tsx. */}
-            <NovaIntro />
-            <div className="nova-page-content">
+            {/* The homepage below isn't mounted at all until the intro video
+                has actually played (or been skipped) — see NovaIntro.tsx. */}
+            <NovaIntro>
               <SiteBackground />
               <Header />
               <LanguageSwitcher />
               <StickyWhatsApp />
               {children}
-            </div>
+            </NovaIntro>
           </OrderSelectionProvider>
         </LanguageProvider>
       </body>
