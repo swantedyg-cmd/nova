@@ -2,15 +2,12 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import styles from './NovaIntro.module.css'
-import NovaLogoAnimated from './NovaLogoAnimated'
 
-// Nova's entrance: the gold logo fades/scales in, holds while its own
-// stroke-draw/sparkle/shimmer animations play (see NovaLogoAnimated), then
-// scales up and fades out to reveal the homepage. One self-contained
-// overlay, no animation library for the envelope itself — every phase is
-// driven by a single requestAnimationFrame clock (see `tick`) against one
-// elapsed-time value, so phases can never drift apart the way independent
-// CSS animations could.
+// Nova's entrance: the brand video plays once, full quality, then the
+// overlay wipes open to reveal the homepage. Much simpler than the old
+// hand-timed logo choreography — the video itself carries all the motion,
+// so this component only has to: hold the page behind an overlay, play
+// the clip, and reveal on `ended` (or on skip / a safety timeout).
 
 const SESSION_KEY = 'nova-intro'
 // `.nova-page-content` wraps everything else in the body (see layout.tsx)
@@ -18,34 +15,22 @@ const SESSION_KEY = 'nova-intro'
 // needing to literally wrap the page's own component tree.
 const CONTENT_SELECTOR = '.nova-page-content'
 
-const PHASE1_END = 1600 // IN — scale 0.6 -> 1, opacity building
-const PHASE2_END = 3600 // HOLD — full logo, all its animations playing
-const TOTAL = 5000 // OUT ends here — scale 1 -> 1.15, opacity 1 -> 0
-
-const REVEAL_START = TOTAL - 650
-const REVEAL_DURATION = 650
-
-const FONT_WAIT_CAP_MS = 400
+const REVEAL_DURATION = 650 // ms — overlay wipe + homepage settle
 const REDUCED_HOLD_MS = 900
 const REDUCED_FADE_MS = 500
-
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t
-const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v)
-const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3)
+// Safety net in case the video never fires `ended` (autoplay blocked,
+// slow network, decode error) — never leave a visitor stuck behind the
+// overlay. Comfortably longer than the clip itself.
+const VIDEO_FALLBACK_MS = 9000
 
 export default function NovaIntro() {
   const [shouldRender, setShouldRender] = useState(false)
   const [reducedMotion, setReducedMotion] = useState(false)
   const [reducedFadeOut, setReducedFadeOut] = useState(false)
+  const [revealing, setRevealing] = useState(false)
 
-  const rootRef = useRef<HTMLDivElement>(null)
-  const logoWrapRef = useRef<HTMLDivElement>(null)
-  const glowRef = useRef<HTMLDivElement>(null)
-
-  const rafRef = useRef<number | null>(null)
-  const startRef = useRef<number | null>(null)
-  const skipRef = useRef(false)
   const finishedRef = useRef(false)
+  const revealingRef = useRef(false)
 
   // Decide once, synchronously before paint, whether to run at all — a
   // returning visitor (sessionStorage already set) never sees the overlay
@@ -74,10 +59,10 @@ export default function NovaIntro() {
   const finish = () => {
     if (finishedRef.current) return
     finishedRef.current = true
-    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
     document.documentElement.style.overflow = ''
     const content = document.querySelector<HTMLElement>(CONTENT_SELECTOR)
     if (content) {
+      content.style.transition = ''
       content.style.transform = ''
       content.style.opacity = ''
     }
@@ -87,8 +72,21 @@ export default function NovaIntro() {
     setShouldRender(false)
   }
 
-  // Reduced motion: static resting logo, held, then a plain opacity
-  // cross-fade — no clock, just a timer and a CSS transition.
+  const startReveal = () => {
+    if (revealingRef.current) return
+    revealingRef.current = true
+    setRevealing(true)
+    const content = document.querySelector<HTMLElement>(CONTENT_SELECTOR)
+    if (content) {
+      content.style.transition = `transform ${REVEAL_DURATION}ms ease, opacity ${REVEAL_DURATION}ms ease`
+      content.style.transform = 'scale(1)'
+      content.style.opacity = '1'
+    }
+    setTimeout(finish, REVEAL_DURATION)
+  }
+
+  // Reduced motion: skip the video entirely — a static mark, held, then a
+  // plain opacity cross-fade.
   useEffect(() => {
     if (!shouldRender || !reducedMotion) return
     const hold = setTimeout(() => setReducedFadeOut(true), REDUCED_HOLD_MS)
@@ -101,96 +99,13 @@ export default function NovaIntro() {
     return () => clearTimeout(t)
   }, [reducedFadeOut])
 
-  // The full run: scale/opacity envelope only — NovaLogoAnimated drives its
-  // own stroke/sparkle/letter/shimmer timing independently once mounted.
+  // Full run: play the intro video, reveal once it ends — or immediately
+  // on any interaction (skip), or after the fallback timeout.
   useEffect(() => {
     if (!shouldRender || reducedMotion) return
-    let cancelled = false
 
-    function applyFrame(elapsed: number) {
-      let scale: number
-      let opacity: number
-
-      if (elapsed <= PHASE1_END) {
-        const t = easeOutCubic(elapsed / PHASE1_END)
-        scale = lerp(0.6, 1, t)
-        opacity = lerp(0, 1, t)
-      } else if (elapsed <= PHASE2_END) {
-        scale = 1
-        opacity = 1
-      } else {
-        const rawT = (elapsed - PHASE2_END) / (TOTAL - PHASE2_END)
-        const t = easeOutCubic(rawT)
-        scale = lerp(1, 1.15, t)
-        opacity = lerp(1, 0, t)
-      }
-
-      const wrap = logoWrapRef.current
-      if (wrap) {
-        wrap.style.transform = `scale(${scale})`
-        wrap.style.opacity = String(opacity)
-      }
-
-      // Ambient gold-almond glow — grows in with the logo, breathes gently
-      // through the hold (one slow pulse, not a loop), fades with it on
-      // the way out.
-      let glowOpacity = opacity * 0.75
-      if (elapsed > PHASE1_END && elapsed <= PHASE2_END) {
-        const holdT = (elapsed - PHASE1_END) / (PHASE2_END - PHASE1_END)
-        glowOpacity = 0.6 + 0.25 * Math.sin(holdT * Math.PI)
-      }
-      const glow = glowRef.current
-      if (glow) glow.style.opacity = String(glowOpacity)
-
-      // Final 650ms: overlay wipes open (upward) while the homepage
-      // settles from its held-back scale/opacity to identity.
-      if (elapsed >= REVEAL_START) {
-        const t = easeOutCubic(clamp01((elapsed - REVEAL_START) / REVEAL_DURATION))
-        const root = rootRef.current
-        if (root) {
-          root.style.opacity = String(lerp(1, 0, t))
-          root.style.clipPath = `inset(0 0 ${lerp(0, 100, t)}% 0)`
-        }
-        const content = document.querySelector<HTMLElement>(CONTENT_SELECTOR)
-        if (content) {
-          content.style.transform = `scale(${lerp(1.03, 1, t)})`
-          content.style.opacity = String(lerp(0.6, 1, t))
-        }
-      }
-    }
-
-    function tick(now: number) {
-      if (startRef.current === null) startRef.current = now
-      let elapsed = now - startRef.current
-      // Skip: jump straight to the start of phase 3 — it still turns out,
-      // just without the wait.
-      if (skipRef.current && elapsed < PHASE2_END) {
-        startRef.current = now - PHASE2_END
-        elapsed = PHASE2_END
-      }
-      elapsed = Math.min(elapsed, TOTAL)
-
-      applyFrame(elapsed)
-
-      if (elapsed < TOTAL) {
-        rafRef.current = requestAnimationFrame(tick)
-      } else {
-        finish()
-      }
-    }
-
-    function start() {
-      if (cancelled) return
-      rafRef.current = requestAnimationFrame(tick)
-    }
-
-    const fontsReady =
-      typeof document !== 'undefined' && document.fonts?.ready ? document.fonts.ready : Promise.resolve()
-    Promise.race([fontsReady, new Promise((resolve) => setTimeout(resolve, FONT_WAIT_CAP_MS))]).then(start)
-
-    const onSkip = () => {
-      skipRef.current = true
-    }
+    const fallback = setTimeout(startReveal, VIDEO_FALLBACK_MS)
+    const onSkip = () => startReveal()
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onSkip()
     }
@@ -201,12 +116,11 @@ export default function NovaIntro() {
     window.addEventListener('touchstart', onSkip, { passive: true })
 
     return () => {
-      cancelled = true
+      clearTimeout(fallback)
       window.removeEventListener('pointerdown', onSkip)
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('wheel', onSkip)
       window.removeEventListener('touchstart', onSkip)
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
     }
   }, [shouldRender, reducedMotion])
 
@@ -214,26 +128,31 @@ export default function NovaIntro() {
 
   return (
     <div
-      ref={rootRef}
       className={styles.overlay}
       aria-hidden="true"
       role="presentation"
       dir="ltr"
       data-fade-out={reducedFadeOut || undefined}
+      data-revealing={revealing || undefined}
     >
       <div className={styles.stage}>
-        <div
-          ref={glowRef}
-          className={reducedMotion ? `${styles.glow} ${styles.glowRest}` : styles.glow}
-          aria-hidden="true"
-        />
-
-        <div
-          ref={logoWrapRef}
-          className={reducedMotion ? `${styles.logoWrap} ${styles.logoWrapRest}` : styles.logoWrap}
-        >
-          <NovaLogoAnimated size={200} interactive={false} />
-        </div>
+        {reducedMotion ? (
+          <div className={`${styles.reducedLogo} ${styles.reducedLogoRest}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/nova-logo.png" alt="Nova — Canvas Art" style={{ width: 200, height: 'auto' }} />
+          </div>
+        ) : (
+          <video
+            className={styles.introVideo}
+            src="/nova-intro.mp4"
+            poster="/nova-logo.png"
+            autoPlay
+            muted
+            playsInline
+            preload="auto"
+            onEnded={startReveal}
+          />
+        )}
       </div>
     </div>
   )

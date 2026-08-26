@@ -9,60 +9,39 @@
   overflow: hidden;
 }
 
-/* Reduced-motion path only — the full 3D path drives opacity/clip-path
-   itself, frame by frame, via inline style (see NovaIntro.tsx) so it can
-   stay perfectly in lockstep with the seal and wordmark on one timeline. */
+/* Reduced-motion path — plain opacity cross-fade. */
 .overlay[data-fade-out='true'] {
   transition: opacity 500ms ease;
   opacity: 0;
 }
 
+/* Full-motion path — wipes open (upward) once the video ends or is skipped,
+   same reveal feel the old logo choreography used. */
+.overlay[data-revealing='true'] {
+  transition: opacity 650ms ease, clip-path 650ms ease;
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+}
+
 .stage {
   position: relative;
-  perspective: 1400px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-/* Ambient almond bloom behind the seal — absolutely centered on the stage
-   so it never takes up flex space of its own; opacity is driven frame by
-   frame from NovaIntro.tsx (grows in, breathes through the hold, fades on
-   the way out). */
-.glow {
-  position: absolute;
-  top: 45%;
-  left: 50%;
-  width: 520px;
-  height: 520px;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 232, 200, 0.9) 0%, rgba(214, 189, 152, 0.4) 38%, transparent 68%);
-  filter: blur(30px);
-  opacity: 0;
-  pointer-events: none;
-  will-change: opacity;
-}
-@media (max-width: 640px) {
-  .glow {
-    width: 340px;
-    height: 340px;
-  }
+.introVideo {
+  display: block;
+  width: min(92vw, 900px);
+  height: auto;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
 }
 
-.glowRest {
-  opacity: 0.55;
-}
-
-.logoWrap {
+.reducedLogo {
   position: relative;
-  will-change: transform, opacity;
 }
 
-/* Reduced-motion resting pose — same final scale the full animation lands
-   on, just never animated into. */
-.logoWrapRest {
-  transform: scale(1);
+.reducedLogoRest {
   opacity: 1;
 }
