@@ -10,6 +10,7 @@ import { progressToIndex } from './galleryPath'
 import ElectricBorder from './ElectricBorder'
 import Tilt from './Tilt'
 import LazyStrands from './LazyStrands'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLanguage } from '@/i18n/LanguageContext'
 import { useOrderSelection } from '@/context/OrderSelectionContext'
 
@@ -242,7 +243,7 @@ export default function GallerySection() {
   const [focusedId,      setFocusedId]      = useState<string | null>(null)
   const [activeCol,      setActiveCol]      = useState<Collection | 'All'>('All')
   const [reducedMotion,  setReducedMotion]  = useState(false)
-  const [isMobile,       setIsMobile]       = useState(false)
+  const isMobile = useIsMobile()
   const [currentIndex,   setCurrentIndex]   = useState(0)
   const [started,        setStarted]        = useState(false)
   const [stageVisible,   setStageVisible]   = useState(false)
@@ -265,13 +266,6 @@ export default function GallerySection() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [clearFocus])
-
-  // The 3D gallery is CSS-hidden below md, but CSS alone doesn't stop React
-  // from mounting it — without this check the full WebGL scene (50 real
-  // photo textures) was mounting and running invisibly on every phone.
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768)
-  }, [])
 
   // Detect reduced motion preference
   useEffect(() => {

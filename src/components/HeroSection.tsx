@@ -8,6 +8,7 @@ import ElectricBorder from './ElectricBorder'
 import LazyStrands from './LazyStrands'
 import HeroGallery from './HeroGallery'
 import NovaLogoAnimated from './NovaLogoAnimated'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLanguage } from '@/i18n/LanguageContext'
 import { TAGLINES } from '@/data/taglines'
 
@@ -52,14 +53,10 @@ const revealItemSoft = {
 
 export default function HeroSection() {
   const contentRef  = useRef<HTMLDivElement>(null)
-  const [isMobile, setIsMobile] = useState(false)
+  const isMobile = useIsMobile()
   const [italicSwept, setItalicSwept] = useState(false)
   const { t, lang } = useLanguage()
   const shouldReduceMotion = useReducedMotion()
-
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768)
-  }, [])
 
   // Schedules the italic line's one-shot gold sweep to land right as its
   // own entrance settles — see ITALIC_SWEEP_DELAY_MS above for why this
