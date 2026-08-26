@@ -5,7 +5,6 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLanguage } from '@/i18n/LanguageContext'
 import LazyStrands from './LazyStrands'
-import { useIsMobile } from '@/hooks/useIsMobile'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -24,28 +23,25 @@ const ORIGINAL_INK_THEME = {
 } as CSSProperties
 
 function PhilosophyEyebrow({ text, className }: { text: string; className: string }) {
-  const isMobile = useIsMobile()
   return (
     <div className="text-center">
       <div className="relative inline-block">
-        {!isMobile && (
-          <LazyStrands
-            className="absolute -inset-x-10 -inset-y-4 pointer-events-none"
-            colors={['#C89B3C', '#B85C38', '#5B7C6A']}
-            count={3}
-            speed={0.35}
-            amplitude={0.7}
-            waviness={0.9}
-            thickness={0.5}
-            glow={2}
-            taper={4}
-            spread={1.2}
-            intensity={0.45}
-            saturation={0.9}
-            opacity={0.45}
-            scale={2.2}
-          />
-        )}
+        <LazyStrands
+          className="absolute -inset-x-10 -inset-y-4 pointer-events-none"
+          colors={['#C89B3C', '#B85C38', '#5B7C6A']}
+          count={3}
+          speed={0.35}
+          amplitude={0.7}
+          waviness={0.9}
+          thickness={0.5}
+          glow={2}
+          taper={4}
+          spread={1.2}
+          intensity={0.45}
+          saturation={0.9}
+          opacity={0.45}
+          scale={2.2}
+        />
         <p className={`relative z-10 ${className}`}>{text}</p>
       </div>
     </div>

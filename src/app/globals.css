@@ -17,19 +17,24 @@
   --color-background:     var(--background);
   --color-foreground:     var(--foreground);
 
-  /* Nova brand palette — deliberately its own namespace, not aliased to
-     --color-charcoal/--color-canvas above: close but distinct tones with
-     different jobs, so the next palette edit doesn't accidentally change
-     both. */
+  /* Nova seal — provenance-mark palette. Deliberately its own namespace,
+     not aliased to --color-charcoal/--color-canvas above: the seal's
+     "canvas" (#F0E5D1, the pressed-emboss ground) and the site's
+     --color-canvas (#F4E9D2, the gallery mat/cream) are close but
+     distinct tones with different jobs — collapsing them would make the
+     next palette edit accidentally change both. */
   --color-nova-almond:            #F4EBDC;
   --color-nova-almond-deep:       #E8D8BE;
-
-  /* Logo gold — same three stops as the paintbrush-mark gradient
-     (public/nova-logo.svg / NovaLogoAnimated), exposed as tokens so any
-     other gold accent on the site can stay in step with the logo. */
-  --color-nova-gold-light: #F5D07A;
-  --color-nova-gold:       #D4A42E;
-  --color-nova-gold-deep:  #A67C00;
+  --color-nova-canvas:            #F0E5D1;
+  --color-nova-crimson:           #6E1420;
+  --color-nova-crimson-lit:       #8F2030;
+  --color-nova-crimson-deep:      #4A0B14;
+  --color-nova-crimson-shadow:    #3A0A11;
+  --color-nova-crimson-highlight: #C9736F;
+  --color-nova-emboss-shadow:     #A98F6B;
+  --color-nova-emboss-light:      #FFFAF0;
+  --color-nova-emboss-face:       #E2D2B6;
+  --color-nova-ink:               #201E1D;
 
   --font-display: var(--font-playfair);
   --font-body:    var(--font-dm-sans);
@@ -100,10 +105,62 @@ body {
   box-shadow: 0 28px 60px rgba(90,18,32,0.22);
 }
 
+/* Nova seal — provenance mark, two dimensional states (raised "out" /
+   embossed "in") cross-faded on press. Plain CSS, not Tailwind utilities:
+   the :hover/:active/:focus-visible cross-fade needs real selectors, the
+   same reasoning as .pill/.hero-gallery-frame above. */
 .nova-weave {
   background-image:
     repeating-linear-gradient(0deg,  rgba(32,30,29,.04) 0 1px, transparent 1px 4px),
     repeating-linear-gradient(90deg, rgba(32,30,29,.04) 0 1px, transparent 1px 4px);
+}
+
+.nova-seal {
+  background: none;
+  border: 0;
+  padding: 0;
+  line-height: 0;
+  transition: transform 180ms var(--ease-out-strong), filter 180ms ease-out;
+  filter: drop-shadow(0 10px 18px rgba(58,10,17,.18));
+}
+.nova-seal--interactive {
+  cursor: pointer;
+}
+.nova-seal--plate {
+  transform: perspective(1400px) rotateX(11deg) rotateY(-11deg);
+}
+.nova-seal--interactive.nova-seal--plate:hover {
+  transform: perspective(1400px) rotateX(9deg) rotateY(-9deg) scale(1.015);
+  filter: drop-shadow(0 16px 26px rgba(58,10,17,.24));
+}
+.nova-seal--interactive:focus-visible {
+  outline: 2px solid var(--color-nova-crimson);
+  outline-offset: 8px;
+}
+.nova-seal--interactive.nova-seal--plate:active {
+  transform: perspective(1400px) rotateX(11deg) rotateY(-11deg) scale(.994);
+  filter: drop-shadow(0 2px 4px rgba(58,10,17,.12));
+}
+.nova-seal--interactive:not(.nova-seal--plate):active {
+  filter: drop-shadow(0 2px 4px rgba(58,10,17,.12));
+}
+.nova-seal .nova-seal-out,
+.nova-seal .nova-seal-in {
+  transition: opacity 160ms ease-out;
+}
+.nova-seal .nova-seal-in { opacity: 0; }
+.nova-seal--interactive:active .nova-seal-out { opacity: 0; }
+.nova-seal--interactive:active .nova-seal-in  { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nova-seal,
+  .nova-seal .nova-seal-out,
+  .nova-seal .nova-seal-in {
+    transition: none;
+  }
+  .nova-seal--interactive.nova-seal--plate:hover {
+    transform: perspective(1400px) rotateX(11deg) rotateY(-11deg);
+  }
 }
 
 /* Gallery flythrough waypoint label — remounted (via key) on collection change */

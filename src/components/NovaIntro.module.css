@@ -5,70 +5,125 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(120% 90% at 22% 10%, #1A0F00 0%, #0D0800 100%);
+  background: radial-gradient(120% 90% at 22% 10%, #3d000a 0%, #710014 100%);
   overflow: hidden;
 }
 
-/* Reduced-motion path — plain opacity cross-fade. */
+/* Reduced-motion path only — the full 3D path drives opacity/clip-path
+   itself, frame by frame, via inline style (see NovaIntro.tsx) so it can
+   stay perfectly in lockstep with the seal and wordmark on one timeline. */
 .overlay[data-fade-out='true'] {
   transition: opacity 500ms ease;
   opacity: 0;
 }
 
-/* Full-motion path — wipes open (upward) once the video ends or is skipped,
-   same reveal feel the old logo choreography used. */
-.overlay[data-revealing='true'] {
-  transition: opacity 650ms ease, clip-path 650ms ease;
-  opacity: 0;
-  clip-path: inset(0 0 100% 0);
-}
-
 .stage {
   position: relative;
+  perspective: 1400px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
 }
 
-/* Full-bleed background — fills the entire viewport at whatever
-   resolution it's rendered at, cropping (not letterboxing) via
-   object-fit so it always covers edge to edge regardless of the
-   viewport's aspect ratio vs. the video's own 16:9. */
-.introVideo {
+/* Ambient almond bloom behind the seal — absolutely centered on the stage
+   so it never takes up flex space of its own; opacity is driven frame by
+   frame from NovaIntro.tsx (grows in, breathes through the hold, fades on
+   the way out). */
+.glow {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 520px;
+  height: 520px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 232, 200, 0.9) 0%, rgba(214, 189, 152, 0.4) 38%, transparent 68%);
+  filter: blur(30px);
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+}
+@media (max-width: 640px) {
+  .glow {
+    width: 340px;
+    height: 340px;
+  }
+}
+
+.glowRest {
+  opacity: 0.55;
+}
+
+.sealWrap {
+  position: relative;
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  will-change: transform, opacity, filter;
+}
+
+/* Clips the glare band to the seal's own circular edge — full size of the
+   seal wrap, so it tracks the responsive 260px/180px sizing automatically. */
+.glareClip {
   position: absolute;
   inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.reducedLogo {
-  position: relative;
-}
-
-.reducedLogoRest {
-  opacity: 1;
-}
-
-/* Mobile entrance — gold logo floating over an almond backdrop. Never
-   blocks input: the homepage underneath is already mounted and
-   interactive, so this is purely decorative and lets touches/scrolls
-   straight through to it. */
-.mobileLogoOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(120% 90% at 50% 38%, var(--color-nova-almond) 0%, var(--color-nova-almond-deep) 100%);
+  border-radius: 50%;
+  overflow: hidden;
   pointer-events: none;
 }
 
-.mobileLogoFloat {
-  perspective: 900px;
-  transform-style: preserve-3d;
+.glareBand {
+  position: absolute;
+  top: -25%;
+  left: 42%;
+  width: 22%;
+  height: 150%;
+  background: linear-gradient(100deg, rgba(214, 189, 152, 0) 0%, rgba(255, 232, 200, 0.95) 50%, rgba(214, 189, 152, 0) 100%);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Reduced-motion resting pose — same final angle the full animation lands
+   on, just never animated into. */
+.sealRest {
+  transform: rotateY(-6deg) rotateX(11deg) scale(1) translateZ(0);
+  opacity: 1;
+}
+
+.sealSvg {
+  display: block;
+  width: 260px;
+  height: 260px;
+}
+@media (max-width: 640px) {
+  .sealSvg {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+.wordmark {
+  margin-top: 28px;
+  font-family: var(--font-seal), serif;
+  font-size: 44px;
+  line-height: 1;
+  padding-left: 0.38em;
+  background: linear-gradient(150deg, #c9a874 0%, #fff8e8 32%, #e8d8be 58%, #b0905f 82%, #f4ebdc 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 14px rgba(214, 189, 152, 0.45)) drop-shadow(2px 3px 3px rgba(113, 0, 20, 0.5));
+  will-change: transform, opacity, letter-spacing;
+}
+@media (max-width: 640px) {
+  .wordmark {
+    font-size: 32px;
+  }
+}
+
+.wordmarkRest {
+  opacity: 1;
+  letter-spacing: 0.38em;
+  transform: translateY(0);
 }

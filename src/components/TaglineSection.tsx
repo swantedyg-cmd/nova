@@ -14,7 +14,7 @@ export default function TaglineSection() {
   return (
     <section className="relative bg-[var(--color-nova-almond)] px-6 py-6">
       <div className="mx-auto max-w-2xl">
-        <p className="pt-10 text-center text-[10px] font-body uppercase tracking-[0.36em] text-[var(--color-nova-gold)]/40">
+        <p className="pt-10 text-center text-[10px] font-body uppercase tracking-[0.36em] text-[var(--color-nova-crimson)]/40">
           {t.taglines.eyebrow}
         </p>
 

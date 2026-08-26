@@ -9,25 +9,13 @@ interface TiltProps {
   max?: number
   scale?: number
   gloss?: boolean
-  /** Gloss highlight color — defaults to white. */
-  glossColor?: string
-  /** Peak opacity the gloss highlight reaches on hover (0–1). */
-  glossMaxOpacity?: number
 }
 
 /* Restrained tilt-on-hover: perspective + rotateX/rotateY driven by cursor
    position within the element, spring-eased via GSAP quickTo, plus an
    optional moving gloss highlight. No-ops on touch input and when the
    user prefers reduced motion. */
-export default function Tilt({
-  children,
-  className = '',
-  max = 7,
-  scale = 1.015,
-  gloss = true,
-  glossColor = '#fff',
-  glossMaxOpacity = 0.22,
-}: TiltProps) {
+export default function Tilt({ children, className = '', max = 7, scale = 1.015, gloss = true }: TiltProps) {
   const elRef = useRef<HTMLDivElement>(null)
   const glossRef = useRef<HTMLDivElement>(null)
   const quick = useRef<{ x: (v: number) => void; y: (v: number) => void; s: (v: number) => void } | null>(null)
@@ -68,10 +56,10 @@ export default function Tilt({
       quick.current.s(scale)
       if (gloss && glossRef.current) {
         glossRef.current.style.backgroundPosition = `${px * 100}% ${py * 100}%`
-        glossRef.current.style.opacity = String(glossMaxOpacity)
+        glossRef.current.style.opacity = '0.22'
       }
     })
-  }, [max, scale, gloss, glossMaxOpacity])
+  }, [max, scale, gloss])
 
   const handleLeave = useCallback(() => {
     quick.current?.x(0)
@@ -96,7 +84,7 @@ export default function Tilt({
           className="pointer-events-none absolute inset-0 rounded-[inherit] transition-opacity duration-300"
           style={{
             opacity: 0,
-            backgroundImage: `radial-gradient(circle, ${glossColor} 0%, transparent 55%)`,
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 55%)',
             backgroundSize: '180% 180%',
             backgroundRepeat: 'no-repeat',
             mixBlendMode: 'overlay',
