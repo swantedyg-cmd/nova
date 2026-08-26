@@ -378,7 +378,6 @@ export function CollectionCoverflow({
                     width: "var(--cf-card)",
                     aspectRatio: "4 / 5",
                     transformStyle: "preserve-3d",
-                    contain: "layout style",
                   }}
                 >
                   <button
@@ -403,7 +402,6 @@ export function CollectionCoverflow({
                         ? "rotateY(180deg)"
                         : "rotateY(0deg)",
                       willChange: "transform",
-                      contain: "layout style",
                     }}
                   >
                     {/* Front — the artwork */}
