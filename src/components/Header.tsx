@@ -2,7 +2,7 @@
 
 import { useState, type CSSProperties } from 'react'
 import { useLanguage } from '@/i18n/LanguageContext'
-import NovaSeal from './NovaSeal'
+import NovaLogoAnimated from './NovaLogoAnimated'
 
 const LINKS = [
   { href: '#gallery', key: 'navCollection' },
@@ -36,7 +36,7 @@ export default function Header() {
     >
       <div className="max-w-6xl mx-auto grid grid-cols-[1fr_auto_1fr] items-center px-6 md:px-12 py-4">
         <a href="#" className="flex items-center gap-2 font-display text-lg font-medium text-charcoal">
-          <NovaSeal size={28} />
+          <NovaLogoAnimated size={28} variant="icon" />
           Nova
         </a>
         <nav

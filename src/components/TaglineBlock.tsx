@@ -30,10 +30,10 @@ export default function TaglineBlock({
 
   return (
     <div
-      className={`py-14 md:py-16 text-center ${showBorder ? 'border-t border-[var(--color-nova-crimson)]/20' : ''}`}
+      className={`py-14 md:py-16 text-center ${showBorder ? 'border-t border-[var(--color-nova-gold)]/20' : ''}`}
     >
       {showLabel && (
-        <p className="mb-4 text-[11px] font-body uppercase tracking-[0.32em] text-[var(--color-nova-crimson)]/60">
+        <p className="mb-4 text-[11px] font-body uppercase tracking-[0.32em] text-[var(--color-nova-gold)]/60">
           {label}
         </p>
       )}
@@ -48,7 +48,7 @@ export default function TaglineBlock({
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.5 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
-        className={`font-display font-normal text-[var(--color-nova-crimson)] ${lang === 'fr' ? 'italic' : ''}`}
+        className={`font-display font-normal text-[var(--color-nova-gold)] ${lang === 'fr' ? 'italic' : ''}`}
         style={{ fontSize, lineHeight: 1.25, whiteSpace: 'pre-line' }}
       >
         {text}

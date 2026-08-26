@@ -8,6 +8,7 @@ import { useOrderSelection } from '@/context/OrderSelectionContext'
 import { MOROCCO_CITIES } from '@/data/cities'
 import { PIECES } from '@/data/catalogue'
 import LazyStrands from './LazyStrands'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -16,6 +17,7 @@ const PHONE_INTL = '212' + PHONE_RAW.slice(1)
 const PHONE_DISPLAY = PHONE_RAW.replace(/(\d{2})(?=\d)/g, '$1 ').trim()
 
 export default function CommandeSection() {
+  const isMobile = useIsMobile()
   const sectionRef = useRef<HTMLDivElement>(null)
   const headRef    = useRef<HTMLDivElement>(null)
   const { t, lang } = useLanguage()
@@ -75,22 +77,24 @@ export default function CommandeSection() {
     >
       <div ref={headRef} className="max-w-2xl mx-auto text-center mb-16">
         <div className="relative inline-block">
-          <LazyStrands
-            className="absolute -inset-x-10 -inset-y-4 pointer-events-none"
-            colors={['#C89B3C', '#B85C38']}
-            count={2}
-            speed={0.35}
-            amplitude={0.65}
-            waviness={0.9}
-            thickness={0.5}
-            glow={1.8}
-            taper={4}
-            spread={1.2}
-            intensity={0.4}
-            saturation={0.85}
-            opacity={0.4}
-            scale={2.2}
-          />
+          {!isMobile && (
+            <LazyStrands
+              className="absolute -inset-x-10 -inset-y-4 pointer-events-none"
+              colors={['#C89B3C', '#B85C38']}
+              count={2}
+              speed={0.35}
+              amplitude={0.65}
+              waviness={0.9}
+              thickness={0.5}
+              glow={1.8}
+              taper={4}
+              spread={1.2}
+              intensity={0.4}
+              saturation={0.85}
+              opacity={0.4}
+              scale={2.2}
+            />
+          )}
           <p className="relative z-10 text-xs uppercase tracking-[0.38em] text-gold font-body mb-2">{c.eyebrow}</p>
         </div>
         <h2 className="font-display text-4xl md:text-5xl font-medium text-charcoal">{c.heading}</h2>

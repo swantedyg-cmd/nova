@@ -245,6 +245,7 @@ export default function GallerySection() {
   const [isMobile,       setIsMobile]       = useState(false)
   const [currentIndex,   setCurrentIndex]   = useState(0)
   const [started,        setStarted]        = useState(false)
+  const [stageVisible,   setStageVisible]   = useState(false)
   const { t } = useLanguage()
   const { selectPieceForOrder } = useOrderSelection()
 
@@ -277,6 +278,29 @@ export default function GallerySection() {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
     setReducedMotion(mq.matches)
   }, [])
+
+  // The 3D scene (43 pieces, each with its own per-frame animation loop and
+  // a loaded photo texture) otherwise mounts the instant this section
+  // renders — i.e. immediately on page load, well before anyone scrolls
+  // near it — stacking on top of the Hero's own WebGL background and
+  // running full-tilt for however long it takes to actually scroll here.
+  // Deferring the mount until the stage is nearly in view means that cost
+  // is only ever paid once a visitor is actually about to see it.
+  useEffect(() => {
+    if (isMobile || reducedMotion || !stageRef.current) return
+    const el = stageRef.current
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setStageVisible(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '600px 0px' },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [isMobile, reducedMotion])
 
   // Heading scroll reveal
   useEffect(() => {
@@ -354,22 +378,24 @@ export default function GallerySection() {
       {/* ── Heading ── */}
       <div ref={headRef} className="text-center px-6 mb-10 md:mb-12">
         <div className="relative inline-block">
-          <LazyStrands
-            className="absolute -inset-x-10 -inset-y-4 pointer-events-none"
-            colors={['#C89B3C', '#B0557A', '#5A7AAA']}
-            count={3}
-            speed={0.35}
-            amplitude={0.7}
-            waviness={0.9}
-            thickness={0.5}
-            glow={1.8}
-            taper={4}
-            spread={1.2}
-            intensity={0.4}
-            saturation={0.9}
-            opacity={0.4}
-            scale={2.2}
-          />
+          {!isMobile && (
+            <LazyStrands
+              className="absolute -inset-x-10 -inset-y-4 pointer-events-none"
+              colors={['#C89B3C', '#B0557A', '#5A7AAA']}
+              count={3}
+              speed={0.35}
+              amplitude={0.7}
+              waviness={0.9}
+              thickness={0.5}
+              glow={1.8}
+              taper={4}
+              spread={1.2}
+              intensity={0.4}
+              saturation={0.9}
+              opacity={0.4}
+              scale={2.2}
+            />
+          )}
           <p className="relative z-10 text-xs uppercase tracking-[0.38em] text-gold font-body mb-2">
             {t.gallery.eyebrow}
           </p>
@@ -413,14 +439,18 @@ export default function GallerySection() {
             role="region"
             aria-label={`3D gallery flythrough — piece ${currentIndex + 1} of ${PIECES.length}, click a frame to focus`}
           >
-            <GalleryScene
-              focusedId={focusedId}
-              activeCollection={activeCol}
-              onFocus={handleFocus}
-              onCanvasClick={clearFocus}
-              progressRef={progressRef}
-              mouseRef={mouseRef}
-            />
+            {stageVisible ? (
+              <GalleryScene
+                focusedId={focusedId}
+                activeCollection={activeCol}
+                onFocus={handleFocus}
+                onCanvasClick={clearFocus}
+                progressRef={progressRef}
+                mouseRef={mouseRef}
+              />
+            ) : (
+              <div className="w-full h-full bg-parchment" />
+            )}
 
             {/* Waypoint — current collection + progress through the pieces */}
             <div className="pointer-events-none absolute top-6 left-6 z-10 md:top-8 md:left-10">
