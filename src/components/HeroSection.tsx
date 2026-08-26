@@ -181,22 +181,24 @@ export default function HeroSection() {
           </motion.div>
 
           <motion.div variants={revealItem} className="relative self-start mb-4 inline-block">
-            <LazyStrands
-              className="absolute -inset-x-8 -inset-y-4 pointer-events-none"
-              colors={['#C89B3C', '#B85C38']}
-              count={2}
-              speed={0.35}
-              amplitude={0.6}
-              waviness={0.9}
-              thickness={0.5}
-              glow={1.8}
-              taper={4}
-              spread={1.2}
-              intensity={0.4}
-              saturation={0.85}
-              opacity={0.4}
-              scale={2.2}
-            />
+            {!isMobile && (
+              <LazyStrands
+                className="absolute -inset-x-8 -inset-y-4 pointer-events-none"
+                colors={['#C89B3C', '#B85C38']}
+                count={2}
+                speed={0.35}
+                amplitude={0.6}
+                waviness={0.9}
+                thickness={0.5}
+                glow={1.8}
+                taper={4}
+                spread={1.2}
+                intensity={0.4}
+                saturation={0.85}
+                opacity={0.4}
+                scale={2.2}
+              />
+            )}
             <p className="relative z-10 text-xs uppercase tracking-[0.38em] text-gold font-body font-medium">
               {t.hero.eyebrow}
             </p>

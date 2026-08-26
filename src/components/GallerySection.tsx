@@ -378,22 +378,24 @@ export default function GallerySection() {
       {/* ── Heading ── */}
       <div ref={headRef} className="text-center px-6 mb-10 md:mb-12">
         <div className="relative inline-block">
-          <LazyStrands
-            className="absolute -inset-x-10 -inset-y-4 pointer-events-none"
-            colors={['#C89B3C', '#B0557A', '#5A7AAA']}
-            count={3}
-            speed={0.35}
-            amplitude={0.7}
-            waviness={0.9}
-            thickness={0.5}
-            glow={1.8}
-            taper={4}
-            spread={1.2}
-            intensity={0.4}
-            saturation={0.9}
-            opacity={0.4}
-            scale={2.2}
-          />
+          {!isMobile && (
+            <LazyStrands
+              className="absolute -inset-x-10 -inset-y-4 pointer-events-none"
+              colors={['#C89B3C', '#B0557A', '#5A7AAA']}
+              count={3}
+              speed={0.35}
+              amplitude={0.7}
+              waviness={0.9}
+              thickness={0.5}
+              glow={1.8}
+              taper={4}
+              spread={1.2}
+              intensity={0.4}
+              saturation={0.9}
+              opacity={0.4}
+              scale={2.2}
+            />
+          )}
           <p className="relative z-10 text-xs uppercase tracking-[0.38em] text-gold font-body mb-2">
             {t.gallery.eyebrow}
           </p>

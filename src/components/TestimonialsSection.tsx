@@ -6,6 +6,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLanguage } from '@/i18n/LanguageContext'
 import Tilt from './Tilt'
 import LazyStrands from './LazyStrands'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -32,6 +33,7 @@ function StarRow({ rating }: { rating: number }) {
 }
 
 export default function TestimonialsSection() {
+  const isMobile = useIsMobile()
   const sectionRef = useRef<HTMLDivElement>(null)
   const headRef    = useRef<HTMLDivElement>(null)
   const gridRef     = useRef<HTMLDivElement>(null)
@@ -68,22 +70,24 @@ export default function TestimonialsSection() {
     >
       <div ref={headRef} className="max-w-2xl mx-auto text-center mb-16">
         <div className="relative inline-block">
-          <LazyStrands
-            className="absolute -inset-x-10 -inset-y-4 pointer-events-none"
-            colors={['#C89B3C', '#B85C38']}
-            count={2}
-            speed={0.35}
-            amplitude={0.65}
-            waviness={0.9}
-            thickness={0.5}
-            glow={1.8}
-            taper={4}
-            spread={1.2}
-            intensity={0.4}
-            saturation={0.85}
-            opacity={0.4}
-            scale={2.2}
-          />
+          {!isMobile && (
+            <LazyStrands
+              className="absolute -inset-x-10 -inset-y-4 pointer-events-none"
+              colors={['#C89B3C', '#B85C38']}
+              count={2}
+              speed={0.35}
+              amplitude={0.65}
+              waviness={0.9}
+              thickness={0.5}
+              glow={1.8}
+              taper={4}
+              spread={1.2}
+              intensity={0.4}
+              saturation={0.85}
+              opacity={0.4}
+              scale={2.2}
+            />
+          )}
           <p className="relative z-10 text-xs uppercase tracking-[0.38em] text-gold font-body mb-2">
             {c.eyebrow}
           </p>
