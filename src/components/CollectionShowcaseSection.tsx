@@ -1,14 +1,16 @@
 'use client'
 
 import * as React from 'react'
-import dynamic from 'next/dynamic'
 
+import { CollectionCoverflow } from '@/components/ui/collection-coverflow'
+import { getCollectionPieces } from '@/lib/collection-data'
 import { useLanguage } from '@/i18n/LanguageContext'
 
-const NovaBentoGallery = dynamic(() => import('@/components/ui/NovaBentoGallery'), { ssr: false })
-
+// TEMPORARY: swapped in for NovaBentoGallery so the redesigned coverflow can
+// actually be previewed. Revert to NovaBentoGallery once reviewed/approved.
 export default function CollectionShowcaseSection() {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
+  const collectionPieces = React.useMemo(() => getCollectionPieces(lang), [lang])
 
   return (
     <section id="showcase" className="relative overflow-hidden bg-[#F5EDD6] py-24 sm:py-28">
@@ -24,10 +26,26 @@ export default function CollectionShowcaseSection() {
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-[#2C1810]/60">{t.showcase.subheading}</p>
         </div>
-      </div>
 
-      <div className="relative mt-10">
-        <NovaBentoGallery />
+        <div className="mt-14">
+          <CollectionCoverflow
+            pieces={collectionPieces}
+            label={t.showcase.ariaLabel}
+            labels={{
+              uniquePiece: t.showcase.uniquePiece,
+              soldOut: t.showcase.soldOut,
+              availableSuffix: t.showcase.availableSuffix,
+              price: t.showcase.price,
+              edition: t.showcase.edition,
+              prevAria: t.showcase.prevAria,
+              nextAria: t.showcase.nextAria,
+              goToPrefix: t.showcase.goToPrefix,
+              numberPrefix: t.showcase.numberPrefix,
+              revealAria: t.showcase.revealAria,
+              hideAria: t.showcase.hideAria,
+            }}
+          />
+        </div>
       </div>
     </section>
   )

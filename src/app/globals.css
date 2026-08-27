@@ -171,6 +171,19 @@ body {
   100% { background-position: 170% center; opacity: 0; }
 }
 
+/* Coverflow — gold sweep across the active card's artwork. */
+@keyframes coverflowShimmer {
+  0%   { transform: translateX(-100%); }
+  50%  { transform: translateX(200%); }
+  100% { transform: translateX(200%); }
+}
+
+/* Coverflow — expanding pulse ring behind the active-card diamond badge. */
+@keyframes coverflowRingPulse {
+  0%   { transform: rotate(-45deg) scale(1); opacity: 0.6; }
+  100% { transform: rotate(-45deg) scale(2.2); opacity: 0; }
+}
+
 /* Arabic / RTL overrides */
 html[dir="rtl"] {
   --font-display: var(--font-cairo);
