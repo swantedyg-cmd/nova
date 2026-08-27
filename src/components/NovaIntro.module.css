@@ -45,30 +45,22 @@
   object-fit: cover;
 }
 
+/* The clip is framed 16:9 for a landscape desktop viewport — `cover` on a
+   tall portrait phone screen crops most of the width away, zooming in on
+   the center and losing the rest of the frame. `contain` shows the whole
+   clip instead, letterboxed against the same background as the overlay
+   itself so the bars read as intentional, not like missing content. */
+@media (max-width: 767px) {
+  .introVideo {
+    object-fit: contain;
+    background: radial-gradient(120% 90% at 22% 10%, #1A0F00 0%, #0D0800 100%);
+  }
+}
+
 .reducedLogo {
   position: relative;
 }
 
 .reducedLogoRest {
   opacity: 1;
-}
-
-/* Mobile entrance — gold logo floating over an almond backdrop. Never
-   blocks input: the homepage underneath is already mounted and
-   interactive, so this is purely decorative and lets touches/scrolls
-   straight through to it. */
-.mobileLogoOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: radial-gradient(120% 90% at 50% 38%, var(--color-nova-almond) 0%, var(--color-nova-almond-deep) 100%);
-  pointer-events: none;
-}
-
-.mobileLogoFloat {
-  perspective: 900px;
-  transform-style: preserve-3d;
 }

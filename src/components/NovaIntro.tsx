@@ -1,8 +1,6 @@
 'use client'
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
-import NovaLogoAnimated from './NovaLogoAnimated'
 import styles from './NovaIntro.module.css'
 
 // Nova's entrance: the brand video plays once, full quality, then the
@@ -21,13 +19,6 @@ const SESSION_KEY = 'nova-intro'
 const REVEAL_DURATION = 650 // ms — overlay wipe + homepage settle
 const REDUCED_HOLD_MS = 900
 const REDUCED_FADE_MS = 500
-// Mobile's own entrance: a floating, gently 3D-tilting logo mark over an
-// almond backdrop — no video, no WebGL. Purely decorative and NEVER gates
-// content: `contentReady` is already true by the time this renders, so the
-// homepage mounts and paints underneath it regardless of how this overlay's
-// own timing plays out.
-const MOBILE_LOGO_HOLD_MS = 1600
-const MOBILE_LOGO_FADE_S = 0.5
 // Safety net in case the video never fires `ended` (autoplay blocked,
 // slow network, decode error) — never leave a visitor stuck behind the
 // overlay. Comfortably longer than the clip itself.
@@ -39,7 +30,6 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
   const [reducedMotion, setReducedMotion] = useState(false)
   const [reducedFadeOut, setReducedFadeOut] = useState(false)
   const [revealing, setRevealing] = useState(false)
-  const [mobileLogoVisible, setMobileLogoVisible] = useState(false)
 
   const contentRef = useRef<HTMLDivElement>(null)
   const finishedRef = useRef(false)
@@ -58,24 +48,12 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
       return
     }
 
-    // Mobile skips the video overlay outright — same as reduced-motion —
-    // rather than just playing a lighter version of it. The crash this
-    // was chasing wasn't the video's weight alone, it was `startReveal`
-    // synchronously flipping `contentReady` and mounting the ENTIRE
-    // homepage (every section's GSAP/ScrollTrigger init, Framer Motion
-    // stagger, images) in one burst the instant the video ends. Skipping
-    // straight to a normal, un-deferred mount lets the browser paint and
-    // hydrate it progressively instead, which is the actual fix — not
-    // which specific thing was heaviest inside that burst.
-    const isMobile = window.innerWidth < 768
-    if (isMobile) {
-      setContentReady(true)
-      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        setMobileLogoVisible(true)
-      }
-      return
-    }
-
+    // Mobile now runs the same video/reduced-motion overlay as desktop —
+    // the intro video's own CSS (object-fit: cover, absolute inset:0) is
+    // already fully responsive, so it fills the phone's viewport the same
+    // way it fills a laptop's. See the mobile-detection race fix in
+    // useIsMobile.ts / HeroSection / GallerySection for why the homepage
+    // mounting underneath it (once `startReveal` fires) is now safe.
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     setReducedMotion(reduced)
     setShouldRenderOverlay(true)
@@ -118,20 +96,6 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
     const t = setTimeout(finish, REDUCED_FADE_MS)
     return () => clearTimeout(t)
   }, [reducedFadeOut])
-
-  // Mobile logo overlay: held briefly, then fades itself out on its own
-  // timer. Independent of `finish`/`startReveal` on purpose — the homepage
-  // is already mounted and interactive underneath it the whole time.
-  useEffect(() => {
-    if (!mobileLogoVisible) return
-    const t = setTimeout(() => {
-      setMobileLogoVisible(false)
-      try {
-        sessionStorage.setItem(SESSION_KEY, '1')
-      } catch {}
-    }, MOBILE_LOGO_HOLD_MS)
-    return () => clearTimeout(t)
-  }, [mobileLogoVisible])
 
   // Full run: play the intro video, reveal once it ends — or immediately
   // on any interaction (skip), or after the fallback timeout.
@@ -207,38 +171,6 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       )}
-
-      <AnimatePresence>
-        {mobileLogoVisible && (
-          <motion.div
-            className={styles.mobileLogoOverlay}
-            aria-hidden="true"
-            role="presentation"
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: MOBILE_LOGO_FADE_S, ease: 'easeInOut' }}
-          >
-            <motion.div
-              className={styles.mobileLogoFloat}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{
-                opacity: 1,
-                y: [0, -14, 0],
-                rotateX: [0, 6, -4, 0],
-                rotateY: [0, -8, 6, 0],
-              }}
-              transition={{
-                opacity: { duration: 0.5 },
-                y: { duration: 3.2, repeat: Infinity, ease: 'easeInOut' },
-                rotateX: { duration: 3.2, repeat: Infinity, ease: 'easeInOut' },
-                rotateY: { duration: 3.2, repeat: Infinity, ease: 'easeInOut' },
-              }}
-            >
-              <NovaLogoAnimated size={180} interactive={false} />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {contentReady && <div ref={contentRef}>{children}</div>}
     </>
