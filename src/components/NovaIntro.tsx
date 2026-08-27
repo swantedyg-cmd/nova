@@ -137,6 +137,22 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
       el.style.transform = 'scale(1)'
       el.style.opacity = '1'
     })
+    // A lingering inline `transform` — even a settled, visually-identity
+    // scale(1) — makes this element a new containing block for any
+    // `position: fixed` descendant (CSS spec: any transform other than
+    // `none` does this, regardless of value). SiteBackground lives right
+    // inside this subtree and is meant to stay pinned to the true
+    // viewport — left in place, it instead becomes fixed to THIS div,
+    // which scrolls normally, so the background silently scrolls away
+    // with the page for anyone who takes this reveal path. Clearing the
+    // inline styles once the transition finishes restores the real
+    // viewport as the containing block.
+    const clear = setTimeout(() => {
+      el.style.transition = ''
+      el.style.transform = ''
+      el.style.opacity = ''
+    }, REVEAL_DURATION + 50)
+    return () => clearTimeout(clear)
   }, [contentReady])
 
   return (
