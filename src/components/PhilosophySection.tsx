@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import dynamic from 'next/dynamic'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLanguage } from '@/i18n/LanguageContext'
@@ -8,6 +9,8 @@ import LazyStrands from './LazyStrands'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 gsap.registerPlugin(ScrollTrigger)
+
+const PhilosophyLogo3D = dynamic(() => import('./PhilosophyLogo3D'), { ssr: false })
 
 const ACCENTS = ['#C89B3C', '#B85C38', '#5B7C6A', '#C89B3C', '#B0557A']
 
@@ -60,8 +63,31 @@ export default function PhilosophySection() {
   const numRef      = useRef<(HTMLSpanElement | null)[]>([])
   const [reducedMotion, setReducedMotion] = useState(false)
   const [ready, setReady] = useState(false)
+  const [show3D, setShow3D] = useState(false)
+  const isMobile = useIsMobile()
   const { t } = useLanguage()
   const statements = t.philosophy.statements
+
+  // Same defer-until-near-viewport pattern GalleryScene uses for its own
+  // WebGL mount — this section renders on every page load regardless of
+  // scroll position, so without this the 3D canvas would open a GL
+  // context immediately, stacking on top of SiteBackground's own
+  // always-on contexts from the very first paint.
+  useEffect(() => {
+    if (isMobile || !sectionRef.current) return
+    const el = sectionRef.current
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShow3D(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '600px 0px' },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [isMobile])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -161,6 +187,11 @@ export default function PhilosophySection() {
         </div>
       ) : (
         <div ref={pinRef} className="min-h-screen flex flex-col items-center justify-center px-6 md:px-12 lg:px-24">
+          {show3D && (
+            <div className="mb-6 md:mb-8">
+              <PhilosophyLogo3D />
+            </div>
+          )}
           <PhilosophyEyebrow
             text={t.philosophy.eyebrow}
             className="text-xs uppercase tracking-[0.38em] text-gold font-body mb-14 md:mb-16 text-center"
