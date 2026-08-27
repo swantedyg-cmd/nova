@@ -5,7 +5,7 @@ import { Canvas, useLoader, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 
-const SIZE = 280
+const SIZE = 340
 
 // R3F's own ResizeObserver-driven canvas sizing never resolves this
 // canvas past the browser's bare default (300x150) here — this component
@@ -28,9 +28,8 @@ function ForceSize() {
 /* ─── The gold-leaf NOVA mark as a small 3D framed canvas — ported from
    the claude.ai/design "3D Canvas Oil Painting Model" project
    (nova-canvas.html + three-d-stage.js): the same floater-frame
-   construction, dimensions, and PBR materials (gold leaf, burnished
-   gold, walnut stretcher, linen edge). Two adaptations for embedding
-   here rather than as a standalone full-viewport piece:
+   construction, dimensions, and PBR materials (gold leaf, cream linen
+   edge). Adaptations from the source design:
      - the design's own logo-render.png came back truncated through the
        design MCP's 256 KiB file cap, so the artwork face uses this
        project's own nova-logo-icon.png instead — the same mark,
@@ -39,6 +38,12 @@ function ForceSize() {
        nova-logo-canvas-texture.png): the source PNG is transparent,
        and an untextured-transparent MeshStandardMaterial shows
        whatever raw RGB sits under the alpha instead of true see-through;
+     - double-faced: the artwork is printed on both the front and back
+       faces (the source design only printed the front), so it reads as
+       a finished piece from any angle while it autorotates. The
+       original's back-of-frame stretcher bars and hanging wire are
+       dropped as a result — hardware sitting on top of a printed face
+       doesn't make sense once the back is art too;
      - no ground plane / shadow-catcher (there's no "floor" in a
        compact embedded card), and shadows are off rather than sizing
        a shadow camera frustum for a presentation this small. */
@@ -68,8 +73,6 @@ function NovaPaintingModel() {
         emissiveIntensity: 0.22,
       }),
       gold: new THREE.MeshStandardMaterial({ color: 0xe8bf5c, roughness: 0.26, metalness: 0.4 }),
-      goldDeep: new THREE.MeshStandardMaterial({ color: 0xc08a33, roughness: 0.38, metalness: 0.34 }),
-      walnut: new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 0.72, metalness: 0.0 }),
     }
 
     const group = new THREE.Group()
@@ -86,10 +89,13 @@ function NovaPaintingModel() {
       return mesh
     }
 
-    // Stretched canvas — the printed artwork sits on the front face.
+    // Stretched canvas — the printed artwork sits on both the front and
+    // back faces, so the piece reads as a finished print from any angle
+    // while it autorotates, rather than showing bare canvas/hardware on
+    // the reverse for half the turn.
     add(
       new THREE.BoxGeometry(CW, CH, CD, 1, 1, 1),
-      [M.linenEdge, M.linenEdge, M.linenEdge, M.linenEdge, M.art, M.linenEdge],
+      [M.linenEdge, M.linenEdge, M.linenEdge, M.linenEdge, M.art, M.art],
       [0, 0, 0],
     )
 
@@ -102,24 +108,6 @@ function NovaPaintingModel() {
     add(barV, M.gold, [(OW - FB) / 2, 0, 0])
     add(barH, M.gold, [0, (OH - FB) / 2, 0])
     add(barH, M.gold, [0, -(OH - FB) / 2, 0])
-
-    // Stretcher bars + brace on the back.
-    const SB = 0.038
-    const ST = 0.018
-    const sz = -CD / 2 - ST / 2 + 0.001
-    add(new THREE.BoxGeometry(SB, CH - 0.02, ST), M.walnut, [-(CW / 2 - SB / 2 - 0.014), 0, sz])
-    add(new THREE.BoxGeometry(SB, CH - 0.02, ST), M.walnut, [CW / 2 - SB / 2 - 0.014, 0, sz])
-    add(new THREE.BoxGeometry(CW - 0.028 - 2 * SB, SB, ST), M.walnut, [0, CH / 2 - SB / 2 - 0.014, sz])
-    add(new THREE.BoxGeometry(CW - 0.028 - 2 * SB, SB, ST), M.walnut, [0, -(CH / 2 - SB / 2 - 0.014), sz])
-    add(new THREE.BoxGeometry(CW - 0.028 - 2 * SB, 0.028, ST * 0.8), M.walnut, [0, 0, sz])
-
-    // Hanging wire.
-    const wireCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-(CW / 2 - SB / 2 - 0.014), CH * 0.22, sz - ST / 2),
-      new THREE.Vector3(0, CH * 0.14, sz - ST / 2),
-      new THREE.Vector3(CW / 2 - SB / 2 - 0.014, CH * 0.22, sz - ST / 2),
-    ])
-    add(new THREE.TubeGeometry(wireCurve, 40, 0.0016, 10, false), M.goldDeep)
 
     return group
   }, [texture])
