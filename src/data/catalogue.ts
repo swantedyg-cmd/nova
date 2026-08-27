@@ -93,7 +93,7 @@ export const PIECES: Piece[] = [
       en: 'A crown too full to be quiet, on a face too composed to notice — the contrast is the whole point.',
       ar: 'تاج غني جداً ليبقى هادئاً، على وجه هادئ جداً ليلاحظ ذلك — والتباين هو بيت القصيد.',
     },
-    width: 60, height: 120, price: 1899, quantity: 60, aspect: 606/1259, image: 'PW-006.jpg',
+    width: 60, height: 120, price: 1899, quantity: 60, aspect: 467/1259, image: 'PW-006.jpg',
   },
   {
     id: 'PW-009', collection: 'Portraits Fleuris',
@@ -103,7 +103,7 @@ export const PIECES: Piece[] = [
       en: "Coral and gold don't compete here, they collaborate — proof that abundance, arranged with care, reads as elegance, not excess.",
       ar: 'المرجاني والذهبي هنا لا يتنافسان، بل يتعاونان — دليل على أن الوفرة، حين تُرتَّب بعناية، تُقرأ أناقة لا إفراطاً.',
     },
-    width: 60, height: 120, price: 1899, quantity: 60, aspect: 604/1167, image: 'PW-009.jpg',
+    width: 60, height: 120, price: 1899, quantity: 60, aspect: 411/1167, image: 'PW-009.jpg',
   },
   {
     id: 'PW-073', collection: 'Portraits Fleuris',
@@ -133,7 +133,7 @@ export const PIECES: Piece[] = [
       en: 'Turned away, she lets the peonies do the talking — a profile that trusts silence more than a straight-on gaze ever could.',
       ar: 'بانحرافها، تدع الفاوانيا تتحدث — ملمح يثق بالصمت أكثر من أي نظرة مباشرة.',
     },
-    width: 60, height: 120, price: 1999, quantity: 60, aspect: 870/1756, image: 'PW-038.jpg',
+    width: 60, height: 120, price: 1999, quantity: 60, aspect: 644/1528, image: 'PW-038.jpg',
   },
   {
     id: 'PW-040', collection: 'Portraits Fleuris',
@@ -143,7 +143,7 @@ export const PIECES: Piece[] = [
       en: "Blue found its way into a bouquet that didn't ask for it — and the whole crown is better, stranger, for it.",
       ar: 'الأزرق وجد طريقه إلى باقة لم تطلبه — والتاج كله أجمل وأغرب بسببه.',
     },
-    width: 55, height: 120, price: 1699, quantity: 70, aspect: 549/1224, image: 'PW-040.jpg',
+    width: 55, height: 120, price: 1699, quantity: 70, aspect: 362/1224, image: 'PW-040.jpg',
   },
   {
     id: 'PW-041', collection: 'Portraits Fleuris',
@@ -153,7 +153,7 @@ export const PIECES: Piece[] = [
       en: 'Nothing about this crown is trying hard. It simply settled into place, the way real beauty tends to.',
       ar: 'لا شيء في هذا التاج يحاول جاهداً. استقر ببساطة في مكانه، كما يفعل الجمال الحقيقي دوماً.',
     },
-    width: 55, height: 120, price: 1699, quantity: 70, aspect: 546/1200, image: 'PW-041.jpg',
+    width: 55, height: 120, price: 1699, quantity: 70, aspect: 344/1140, image: 'PW-041.jpg',
   },
   {
     id: 'PW-058', collection: 'Portraits Fleuris',
@@ -173,7 +173,7 @@ export const PIECES: Piece[] = [
       en: "Lavender doesn't ask to be noticed, and neither does she — which is exactly why both are impossible to look away from.",
       ar: 'الخزامى لا تطلب أن يُلتفت إليها، وهي أيضاً لا تطلب ذلك — ولهذا بالضبط يستحيل على النظر أن يبتعد عن أي منهما.',
     },
-    width: 45, height: 120, price: 1599, quantity: 70, aspect: 300/806, image: 'PW-075.jpg',
+    width: 45, height: 120, price: 1599, quantity: 70, aspect: 135/778, image: 'PW-075.jpg',
   },
   {
     id: 'PW-076', collection: 'Portraits Fleuris',
@@ -183,7 +183,7 @@ export const PIECES: Piece[] = [
       en: 'Blue petals, a lowered gaze — a portrait built entirely around the idea of taking your time.',
       ar: 'بتلات زرقاء، ونظرة خافضة — بورتريه بُني بالكامل حول فكرة أخذ الوقت الكافي.',
     },
-    width: 40, height: 120, price: 1499, quantity: 70, aspect: 316/992, image: 'PW-076.jpg',
+    width: 40, height: 120, price: 1499, quantity: 70, aspect: 228/972, image: 'PW-076.jpg',
   },
 
   // ─── Bouquets — floral still life ───
@@ -196,16 +196,6 @@ export const PIECES: Piece[] = [
       ar: "باقة أُمسكت في أسخى لحظاتها — تفتّح كامل، قبل أن تفكّر أولى البتلات في السقوط.",
     },
     width: 90, height: 120, price: 1499, quantity: 60, aspect: 471/625, image: 'JYO37590-N.jpg',
-  },
-  {
-    id: 'JYO37588-N', collection: 'Bouquets',
-    theme: 'Quiet Abundance',
-    philosophy: {
-      fr: "Peint comme la mémoire garde un jardin — plus doux, plus chaud, plus indulgent que celui qui a vraiment poussé.",
-      en: 'Painted the way memory keeps a garden — softer, warmer, and more forgiving than the one that actually grew.',
-      ar: "رُسمت كما تحفظ الذاكرة حديقة — أكثر نعومة ودفئاً وتسامحاً من تلك التي نبتت حقاً.",
-    },
-    width: 90, height: 120, price: 1499, quantity: 60, aspect: 462/678, image: 'JYO37588-N.jpg',
   },
 
   // ─── Papillons — butterfly-crowned pair ───
@@ -247,7 +237,7 @@ export const PIECES: Piece[] = [
       en: 'A hundred wings and one still face — the quietest point in a room full of movement.',
       ar: 'مئة جناح ووجه ساكن واحد — أهدأ نقطة في غرفة مليئة بالحركة.',
     },
-    width: 60, height: 120, price: 1599, quantity: 70, aspect: 570/1211, image: 'PW-004.jpg',
+    width: 60, height: 120, price: 1599, quantity: 70, aspect: 439/1211, image: 'PW-004.jpg',
   },
 
   // ─── Reines d'Or — African portraiture in gold and shadow ───
@@ -339,7 +329,7 @@ export const PIECES: Piece[] = [
       en: 'Hands folded, headwrap catching the last of the light — a portrait that understands stillness is its own kind of statement.',
       ar: 'يدان متشابكتان، وغطاء رأس يلتقط آخر الضوء — بورتريه يدرك أن السكون بيان بحد ذاته.',
     },
-    width: 65, height: 120, price: 1899, quantity: 60, aspect: 575/1074, image: 'PW-003.jpg',
+    width: 65, height: 120, price: 1899, quantity: 60, aspect: 420/1015, image: 'PW-003.jpg',
   },
   {
     id: 'PW-008', collection: 'Reines d\'Or',
@@ -349,7 +339,7 @@ export const PIECES: Piece[] = [
       en: "Not every prayer needs an audience. This one is private, folded inward, and asks nothing of the room it hangs in.",
       ar: 'ليست كل صلاة بحاجة إلى جمهور. هذه خاصة، منطوية على ذاتها، ولا تطلب شيئاً من الغرفة التي تُعلَّق فيها.',
     },
-    width: 60, height: 120, price: 1899, quantity: 60, aspect: 578/1186, image: 'PW-008.jpg',
+    width: 60, height: 120, price: 1899, quantity: 60, aspect: 405/1186, image: 'PW-008.jpg',
   },
   {
     id: 'PW-071', collection: 'Reines d\'Or',
@@ -362,16 +352,6 @@ export const PIECES: Piece[] = [
     width: 70, height: 120, price: 2199, quantity: 55, aspect: 717/1222, image: 'PW-071.jpg',
   },
   {
-    id: 'PW-053', collection: 'Reines d\'Or',
-    theme: 'Gold Unfurled',
-    philosophy: {
-      fr: "L'or ne crie pas sur ce foulard — il dérive, bande après bande, comme peint à la main et laissé exactement là où il est tombé.",
-      en: "Gold doesn't shout across this headwrap — it drifts, stripe by stripe, like it was painted by hand and left exactly as it fell.",
-      ar: 'الذهب لا يصرخ على هذا الغطاء — بل ينساب، شريطاً بعد شريط، وكأنه رُسم يدوياً وتُرك تماماً حيث سقط.',
-    },
-    width: 60, height: 120, price: 1899, quantity: 60, aspect: 612/1230, image: 'PW-053.jpg',
-  },
-  {
     id: 'PW-074', collection: 'Reines d\'Or',
     theme: 'The Quiet Crown',
     philosophy: {
@@ -379,7 +359,7 @@ export const PIECES: Piece[] = [
       en: "A narrow canvas, a quiet crown — proof that presence was never about how much wall you take up.",
       ar: 'لوحة ضيقة، تاج هادئ — دليل على أن الحضور لم يكن يوماً رهين المساحة التي يشغلها على الجدار.',
     },
-    width: 40, height: 120, price: 1499, quantity: 70, aspect: 294/861, image: 'PW-074.jpg',
+    width: 40, height: 120, price: 1499, quantity: 70, aspect: 206/861, image: 'PW-074.jpg',
   },
 
   // ─── Éclat Floral — vivid, impasto floral crowns ───
@@ -463,7 +443,7 @@ export const PIECES: Piece[] = [
       en: 'Palm shadows, a wide-brimmed hat, nowhere she has to be — this is what an afternoon looks like when nothing is owed to anyone.',
       ar: 'ظلال نخيل، قبعة واسعة الحواف، لا مكان عليها أن تكون فيه — هذا ما يبدو عليه بعد ظهر لا يدين لأحد بشيء.',
     },
-    width: 45, height: 120, price: 2199, quantity: 60, aspect: 406/1088, image: 'PW-070.jpg',
+    width: 45, height: 120, price: 2199, quantity: 60, aspect: 284/1001, image: 'PW-070.jpg',
   },
 ]
 
