@@ -130,29 +130,47 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
     if (!contentReady || !revealingRef.current) return
     const el = contentRef.current
     if (!el) return
+
+    // A lingering inline `transform` — even a settled, visually-identity
+    // scale(1) — makes this element a new containing block for any
+    // `position: fixed` descendant (CSS spec: any transform other than
+    // `none` does this, regardless of value). SiteBackground, and every
+    // GSAP-pinned section on the page, lives inside this subtree and is
+    // meant to stay pinned to the true viewport — left in place, they
+    // instead become fixed to THIS div, which scrolls normally, so
+    // backgrounds silently scroll away and pins release early. Clearing
+    // the inline styles once the transition truly finishes restores the
+    // real viewport as the containing block.
+    const clearStyles = () => {
+      el.style.transition = ''
+      el.style.transform = ''
+      el.style.opacity = ''
+    }
+
     el.style.transform = 'scale(1.03)'
     el.style.opacity = '0.6'
-    requestAnimationFrame(() => {
+
+    const raf = requestAnimationFrame(() => {
       el.style.transition = `transform ${REVEAL_DURATION}ms ease, opacity ${REVEAL_DURATION}ms ease`
       el.style.transform = 'scale(1)'
       el.style.opacity = '1'
     })
-    // A lingering inline `transform` — even a settled, visually-identity
-    // scale(1) — makes this element a new containing block for any
-    // `position: fixed` descendant (CSS spec: any transform other than
-    // `none` does this, regardless of value). SiteBackground lives right
-    // inside this subtree and is meant to stay pinned to the true
-    // viewport — left in place, it instead becomes fixed to THIS div,
-    // which scrolls normally, so the background silently scrolls away
-    // with the page for anyone who takes this reveal path. Clearing the
-    // inline styles once the transition finishes restores the real
-    // viewport as the containing block.
-    const clear = setTimeout(() => {
-      el.style.transition = ''
-      el.style.transform = ''
-      el.style.opacity = ''
-    }, REVEAL_DURATION + 50)
-    return () => clearTimeout(clear)
+
+    // transitionend (not a fixed timer) is what actually clears the
+    // style — a wall-clock setTimeout keyed to REVEAL_DURATION can fire
+    // before the rAF-scheduled transition above has even started if the
+    // tab was throttled in the meantime (backgrounded, low-power, etc.),
+    // leaving the transform re-applied *after* the "clear" already ran.
+    // The timeout below is only a safety net in case transitionend never
+    // fires at all (interrupted transition, unexpected browser quirk).
+    el.addEventListener('transitionend', clearStyles, { once: true })
+    const fallback = setTimeout(clearStyles, REVEAL_DURATION + 1000)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      el.removeEventListener('transitionend', clearStyles)
+      clearTimeout(fallback)
+    }
   }, [contentReady])
 
   return (

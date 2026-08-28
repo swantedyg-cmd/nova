@@ -14,14 +14,20 @@ const SIZE = 340
 // from ever firing. Forcing the size explicitly on mount sidesteps
 // whatever's swallowing it, rather than chasing the observer itself.
 function ForceSize() {
-  const { gl, camera, size } = useThree()
+  const { gl, camera } = useThree()
+  // Deliberately NOT depending on `size` — gl.setSize can itself cause R3F
+  // to report a new `size` object, which would re-trigger this effect and
+  // set the size again in a tight loop, pegging the main thread for as
+  // long as the canvas stays mounted. Forcing once on mount is enough:
+  // gl/camera are stable across the component's lifetime here.
   useEffect(() => {
     gl.setSize(SIZE, SIZE, false)
     if (camera instanceof THREE.PerspectiveCamera) {
       camera.aspect = 1
       camera.updateProjectionMatrix()
     }
-  }, [gl, camera, size])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   return null
 }
 
@@ -188,7 +194,7 @@ export default function PhilosophyLogo3D() {
       <Canvas
         style={{ width: SIZE, height: SIZE }}
         resize={{ scroll: false, debounce: 0 }}
-        dpr={[1, 1.5]}
+        dpr={1}
         gl={{ antialias: true }}
         camera={{ position: [1.3, 0.75, 1.65], fov: 40 }}
         shadows={false}

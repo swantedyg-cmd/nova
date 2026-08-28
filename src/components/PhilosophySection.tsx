@@ -109,11 +109,15 @@ export default function PhilosophySection() {
       gsap.set(dots, { opacity: 0.3, scale: 1 })
       gsap.set(dots[0], { opacity: 1, scale: 1.25 })
 
-      // Numbers start pushed back in depth and blurred; the active one
-      // sits sharp and forward, as if emerging from behind the heading.
+      // Numbers start pushed back in depth; the active one sits sharp and
+      // forward, as if emerging from behind the heading. No `filter: blur`
+      // here (there was originally) — animating CSS blur on several
+      // elements every scrub tick, stacked on top of this section's live
+      // WebGL canvas and preserve-3d transforms, was expensive enough to
+      // visibly stall the pinned scroll on real hardware.
       if (nums.length) {
-        gsap.set(nums, { z: -70, filter: 'blur(9px)', opacity: 0.35 })
-        gsap.set(nums[0], { z: 0, filter: 'blur(0px)', opacity: 1 })
+        gsap.set(nums, { z: -70, opacity: 0.35 })
+        gsap.set(nums[0], { z: 0, opacity: 1 })
       }
 
       const tl = gsap.timeline({
@@ -136,8 +140,8 @@ export default function PhilosophySection() {
           .to(dots[i - 1], { opacity: 0.3, scale: 1, duration: 1, ease: 'power2.inOut' }, step)
           .to(dots[i], { opacity: 1, scale: 1.25, duration: 1, ease: 'power2.inOut' }, step)
         if (nums[i - 1] && nums[i]) {
-          tl.to(nums[i - 1], { z: -70, filter: 'blur(9px)', opacity: 0.35, duration: 1, ease: 'power2.inOut' }, step)
-            .to(nums[i], { z: 0, filter: 'blur(0px)', opacity: 1, duration: 1, ease: 'power2.inOut' }, step)
+          tl.to(nums[i - 1], { z: -70, opacity: 0.35, duration: 1, ease: 'power2.inOut' }, step)
+            .to(nums[i], { z: 0, opacity: 1, duration: 1, ease: 'power2.inOut' }, step)
         }
       })
 
@@ -187,15 +191,19 @@ export default function PhilosophySection() {
         </div>
       ) : (
         <div ref={pinRef} className="min-h-screen flex flex-col items-center justify-center px-6 md:px-12 lg:px-24">
-          {show3D && (
-            <div className="mb-6 md:mb-8">
-              <PhilosophyLogo3D />
-            </div>
-          )}
           <PhilosophyEyebrow
             text={t.philosophy.eyebrow}
-            className="text-xs uppercase tracking-[0.38em] text-gold font-body mb-14 md:mb-16 text-center"
+            className="text-xs uppercase tracking-[0.38em] text-gold font-body mb-6 text-center"
           />
+          {/* Reserves the 3D object's final footprint from the very first
+              render, whether or not it has actually mounted yet — the pin
+              below measures this section's height once, up front, and
+              swapping the canvas in later without changing that height
+              means the pin never needs (and never risks) a re-measure
+              while it may already be actively engaged mid-scroll. */}
+          <div className="mb-8 md:mb-10" style={{ width: 340, height: 340 }}>
+            {show3D && <PhilosophyLogo3D />}
+          </div>
 
           <div
             className="relative w-full max-w-2xl"
@@ -211,7 +219,7 @@ export default function PhilosophySection() {
                 <span
                   ref={(el) => { numRef.current[i] = el }}
                   className="inline-block font-body text-xs tracking-[0.22em] uppercase font-medium"
-                  style={{ color: ACCENTS[i], willChange: 'transform, filter, opacity' }}
+                  style={{ color: ACCENTS[i], willChange: 'transform, opacity' }}
                 >
                   {String(i + 1).padStart(2, '0')}
                 </span>

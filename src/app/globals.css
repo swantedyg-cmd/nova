@@ -49,7 +49,12 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html {
-  scroll-behavior: smooth;
+  /* NOT scroll-behavior: smooth — it fights GSAP ScrollTrigger's own
+     scroll sampling (used by the Philosophy and Gallery pinned/scrub
+     sections): the browser's smooth-scroll animation and ScrollTrigger's
+     scrub both try to drive the same scroll position, and the two loops
+     interrupting each other is what was producing the pin release timing
+     bugs, stuck-scroll, and jank reported in the Philosophy section. */
   overflow-x: hidden;
 }
 
