@@ -11,30 +11,47 @@ const DEFAULT_SIZE = 340
 // canvas past the browser's bare default (300x150) here — this component
 // sits inside the Philosophy section's GSAP-pinned, perspective/
 // preserve-3d transformed layout, which appears to prevent the observer
-// from ever firing. Forcing the size explicitly on mount sidesteps
-// whatever's swallowing it, rather than chasing the observer itself.
+// from ever firing. Forcing the size explicitly sidesteps whatever's
+// swallowing it, rather than chasing the observer itself.
 function ForceSize({ size }: { size: number }) {
   const { gl, camera } = useThree()
-  // Deliberately NOT depending on `size` (the R3F viewport, not the prop
-  // above) — gl.setSize can itself cause R3F to report a new size object,
-  // which would re-trigger this effect and set the size again in a tight
-  // loop, pegging the main thread for as long as the canvas stays mounted.
-  // Forcing once on mount is enough: gl/camera are stable across the
-  // component's lifetime here.
+  // Deliberately NOT depending on R3F's own `size` (the viewport reported
+  // by useThree, not the prop above) — gl.setSize can itself cause R3F to
+  // report a new size object, which would re-trigger this effect and set
+  // the size again in a tight loop, pegging the main thread for as long as
+  // the canvas stays mounted.
   useEffect(() => {
-    // The `true` here matters: it's what actually sets canvas.style.width/
-    // height to size. R3F's own ResizeObserver-driven sizing never resolves
-    // this canvas past the browser's bare default (300x150), so leaving
-    // this false (as it originally was) only fixed the internal drawing
-    // buffer resolution and left the canvas visibly tiny in the corner of
-    // its container.
-    gl.setSize(size, size, true)
-    if (camera instanceof THREE.PerspectiveCamera) {
-      camera.aspect = 1
-      camera.updateProjectionMatrix()
+    const apply = () => {
+      // A fixed drawing-buffer resolution set once on mount looks
+      // increasingly soft the further the visitor zooms in (pinch-zoom on
+      // mobile, ctrl/cmd+= in a desktop browser) — the canvas is now being
+      // upscaled past the resolution it was actually rendered at. Re-reading
+      // devicePixelRatio and re-applying it on every zoom keeps the buffer
+      // matched to the zoomed-in effective pixel density instead.
+      gl.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+      // The `true` here matters: it's what actually sets canvas.style.width/
+      // height to size. R3F's own ResizeObserver-driven sizing never resolves
+      // this canvas past the browser's bare default (300x150), so leaving
+      // this false (as it originally was) only fixed the internal drawing
+      // buffer resolution and left the canvas visibly tiny in the corner of
+      // its container.
+      gl.setSize(size, size, true)
+      if (camera instanceof THREE.PerspectiveCamera) {
+        camera.aspect = 1
+        camera.updateProjectionMatrix()
+      }
+    }
+    apply()
+    // visualViewport fires on pinch-zoom and desktop browser zoom alike;
+    // window's plain resize is a fallback for browsers without it.
+    window.visualViewport?.addEventListener('resize', apply)
+    window.addEventListener('resize', apply)
+    return () => {
+      window.visualViewport?.removeEventListener('resize', apply)
+      window.removeEventListener('resize', apply)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [size])
   return null
 }
 
