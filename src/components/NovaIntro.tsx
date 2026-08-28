@@ -126,21 +126,25 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
     }
   }, [shouldRenderOverlay, reducedMotion])
 
-  // `autoPlay` is a request, not a guarantee — mobile browsers (most
-  // reliably reproducible: iOS Low Power Mode, some Android WebViews, data
-  // saver settings) can silently refuse it, and when that happens the
-  // element just sits on its poster frame forever with nothing in this
-  // component aware anything went wrong: `onEnded` never fires because
-  // playback never started, so a visitor was stuck looking at a static
-  // logo until the full 9s VIDEO_FALLBACK_MS timeout, or until they
-  // happened to realize tapping the screen would skip it. Calling .play()
-  // explicitly gives a promise that rejects the instant autoplay is
-  // refused, so that case reveals the homepage immediately instead of
-  // making every visitor it happens to sit through a dead screen.
+  // `autoPlay` is a request, not a guarantee, and browsers only grant it
+  // to a video that's actually muted at the moment `.play()` is called —
+  // the React `muted` JSX prop sets the *attribute* on first render, but
+  // doesn't reliably sync the `.muted` *property* the autoplay policy
+  // check itself reads (a long-standing React/video quirk: since the
+  // attribute's initial value never changes, React's diffing has no
+  // reason to touch the property again after mount). On a browser that's
+  // strict about this, the element was calling .play() against an
+  // effectively unmuted video, autoplay was silently refused, and the
+  // .catch() below immediately skipped straight to the homepage — so the
+  // video was not just stuck, it was never even attempted. Setting both
+  // `.muted` and `.defaultMuted` on the element directly, right before
+  // .play(), guarantees the property the browser actually checks is true.
   useEffect(() => {
     if (!shouldRenderOverlay || reducedMotion) return
     const video = videoRef.current
     if (!video) return
+    video.muted = true
+    video.defaultMuted = true
     const playAttempt = video.play()
     if (playAttempt && typeof playAttempt.catch === 'function') {
       playAttempt.catch(() => startReveal())
