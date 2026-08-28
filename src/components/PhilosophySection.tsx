@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
 import dynamic from 'next/dynamic'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -9,6 +9,38 @@ import LazyStrands from './LazyStrands'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 gsap.registerPlugin(ScrollTrigger)
+
+// Sized in three tiers, not just mobile/desktop — the side-by-side row
+// layout needs the object small enough that it (plus the text column
+// beside it) still fits between 768px (where it switches out of the
+// stacked mobile layout) and 1280px, or it pushes the page into
+// horizontal overflow on ordinary laptop-width screens. Same
+// useSyncExternalStore approach as useIsMobile, for the same reason: read
+// matchMedia during render, not from an effect afterward, so there's no
+// frame where the wrong tier's reserved space is measured for the pin.
+const TABLET_QUERY = '(max-width: 767px)'
+const DESKTOP_QUERY = '(min-width: 1280px)'
+
+function subscribeLogo3DSize(callback: () => void) {
+  const a = window.matchMedia(TABLET_QUERY)
+  const b = window.matchMedia(DESKTOP_QUERY)
+  a.addEventListener('change', callback)
+  b.addEventListener('change', callback)
+  return () => {
+    a.removeEventListener('change', callback)
+    b.removeEventListener('change', callback)
+  }
+}
+
+function getLogo3DSizeSnapshot() {
+  if (window.matchMedia(TABLET_QUERY).matches) return 240
+  if (window.matchMedia(DESKTOP_QUERY).matches) return 560
+  return 380
+}
+
+function useLogo3DSize() {
+  return useSyncExternalStore(subscribeLogo3DSize, getLogo3DSizeSnapshot, () => 460)
+}
 
 const PhilosophyLogo3D = dynamic(() => import('./PhilosophyLogo3D'), { ssr: false })
 
@@ -75,7 +107,7 @@ export default function PhilosophySection() {
   const isMobile = useIsMobile()
   const { t } = useLanguage()
   const statements = t.philosophy.statements
-  const logo3DSize = isMobile ? 240 : 460
+  const logo3DSize = useLogo3DSize()
 
   // Same defer-until-near-viewport pattern GalleryScene uses for its own
   // WebGL mount — this section renders on every page load regardless of
@@ -220,17 +252,19 @@ export default function PhilosophySection() {
               the pin's one-time height measurement never needs a
               mid-scroll re-check.
 
-              Smaller on mobile (240 vs 460): mobile stays in the
-              flex-col arrangement (no row layout below md), so the
-              object stacks above the text instead of beside it — at
-              full desktop size that stack is tall enough to clip the
-              body copy again, the same overflow this whole layout was
-              restructured to fix. */}
+              Sized in three tiers (see useLogo3DSize) rather than one
+              fixed desktop value: mobile stays in the flex-col
+              arrangement (no row layout below md) so it needs to stay
+              small enough not to push the text block below the fold the
+              same way the pre-restructure stack did; the row layout's
+              own 768–1279px tier also needs a smaller object than wide
+              desktop, or object + text together are wider than the
+              viewport. */}
           <div className="shrink-0" style={{ width: logo3DSize, height: logo3DSize }}>
             {show3D && <PhilosophyLogo3D size={logo3DSize} />}
           </div>
 
-          <div className="flex flex-col items-center text-center md:items-start md:text-left">
+          <div className="min-w-0 flex flex-col items-center text-center md:items-start md:text-left">
             <PhilosophyEyebrow
               text={t.philosophy.eyebrow}
               align="start"

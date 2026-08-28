@@ -117,7 +117,7 @@ function useSignedArtTexture() {
       })
 
       try {
-        await document.fonts.load(`96px "${SIGNATURE_FONT}"`)
+        await document.fonts.load(`150px "${SIGNATURE_FONT}"`)
         await document.fonts.ready
       } catch {}
 
@@ -134,12 +134,12 @@ function useSignedArtTexture() {
       ctx.fillStyle = '#0d0c0b'
       ctx.textAlign = 'right'
       ctx.textBaseline = 'alphabetic'
-      ctx.font = `108px "${SIGNATURE_FONT}", cursive`
-      ctx.fillText(SIGNATURE_TEXT, S - 150, S - 175)
+      ctx.font = `150px "${SIGNATURE_FONT}", cursive`
+      ctx.fillText(SIGNATURE_TEXT, S - 170, S - 190)
 
       const tex = new THREE.CanvasTexture(canvas)
       tex.colorSpace = THREE.SRGBColorSpace
-      tex.anisotropy = 8
+      tex.anisotropy = 16
       setTexture(tex)
     }
 
