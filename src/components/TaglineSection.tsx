@@ -12,7 +12,15 @@ export default function TaglineSection() {
   const collectionLeadIn = TAGLINES.find((tag) => tag.id === '4d')!
 
   return (
-    <section className="relative bg-[var(--color-nova-almond)] px-6 py-6">
+    <section className="relative overflow-hidden bg-[var(--color-nova-almond)] px-6 py-6">
+      {/* A slow ambient wash behind the whole run of taglines — moves on
+          its own timeline (24s), independent of scroll, so the section
+          never reads as visually inert between one block's reveal
+          animation finishing and the next one starting. CSS-only
+          (background-position + opacity keyframes): no canvas, no extra
+          GL context on mobile. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 tagline-ambient-wash" />
+
       <div className="mx-auto max-w-2xl">
         <p className="pt-10 text-center text-[10px] font-body uppercase tracking-[0.36em] text-[var(--color-nova-gold)]/40">
           {t.taglines.eyebrow}

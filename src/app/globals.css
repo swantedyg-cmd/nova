@@ -189,6 +189,25 @@ body {
   100% { transform: rotate(-45deg) scale(2.2); opacity: 0; }
 }
 
+/* TaglineSection — a slow ambient gold wash behind the whole run of
+   taglines, moving on its own 24s timeline independent of scroll, so the
+   section never reads as visually inert between one block's reveal
+   animation finishing and the next one starting up. Covered by the global
+   prefers-reduced-motion rule below (no separate override needed). */
+.tagline-ambient-wash {
+  background-image:
+    radial-gradient(45% 35% at 20% 15%, color-mix(in srgb, var(--color-nova-gold) 16%, transparent), transparent 70%),
+    radial-gradient(50% 40% at 85% 60%, color-mix(in srgb, var(--color-nova-gold) 12%, transparent), transparent 70%),
+    radial-gradient(40% 35% at 40% 92%, color-mix(in srgb, var(--color-nova-gold) 14%, transparent), transparent 70%);
+  background-repeat: no-repeat;
+  animation: taglineAmbientDrift 24s ease-in-out infinite alternate;
+}
+@keyframes taglineAmbientDrift {
+  0%   { background-position: 0% 0%, 100% 100%, 50% 100%; opacity: 0.7; }
+  50%  { background-position: 8% 6%, 92% 90%, 46% 94%; opacity: 1; }
+  100% { background-position: 0% 4%, 100% 96%, 54% 100%; opacity: 0.8; }
+}
+
 /* Arabic / RTL overrides */
 html[dir="rtl"] {
   --font-display: var(--font-cairo);
