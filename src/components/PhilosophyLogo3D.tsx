@@ -5,7 +5,7 @@ import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 
-const SIZE = 340
+const DEFAULT_SIZE = 340
 
 // R3F's own ResizeObserver-driven canvas sizing never resolves this
 // canvas past the browser's bare default (300x150) here — this component
@@ -13,21 +13,22 @@ const SIZE = 340
 // preserve-3d transformed layout, which appears to prevent the observer
 // from ever firing. Forcing the size explicitly on mount sidesteps
 // whatever's swallowing it, rather than chasing the observer itself.
-function ForceSize() {
+function ForceSize({ size }: { size: number }) {
   const { gl, camera } = useThree()
-  // Deliberately NOT depending on `size` — gl.setSize can itself cause R3F
-  // to report a new `size` object, which would re-trigger this effect and
-  // set the size again in a tight loop, pegging the main thread for as
-  // long as the canvas stays mounted. Forcing once on mount is enough:
-  // gl/camera are stable across the component's lifetime here.
+  // Deliberately NOT depending on `size` (the R3F viewport, not the prop
+  // above) — gl.setSize can itself cause R3F to report a new size object,
+  // which would re-trigger this effect and set the size again in a tight
+  // loop, pegging the main thread for as long as the canvas stays mounted.
+  // Forcing once on mount is enough: gl/camera are stable across the
+  // component's lifetime here.
   useEffect(() => {
     // The `true` here matters: it's what actually sets canvas.style.width/
-    // height to SIZE. R3F's own ResizeObserver-driven sizing never resolves
+    // height to size. R3F's own ResizeObserver-driven sizing never resolves
     // this canvas past the browser's bare default (300x150), so leaving
     // this false (as it originally was) only fixed the internal drawing
     // buffer resolution and left the canvas visibly tiny in the corner of
-    // its 340x340 container.
-    gl.setSize(SIZE, SIZE, true)
+    // its container.
+    gl.setSize(size, size, true)
     if (camera instanceof THREE.PerspectiveCamera) {
       camera.aspect = 1
       camera.updateProjectionMatrix()
@@ -194,18 +195,18 @@ function NovaPaintingModel() {
   return <primitive object={model} />
 }
 
-export default function PhilosophyLogo3D() {
+export default function PhilosophyLogo3D({ size = DEFAULT_SIZE }: { size?: number }) {
   return (
-    <div style={{ width: SIZE, height: SIZE, position: 'relative' }} className="mx-auto">
+    <div style={{ width: size, height: size, position: 'relative' }} className="mx-auto">
       <Canvas
-        style={{ width: SIZE, height: SIZE }}
+        style={{ width: size, height: size }}
         resize={{ scroll: false, debounce: 0 }}
         dpr={1}
         gl={{ antialias: true }}
         camera={{ position: [1.3, 0.75, 1.65], fov: 40 }}
         shadows={false}
       >
-        <ForceSize />
+        <ForceSize size={size} />
         <hemisphereLight args={[0xffffff, 0xd8d2c4, 1.0]} />
         <directionalLight color={0xffffff} intensity={2.2} position={[4, 7, 5]} />
         <directionalLight color={0xfff4e6} intensity={0.5} position={[-5, 3, -4]} />

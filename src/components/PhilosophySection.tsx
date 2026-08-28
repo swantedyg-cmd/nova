@@ -75,14 +75,19 @@ export default function PhilosophySection() {
   const isMobile = useIsMobile()
   const { t } = useLanguage()
   const statements = t.philosophy.statements
+  const logo3DSize = isMobile ? 220 : 340
 
   // Same defer-until-near-viewport pattern GalleryScene uses for its own
   // WebGL mount — this section renders on every page load regardless of
   // scroll position, so without this the 3D canvas would open a GL
   // context immediately, stacking on top of SiteBackground's own
-  // always-on contexts from the very first paint.
+  // always-on contexts from the very first paint. Runs on mobile too now
+  // (this component used to be desktop-only): GallerySection's own 3D
+  // scene and the eyebrow's LazyStrands decoration both stay off on
+  // mobile, so this is the only extra WebGL context mobile picks up, not
+  // several at once — which is what previously crashed mobile Safari.
   useEffect(() => {
-    if (isMobile || !sectionRef.current) return
+    if (!sectionRef.current) return
     const el = sectionRef.current
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -95,7 +100,7 @@ export default function PhilosophySection() {
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [isMobile])
+  }, [])
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -200,7 +205,7 @@ export default function PhilosophySection() {
       ) : (
         <div
           ref={pinRef}
-          className="min-h-screen w-full flex flex-col items-center justify-center gap-8 px-6 py-16 md:flex-row md:items-center md:justify-center md:gap-16 md:px-12 md:py-0 lg:px-24 lg:gap-24"
+          className="min-h-screen w-full flex flex-col items-center justify-center gap-6 px-6 py-10 md:flex-row md:items-center md:justify-center md:gap-16 md:px-12 md:py-0 lg:px-24 lg:gap-24"
         >
           {/* Docked beside the text on desktop, not stacked above it —
               stacking a 340px object + eyebrow + headline + body + dots
@@ -213,18 +218,23 @@ export default function PhilosophySection() {
               only being visible near the top of it. Reserves its final
               footprint from the very first render (mounted or not) so
               the pin's one-time height measurement never needs a
-              mid-scroll re-check. */}
-          {!isMobile && (
-            <div className="shrink-0" style={{ width: 340, height: 340 }}>
-              {show3D && <PhilosophyLogo3D />}
-            </div>
-          )}
+              mid-scroll re-check.
+
+              Smaller on mobile (220 vs 340): mobile stays in the
+              flex-col arrangement (no row layout below md), so the
+              object stacks above the text instead of beside it — at
+              full desktop size that stack is tall enough to clip the
+              body copy again, the same overflow this whole layout was
+              restructured to fix. */}
+          <div className="shrink-0" style={{ width: logo3DSize, height: logo3DSize }}>
+            {show3D && <PhilosophyLogo3D size={logo3DSize} />}
+          </div>
 
           <div className="flex flex-col items-center text-center md:items-start md:text-left">
             <PhilosophyEyebrow
               text={t.philosophy.eyebrow}
               align="start"
-              className="text-xs uppercase tracking-[0.38em] text-gold font-body mb-8 text-center md:text-left"
+              className="text-xs uppercase tracking-[0.38em] text-gold font-body mb-5 md:mb-8 text-center md:text-left"
             />
 
             <div
@@ -255,7 +265,7 @@ export default function PhilosophySection() {
               ))}
             </div>
 
-            <div className="mt-10 md:mt-12 flex items-center gap-3" aria-hidden="true">
+            <div className="mt-6 md:mt-12 flex items-center gap-3" aria-hidden="true">
               {statements.map((_, i) => (
                 <span
                   key={i}
