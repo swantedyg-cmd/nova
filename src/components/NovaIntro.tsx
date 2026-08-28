@@ -109,22 +109,46 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
     if (!shouldRenderOverlay || reducedMotion) return
 
     const fallback = setTimeout(startReveal, VIDEO_FALLBACK_MS)
-    const onSkip = () => startReveal()
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onSkip()
+
+    // If autoplay was blocked, the video is still sitting on its poster,
+    // .paused. Every prior fix here targeted *why* autoplay gets refused
+    // (muted timing, file weight) — but no combination of those is a
+    // guarantee, and a policy that's still refusing it despite all of
+    // that means the video never plays and every one of these listeners
+    // was firing on the very first tap, revealing the homepage before a
+    // single frame had shown. A browser can never refuse playback that's
+    // triggered directly by a real tap/click, though — so the first one
+    // is used to actually start the video instead of skipping past it.
+    // Only a second interaction (or the video actually ending) skips.
+    const onSkip = () => {
+      const video = videoRef.current
+      if (video && video.paused && video.ended === false && video.currentTime === 0) {
+        video.play().catch(() => startReveal())
+        return
+      }
+      startReveal()
     }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') startReveal()
+    }
+
+    // Wheel doesn't count as a "real" gesture for autoplay purposes in
+    // most browsers the way a tap/click does, so it stays a pure skip
+    // rather than attempting play() — someone scrolling wants past the
+    // intro, not to start a video they can't fully see anyway mid-scroll.
+    const onWheelSkip = () => startReveal()
 
     window.addEventListener('pointerdown', onSkip)
     window.addEventListener('keydown', onKeyDown)
-    window.addEventListener('wheel', onSkip, { passive: true })
     window.addEventListener('touchstart', onSkip, { passive: true })
+    window.addEventListener('wheel', onWheelSkip, { passive: true })
 
     return () => {
       clearTimeout(fallback)
       window.removeEventListener('pointerdown', onSkip)
       window.removeEventListener('keydown', onKeyDown)
-      window.removeEventListener('wheel', onSkip)
       window.removeEventListener('touchstart', onSkip)
+      window.removeEventListener('wheel', onWheelSkip)
     }
   }, [shouldRenderOverlay, reducedMotion])
 
