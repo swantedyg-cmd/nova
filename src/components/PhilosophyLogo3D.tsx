@@ -21,7 +21,13 @@ function ForceSize() {
   // long as the canvas stays mounted. Forcing once on mount is enough:
   // gl/camera are stable across the component's lifetime here.
   useEffect(() => {
-    gl.setSize(SIZE, SIZE, false)
+    // The `true` here matters: it's what actually sets canvas.style.width/
+    // height to SIZE. R3F's own ResizeObserver-driven sizing never resolves
+    // this canvas past the browser's bare default (300x150), so leaving
+    // this false (as it originally was) only fixed the internal drawing
+    // buffer resolution and left the canvas visibly tiny in the corner of
+    // its 340x340 container.
+    gl.setSize(SIZE, SIZE, true)
     if (camera instanceof THREE.PerspectiveCamera) {
       camera.aspect = 1
       camera.updateProjectionMatrix()

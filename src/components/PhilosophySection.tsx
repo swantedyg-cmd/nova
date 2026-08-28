@@ -26,10 +26,18 @@ const ORIGINAL_INK_THEME = {
   '--color-canvas': '#F5F1EB',
 } as CSSProperties
 
-function PhilosophyEyebrow({ text, className }: { text: string; className: string }) {
+function PhilosophyEyebrow({
+  text,
+  className,
+  align = 'center',
+}: {
+  text: string
+  className: string
+  align?: 'center' | 'start'
+}) {
   const isMobile = useIsMobile()
   return (
-    <div className="text-center">
+    <div className={align === 'start' ? 'text-center md:text-left' : 'text-center'}>
       <div className="relative inline-block">
         {!isMobile && (
           <LazyStrands
@@ -190,58 +198,73 @@ export default function PhilosophySection() {
           </div>
         </div>
       ) : (
-        <div ref={pinRef} className="min-h-screen flex flex-col items-center justify-center px-6 md:px-12 lg:px-24">
-          <PhilosophyEyebrow
-            text={t.philosophy.eyebrow}
-            className="text-xs uppercase tracking-[0.38em] text-gold font-body mb-6 text-center"
-          />
-          {/* Reserves the 3D object's final footprint from the very first
-              render, whether or not it has actually mounted yet — the pin
-              below measures this section's height once, up front, and
-              swapping the canvas in later without changing that height
-              means the pin never needs (and never risks) a re-measure
-              while it may already be actively engaged mid-scroll. */}
-          <div className="mb-8 md:mb-10" style={{ width: 340, height: 340 }}>
-            {show3D && <PhilosophyLogo3D />}
-          </div>
+        <div
+          ref={pinRef}
+          className="min-h-screen w-full flex flex-col items-center justify-center gap-8 px-6 py-16 md:flex-row md:items-center md:justify-center md:gap-16 md:px-12 md:py-0 lg:px-24 lg:gap-24"
+        >
+          {/* Docked beside the text on desktop, not stacked above it —
+              stacking a 340px object + eyebrow + headline + body + dots
+              all in one column routinely taller than the viewport, so
+              `justify-center` clipped the body copy and dots off the
+              bottom (or the object off the top). Side-by-side means
+              neither the object nor the full statement text ever
+              competes with the other for vertical room, and the object
+              stays on screen for the whole pinned scroll instead of
+              only being visible near the top of it. Reserves its final
+              footprint from the very first render (mounted or not) so
+              the pin's one-time height measurement never needs a
+              mid-scroll re-check. */}
+          {!isMobile && (
+            <div className="shrink-0" style={{ width: 340, height: 340 }}>
+              {show3D && <PhilosophyLogo3D />}
+            </div>
+          )}
 
-          <div
-            className="relative w-full max-w-2xl"
-            style={{ display: 'grid', perspective: 900 }}
-          >
-            {statements.map((s, i) => (
-              <div
-                key={i}
-                ref={(el) => { itemsRef.current[i] = el }}
-                className="text-center"
-                style={{ gridRow: 1, gridColumn: 1, transformStyle: 'preserve-3d' }}
-              >
-                <span
-                  ref={(el) => { numRef.current[i] = el }}
-                  className="inline-block font-body text-xs tracking-[0.22em] uppercase font-medium"
-                  style={{ color: ACCENTS[i], willChange: 'transform, opacity' }}
+          <div className="flex flex-col items-center text-center md:items-start md:text-left">
+            <PhilosophyEyebrow
+              text={t.philosophy.eyebrow}
+              align="start"
+              className="text-xs uppercase tracking-[0.38em] text-gold font-body mb-8 text-center md:text-left"
+            />
+
+            <div
+              className="relative w-full max-w-lg"
+              style={{ display: 'grid', perspective: 900 }}
+            >
+              {statements.map((s, i) => (
+                <div
+                  key={i}
+                  ref={(el) => { itemsRef.current[i] = el }}
+                  className="text-center md:text-left"
+                  style={{ gridRow: 1, gridColumn: 1, transformStyle: 'preserve-3d' }}
                 >
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <h3 className="mt-3 font-display text-3xl md:text-4xl font-medium text-canvas leading-snug">
-                  {s.headline}
-                </h3>
-                <p className="mt-4 text-sm md:text-base leading-relaxed text-canvas/48 font-body font-light max-w-lg mx-auto">
-                  {s.body}
-                </p>
-              </div>
-            ))}
-          </div>
+                  <span
+                    ref={(el) => { numRef.current[i] = el }}
+                    className="inline-block font-body text-xs tracking-[0.22em] uppercase font-medium"
+                    style={{ color: ACCENTS[i], willChange: 'transform, opacity' }}
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <h3 className="mt-3 font-display text-2xl md:text-3xl font-medium text-canvas leading-snug">
+                    {s.headline}
+                  </h3>
+                  <p className="mt-4 text-sm md:text-base leading-relaxed text-canvas/48 font-body font-light max-w-lg mx-auto md:mx-0">
+                    {s.body}
+                  </p>
+                </div>
+              ))}
+            </div>
 
-          <div className="mt-14 md:mt-16 flex items-center gap-3" aria-hidden="true">
-            {statements.map((_, i) => (
-              <span
-                key={i}
-                ref={(el) => { dotsRef.current[i] = el }}
-                className="block w-1.5 h-1.5 rounded-full"
-                style={{ backgroundColor: ACCENTS[i] }}
-              />
-            ))}
+            <div className="mt-10 md:mt-12 flex items-center gap-3" aria-hidden="true">
+              {statements.map((_, i) => (
+                <span
+                  key={i}
+                  ref={(el) => { dotsRef.current[i] = el }}
+                  className="block w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: ACCENTS[i] }}
+                />
+              ))}
+            </div>
           </div>
         </div>
       )}
