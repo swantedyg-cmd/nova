@@ -75,7 +75,7 @@ export default function PhilosophySection() {
   const isMobile = useIsMobile()
   const { t } = useLanguage()
   const statements = t.philosophy.statements
-  const logo3DSize = isMobile ? 220 : 340
+  const logo3DSize = isMobile ? 240 : 460
 
   // Same defer-until-near-viewport pattern GalleryScene uses for its own
   // WebGL mount — this section renders on every page load regardless of
@@ -208,8 +208,8 @@ export default function PhilosophySection() {
           className="min-h-screen w-full flex flex-col items-center justify-center gap-6 px-6 py-10 md:flex-row md:items-center md:justify-center md:gap-16 md:px-12 md:py-0 lg:px-24 lg:gap-24"
         >
           {/* Docked beside the text on desktop, not stacked above it —
-              stacking a 340px object + eyebrow + headline + body + dots
-              all in one column routinely taller than the viewport, so
+              stacking the object + eyebrow + headline + body + dots all
+              in one column routinely taller than the viewport, so
               `justify-center` clipped the body copy and dots off the
               bottom (or the object off the top). Side-by-side means
               neither the object nor the full statement text ever
@@ -220,7 +220,7 @@ export default function PhilosophySection() {
               the pin's one-time height measurement never needs a
               mid-scroll re-check.
 
-              Smaller on mobile (220 vs 340): mobile stays in the
+              Smaller on mobile (240 vs 460): mobile stays in the
               flex-col arrangement (no row layout below md), so the
               object stacks above the text instead of beside it — at
               full desktop size that stack is tall enough to clip the

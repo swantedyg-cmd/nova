@@ -201,7 +201,7 @@ export default function PhilosophyLogo3D({ size = DEFAULT_SIZE }: { size?: numbe
       <Canvas
         style={{ width: size, height: size }}
         resize={{ scroll: false, debounce: 0 }}
-        dpr={1}
+        dpr={[1, 2]}
         gl={{ antialias: true }}
         camera={{ position: [1.3, 0.75, 1.65], fov: 40 }}
         shadows={false}
