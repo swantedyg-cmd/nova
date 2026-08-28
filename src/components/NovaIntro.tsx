@@ -19,9 +19,12 @@ const SESSION_KEY = 'nova-intro'
 const REVEAL_DURATION = 650 // ms — overlay wipe + homepage settle
 const REDUCED_HOLD_MS = 900
 const REDUCED_FADE_MS = 500
-// Safety net in case the video never fires `ended` (autoplay blocked,
-// slow network, decode error) — never leave a visitor stuck behind the
-// overlay. Comfortably longer than the clip itself.
+// Safety net in case the video never fires `ended` (slow network, decode
+// error) — never leave a visitor stuck behind the overlay. Comfortably
+// longer than the clip itself. Autoplay actually being BLOCKED is handled
+// separately and immediately (see the `.play()` rejection handling below)
+// rather than waiting out this whole timeout — this is only for a video
+// that started but stalled or never fires `ended`.
 const VIDEO_FALLBACK_MS = 9000
 
 export default function NovaIntro({ children }: { children: React.ReactNode }) {
@@ -32,6 +35,7 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
   const [revealing, setRevealing] = useState(false)
 
   const contentRef = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const finishedRef = useRef(false)
   const revealingRef = useRef(false)
 
@@ -122,6 +126,27 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
     }
   }, [shouldRenderOverlay, reducedMotion])
 
+  // `autoPlay` is a request, not a guarantee — mobile browsers (most
+  // reliably reproducible: iOS Low Power Mode, some Android WebViews, data
+  // saver settings) can silently refuse it, and when that happens the
+  // element just sits on its poster frame forever with nothing in this
+  // component aware anything went wrong: `onEnded` never fires because
+  // playback never started, so a visitor was stuck looking at a static
+  // logo until the full 9s VIDEO_FALLBACK_MS timeout, or until they
+  // happened to realize tapping the screen would skip it. Calling .play()
+  // explicitly gives a promise that rejects the instant autoplay is
+  // refused, so that case reveals the homepage immediately instead of
+  // making every visitor it happens to sit through a dead screen.
+  useEffect(() => {
+    if (!shouldRenderOverlay || reducedMotion) return
+    const video = videoRef.current
+    if (!video) return
+    const playAttempt = video.play()
+    if (playAttempt && typeof playAttempt.catch === 'function') {
+      playAttempt.catch(() => startReveal())
+    }
+  }, [shouldRenderOverlay, reducedMotion])
+
   // The homepage settles in from a held-back scale/opacity exactly once —
   // the first frame it mounts after the video reveal (never for a returning
   // visitor, who sees it plainly, and never for reduced motion, which skips
@@ -192,6 +217,7 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
               </div>
             ) : (
               <video
+                ref={videoRef}
                 className={styles.introVideo}
                 src="/nova-intro.mp4"
                 poster="/nova-logo.png"
@@ -200,6 +226,7 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
                 playsInline
                 preload="auto"
                 onEnded={startReveal}
+                onError={startReveal}
               />
             )}
           </div>
