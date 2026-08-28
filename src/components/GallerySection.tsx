@@ -35,6 +35,22 @@ const COLLECTION_SEGMENTS = (() => {
 // total length of the pinned flythrough (scales with PIECES.length).
 const PIECES_PER_VIEWPORT = 5.5
 
+// A handful of the "PW" run's estimated aspect ratios (see the catalogue
+// comment on that run) come out far narrower than the piece's own
+// width/height would suggest — e.g. PW-075 is 0.17 (a card nearly 6x
+// taller than it is wide) where its 45x120cm dimensions imply ~0.38. Fed
+// straight into `paddingTop: ${(1/aspect)*100}%`, that one card would
+// render over 1000px tall in a 224px-wide mobile carousel slot, and
+// because the carousel's flex row default-stretches every card to match
+// its tallest sibling, that single bad value was inflating the entire
+// row — and the blank space below it — by close to a full screen height
+// on mobile. Clamping the floor here fixes it regardless of whether any
+// individual aspect value is itself correct.
+const MIN_CARD_ASPECT = 0.5
+function cardAspectPadding(aspect: number) {
+  return `${(1 / Math.max(aspect, MIN_CARD_ASPECT)) * 100}%`
+}
+
 const GalleryScene = dynamic(() => import('./GalleryScene'), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-parchment flex items-center justify-center">
@@ -53,7 +69,7 @@ function MobileCard({ piece, onClick }: { piece: typeof PIECES[0]; onClick: () =
         <div
           className="w-full"
           style={{
-            paddingTop: `${(1 / piece.aspect) * 100}%`,
+            paddingTop: cardAspectPadding(piece.aspect),
             background: piece.image ? undefined : `linear-gradient(160deg, ${from} 0%, ${to} 100%)`,
             position: 'relative',
           }}
@@ -178,7 +194,7 @@ function MobileLightbox({
         <div
           className="relative w-full"
           style={{
-            paddingTop: `${(1 / piece.aspect) * 100}%`,
+            paddingTop: cardAspectPadding(piece.aspect),
             background: piece.image ? undefined : `linear-gradient(160deg, ${from} 0%, ${to} 100%)`,
           }}
         >
@@ -542,7 +558,7 @@ export default function GallerySection() {
                 <div
                   className="w-full"
                   style={{
-                    paddingTop: `${(1 / piece.aspect) * 100}%`,
+                    paddingTop: cardAspectPadding(piece.aspect),
                     background: piece.image ? undefined : `linear-gradient(160deg, ${from} 0%, ${to} 100%)`,
                     position: 'relative',
                   }}
