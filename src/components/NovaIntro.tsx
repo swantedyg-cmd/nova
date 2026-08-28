@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import styles from './NovaIntro.module.css'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 // Nova's entrance: the brand video plays once, full quality, then the
 // overlay wipes open to reveal the homepage.
@@ -28,6 +29,7 @@ const REDUCED_FADE_MS = 500
 const VIDEO_FALLBACK_MS = 9000
 
 export default function NovaIntro({ children }: { children: React.ReactNode }) {
+  const isMobile = useIsMobile()
   const [shouldRenderOverlay, setShouldRenderOverlay] = useState(false)
   const [contentReady, setContentReady] = useState(false)
   const [reducedMotion, setReducedMotion] = useState(false)
@@ -223,7 +225,19 @@ export default function NovaIntro({ children }: { children: React.ReactNode }) {
               <video
                 ref={videoRef}
                 className={styles.introVideo}
-                src="/nova-intro.mp4"
+                // Same footage, same crop, same CRF-20 (visually
+                // near-lossless) encode — nova-intro-mobile.mp4 is just
+                // scaled to 960x540 instead of the original 1920x1080,
+                // at a fraction of the file size (~420KB vs ~2.5MB). A
+                // phone screen can't resolve 1080p any more sharply than
+                // this through the letterboxed `object-fit: contain`
+                // this section already renders at on mobile (see the
+                // module CSS), so serving the full desktop resolution
+                // there was pure wasted bandwidth and decode cost — on a
+                // slow connection, extra weight here is also extra time
+                // before `autoplay` has enough buffered to actually
+                // start, which read as the video "not playing".
+                src={isMobile ? '/nova-intro-mobile.mp4' : '/nova-intro.mp4'}
                 poster="/nova-logo.png"
                 autoPlay
                 muted
