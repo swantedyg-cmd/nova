@@ -563,10 +563,11 @@ export function CollectionCoverflow({
                       )}
 
                       <div
-                        className="mt-3 h-px bg-[#D4A42E]"
+                        className="mt-3 h-px w-10 bg-[#D4A42E]"
                         style={{
-                          width: isRevealed ? 40 : 0,
-                          transition: "width 0.5s ease 0.3s",
+                          transformOrigin: "left",
+                          transform: `scaleX(${isRevealed ? 1 : 0})`,
+                          transition: "transform 0.5s ease 0.3s",
                         }}
                       />
 
