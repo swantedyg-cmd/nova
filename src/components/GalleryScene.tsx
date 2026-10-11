@@ -5,6 +5,7 @@ import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber'
 import * as THREE from 'three'
 import { PIECES, COLLECTION_COLORS, type Collection } from '@/data/catalogue'
 import { SPACING, ENTRY_LEAD, progressToIndex as progressToIndexShared } from './galleryPath'
+import GalleryWaves from './GalleryWaves'
 
 /* ─── Procedural gradient texture ────────────────────────────────────── */
 function makeArtTexture(from: string, to: string, aspect: number): THREE.CanvasTexture {
@@ -326,6 +327,24 @@ function Scene({ focusedId, activeCollection, onFocus, progressRef, mouseRef }: 
       <ambientLight intensity={0.7} color="#F9F0E5" />
       <directionalLight position={[5, 8, 5]}  intensity={1.1} color="#FFF8EE" />
       <directionalLight position={[-6, 2, -4]} intensity={0.3} color="#E8C880" />
+
+      {/* Silk currents — fed the corridor's own geometry, so they bend
+          and rise exactly with the frames and the camera rail. */}
+      <GalleryWaves
+        progressRef={progressRef}
+        progressToIndex={progressToIndex}
+        peakIndexAhead={PEAK_INDEX_AHEAD}
+        count={PIECES.length}
+        spacing={SPACING}
+        entryLead={ENTRY_LEAD}
+        sweepAmplitude={SWEEP_AMPLITUDE}
+        sweepPeriod={SWEEP_PERIOD}
+        liftAmplitude={LIFT_AMPLITUDE}
+        liftPeriod={LIFT_PERIOD}
+        fadeNear={SPACING * 3.5}
+        fadeFar={SPACING * 9}
+        dimmed={focusedId !== null}
+      />
 
       <Suspense fallback={null}>
         {PIECES.map((piece, i) => (
