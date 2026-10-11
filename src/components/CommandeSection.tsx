@@ -25,7 +25,7 @@ export default function CommandeSection() {
   const headRef    = useRef<HTMLDivElement>(null)
   const { t, lang } = useLanguage()
   const c = t.commande
-  const { cartItems, removeFromCart } = useCart()
+  const { cartItems, addToCart, removeFromCart } = useCart()
 
   const [name, setName]       = useState('')
   const [phone, setPhone]     = useState('')
@@ -249,6 +249,49 @@ export default function CommandeSection() {
                   </div>
                 </div>
               )}
+
+              {/* Choose by name — the same cart, picked straight from the form */}
+              <fieldset className="mt-4">
+                <legend className="flex w-full items-center gap-3 text-[10px] uppercase tracking-[0.24em] text-[var(--color-nova-gold-deep)] font-body font-semibold">
+                  <span className="h-px flex-1 bg-gradient-to-r from-transparent to-gold/40 rtl:bg-gradient-to-l" />
+                  {c.formPick}
+                  <span className="h-px flex-1 bg-gradient-to-l from-transparent to-gold/40 rtl:bg-gradient-to-r" />
+                </legend>
+                <p className="mt-1.5 text-center text-[11px] text-charcoal/45 font-body">{c.formPickHint}</p>
+                <div className="mt-3 flex flex-wrap justify-center gap-2">
+                  {PIECES.map((p) => {
+                    const picked = cartItems.includes(p.id)
+                    return (
+                      <button
+                        key={p.id}
+                        type="button"
+                        lang="fr"
+                        aria-pressed={picked}
+                        onClick={(e) =>
+                          picked
+                            ? removeFromCart(p.id)
+                            : addToCart(p.id, `/images/${p.image}`, e.currentTarget)
+                        }
+                        className={`group inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-display text-[13px] italic outline-none transition-all duration-300 focus-visible:ring-2 focus-visible:ring-gold/50 active:scale-95 ${
+                          picked
+                            ? 'border-gold bg-gold/15 text-charcoal shadow-[0_4px_14px_-6px_rgba(166,124,0,0.55)]'
+                            : 'border-charcoal/15 bg-canvas text-charcoal/70 hover:border-gold/60 hover:text-charcoal'
+                        }`}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`grid size-3.5 place-items-center rounded-full text-[9px] not-italic transition-all duration-300 ${
+                            picked ? 'bg-gold text-canvas' : 'border border-charcoal/25 text-transparent group-hover:border-gold/70'
+                          }`}
+                        >
+                          ✓
+                        </span>
+                        {p.theme}
+                      </button>
+                    )
+                  })}
+                </div>
+              </fieldset>
             </div>
           </div>
 
