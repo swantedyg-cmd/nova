@@ -7,7 +7,7 @@ import { useLanguage } from '@/i18n/LanguageContext'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const PHONE_INTL = '212710260501'
+const PHONE_INTL = '212688873673'
 
 interface Fleck {
   left: number

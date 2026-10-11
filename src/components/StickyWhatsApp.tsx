@@ -2,7 +2,7 @@
 
 import { useLanguage } from '@/i18n/LanguageContext'
 
-const PHONE_INTL = '212710260501'
+const PHONE_INTL = '212688873673'
 
 export default function StickyWhatsApp() {
   const { t, lang } = useLanguage()

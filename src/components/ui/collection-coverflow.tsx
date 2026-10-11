@@ -603,7 +603,7 @@ export function CollectionCoverflow({
                       </div>
 
                       <a
-                        href={`https://wa.me/212710260501?text=${encodeURIComponent(
+                        href={`https://wa.me/212688873673?text=${encodeURIComponent(
                           `Bonjour, je suis intéressé(e) par "${piece.title}" — ${piece.size} — ${piece.price} DH (N° ${String(index + 1).padStart(2, "0")} / ${count})`,
                         )}`}
                         target="_blank"

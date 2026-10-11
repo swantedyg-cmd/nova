@@ -12,7 +12,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const PHONE_RAW = '0710260501'
+const PHONE_RAW = '0688873673'
 const PHONE_INTL = '212' + PHONE_RAW.slice(1)
 const PHONE_DISPLAY = PHONE_RAW.replace(/(\d{2})(?=\d)/g, '$1 ').trim()
 

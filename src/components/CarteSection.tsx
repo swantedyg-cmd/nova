@@ -12,7 +12,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const PHONE_INTL = '212710260501'
+const PHONE_INTL = '212688873673'
 const EMAIL = 'swantedyg@gmail.com'
 const SITE_URL = 'https://nova.vercel.app'
 

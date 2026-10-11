@@ -8,7 +8,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLanguage } from '@/i18n/LanguageContext'
 import type { Piece, Collection } from '@/data/catalogue'
 
-const PHONE_INTL = '212710260501'
+const PHONE_INTL = '212688873673'
 
 const CATEGORIES: (Collection | 'Tout')[] = [
   'Tout',
