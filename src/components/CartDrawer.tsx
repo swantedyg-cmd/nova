@@ -1,5 +1,7 @@
 'use client'
 
+import { useSyncExternalStore } from 'react'
+import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import Image from 'next/image'
 import { Banknote, Frame, Truck, X } from 'lucide-react'
@@ -9,6 +11,13 @@ import { useLanguage } from '@/i18n/LanguageContext'
 
 const EXPO_OUT = [0.16, 1, 0.3, 1] as const
 const REASSURE_ICONS = [Frame, Banknote, Truck]
+
+const noop = () => () => {}
+// True only on the client — the drawer is portalled to <body>, which
+// doesn't exist during server rendering.
+function useIsClient() {
+  return useSyncExternalStore(noop, () => true, () => false)
+}
 
 export function formatDH(n: number) {
   // Thin-space thousands, the way prices read on a printed label.
@@ -20,6 +29,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
   const { t, lang } = useLanguage()
   const c = t.cart
   const rtl = lang === 'ar'
+  const isClient = useIsClient()
 
   const items = cartItems
     .map((id) => {
@@ -38,7 +48,11 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
     })
   }
 
-  return (
+  if (!isClient) return null
+
+  // Portalled to <body>: inside the header's fixed, z-indexed wrapper the
+  // drawer couldn't rise above the floating WhatsApp/Instagram buttons.
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -183,7 +197,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
                 </dl>
 
                 {/* Reassurance */}
-                <ul className="mt-4 grid grid-cols-3 gap-2">
+                <ul className="mt-4 grid grid-cols-3 gap-2 [@media(max-height:720px)]:hidden">
                   {c.reassure.map((label, i) => {
                     const Icon = REASSURE_ICONS[i]
                     return (
@@ -209,6 +223,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }
