@@ -112,7 +112,13 @@ export default function HeroSection() {
   }, [isMobile])
 
   return (
-    <section className="relative w-full overflow-clip bg-parchment">
+    <section
+      className="relative w-full overflow-clip"
+      // Ivory ground that turns, over the last stretch, into exactly the
+      // gallery's own surface (parchment at 80% over the fixed site
+      // background) — so the two sections meet with no seam at all.
+      style={{ background: 'linear-gradient(to bottom, var(--color-ivory) calc(100% - 16rem), color-mix(in srgb, var(--color-parchment) 80%, transparent) 100%)' }}
+    >
       {/* Ambient Strands layer — decorative backdrop behind text + gallery, desktop only */}
       {!isMobile && (
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>

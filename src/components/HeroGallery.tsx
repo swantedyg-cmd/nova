@@ -211,7 +211,7 @@ export default function HeroGallery() {
       onKeyDown={onKeyDown}
       onPointerEnter={(e) => e.pointerType === 'mouse' && setHovered(true)}
       onPointerLeave={() => setHovered(false)}
-      className="relative mx-auto outline-none focus-visible:ring-2 focus-visible:ring-gold/60 focus-visible:ring-offset-8 focus-visible:ring-offset-parchment rounded-sm"
+      className="relative mx-auto outline-none focus-visible:ring-2 focus-visible:ring-gold/60 focus-visible:ring-offset-8 focus-visible:ring-offset-ivory rounded-sm"
       style={{
         width: isMobile
           ? 'min(100%, 28rem)'

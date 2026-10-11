@@ -3,6 +3,7 @@
 @theme {
   --color-parchment:      #F1E3C8;
   --color-parchment-dark: #E3CBA0;
+  --color-ivory:          #FAF7F2; /* hero ground — the clean light the gold logo was made for */
   --color-charcoal:       #5A1220;
   --color-charcoal-mid:   #7B1B2C;
   --color-gold:           #C89B3C;
