@@ -8,7 +8,7 @@ export interface Piece {
   keywords: { fr: string[]; en: string[]; ar: string[] } // 5 evocative tags per language, from the official Nova catalog
   width: number   // cm
   height: number  // cm
-  price: number   // DH — reused from this catalogue's own established size/price tiers (no supplier sheet yet for this run; see NOVA_CONTEXT.md)
+  price: number   // DH — official prices from the NOVA catalogue price list (2026-10-11)
   quantity: number // pieces remaining in this run — estimated within the historical range for its tier
   // Aspect ratio helpers
   aspect: number  // width/height, measured from the actual photographed crop
@@ -35,7 +35,7 @@ export const PIECES: Piece[] = [
       en: ['Floral', 'Elegant', 'Vibrant', 'Feminine', 'Traditional'],
       ar: ['زهري', 'أنيق', 'نابض بالحياة', 'أنثوي', 'تقليدي'],
     },
-    width: 80, height: 120, price: 2499, quantity: 80, aspect: 1007 / 1600, image: 'eclat-floral.jpg',
+    width: 80, height: 120, price: 2000, quantity: 80, aspect: 1007 / 1600, image: 'eclat-floral.jpg',
   },
   {
     id: 'rosee', collection: 'Nouvelle Collection',
@@ -50,7 +50,7 @@ export const PIECES: Piece[] = [
       en: ['Majestic', 'Romantic', 'Luxurious', 'Colorful', 'Refined'],
       ar: ['مهيب', 'رومانسي', 'فاخر', 'ملوّن', 'راقٍ'],
     },
-    width: 80, height: 120, price: 1899, quantity: 60, aspect: 1022 / 1600, image: 'rosee.jpg',
+    width: 80, height: 120, price: 2000, quantity: 60, aspect: 1022 / 1600, image: 'rosee.jpg',
   },
   {
     id: 'ame-nomade', collection: 'Nouvelle Collection',
@@ -65,7 +65,7 @@ export const PIECES: Piece[] = [
       en: ['Free', 'Expressive', 'Colorful', 'Cultural', 'Artistic'],
       ar: ['حر', 'معبّر', 'ملوّن', 'ثقافي', 'فني'],
     },
-    width: 90, height: 120, price: 2199, quantity: 80, aspect: 1178 / 1600, image: 'ame-nomade.jpg',
+    width: 90, height: 120, price: 1200, quantity: 80, aspect: 1178 / 1600, image: 'ame-nomade.jpg',
   },
   {
     id: 'serenite-doree', collection: 'Nouvelle Collection',
@@ -80,7 +80,7 @@ export const PIECES: Piece[] = [
       en: ['Spiritual', 'Graceful', 'Powerful', 'Luxurious', 'Soothing'],
       ar: ['روحاني', 'رشيق', 'قوي', 'فاخر', 'مهدّئ'],
     },
-    width: 80, height: 120, price: 1799, quantity: 60, aspect: 1044 / 1600, image: 'serenite-doree.jpg',
+    width: 80, height: 120, price: 1700, quantity: 60, aspect: 1044 / 1600, image: 'serenite-doree.jpg',
   },
   {
     id: 'reine-dor', collection: 'Nouvelle Collection',
@@ -95,7 +95,7 @@ export const PIECES: Piece[] = [
       en: ['Royal', 'Powerful', 'Golden', 'Luxurious', 'Intense'],
       ar: ['ملكي', 'قوي', 'ذهبي', 'فاخر', 'مؤثر'],
     },
-    width: 80, height: 120, price: 2499, quantity: 80, aspect: 1060 / 1600, image: 'reine-dor.jpg',
+    width: 80, height: 120, price: 1400, quantity: 80, aspect: 1060 / 1600, image: 'reine-dor.jpg',
   },
   {
     id: 'grace-doree', collection: 'Nouvelle Collection',
@@ -110,7 +110,7 @@ export const PIECES: Piece[] = [
       en: ['Contemplative', 'Radiant', 'Delicate', 'Elegant', 'Precious'],
       ar: ['متأمل', 'مشرق', 'رقيق', 'أنيق', 'ثمين'],
     },
-    width: 80, height: 120, price: 1499, quantity: 80, aspect: 994 / 1600, image: 'grace-doree.jpg',
+    width: 80, height: 120, price: 1700, quantity: 80, aspect: 994 / 1600, image: 'grace-doree.jpg',
   },
   {
     id: 'blooming-muse', collection: 'Nouvelle Collection',
@@ -125,7 +125,7 @@ export const PIECES: Piece[] = [
       en: ['Artistic', 'Floral', 'Refined', 'Serene', 'Opulent'],
       ar: ['فني', 'زهري', 'راقٍ', 'هادئ', 'باذخ'],
     },
-    width: 80, height: 120, price: 1899, quantity: 60, aspect: 1086 / 1600, image: 'blooming-muse.jpg',
+    width: 80, height: 120, price: 1300, quantity: 60, aspect: 1086 / 1600, image: 'blooming-muse.jpg',
   },
   {
     id: 'flower-crown', collection: 'Nouvelle Collection',
@@ -140,7 +140,7 @@ export const PIECES: Piece[] = [
       en: ['Dreamy', 'Feminine', 'Ethereal', 'Soft', 'Sophisticated'],
       ar: ['حالم', 'أنثوي', 'أثيري', 'ناعم', 'أنيق'],
     },
-    width: 80, height: 120, price: 1499, quantity: 70, aspect: 1086 / 1600, image: 'flower-crown.jpg',
+    width: 80, height: 120, price: 1300, quantity: 70, aspect: 1086 / 1600, image: 'flower-crown.jpg',
   },
   {
     id: 'wings-of-colors', collection: 'Nouvelle Collection',
@@ -155,7 +155,7 @@ export const PIECES: Piece[] = [
       en: ['Vibrant', 'Expressive', 'Colorful', 'Free', 'Dynamic'],
       ar: ['نابض', 'معبّر', 'ملوّن', 'حر', 'ديناميكي'],
     },
-    width: 60, height: 90, price: 1499, quantity: 60, aspect: 1024 / 1600, image: 'wings-of-colors.jpg',
+    width: 60, height: 90, price: 1500, quantity: 60, aspect: 1024 / 1600, image: 'wings-of-colors.jpg',
   },
   {
     id: 'ivory-blossom', collection: 'Nouvelle Collection',
@@ -170,7 +170,7 @@ export const PIECES: Piece[] = [
       en: ['Elegant', 'Floral', 'Delicate', 'Romantic', 'Timeless'],
       ar: ['أنيق', 'زهري', 'رقيق', 'رومانسي', 'خالد'],
     },
-    width: 90, height: 120, price: 1999, quantity: 60, aspect: 1187 / 1600, image: 'ivory-blossom.jpg',
+    width: 90, height: 120, price: 1600, quantity: 60, aspect: 1187 / 1600, image: 'ivory-blossom.jpg',
   },
   {
     id: 'summer-in-style', collection: 'Nouvelle Collection',
@@ -185,7 +185,7 @@ export const PIECES: Piece[] = [
       en: ['Elegant', 'Modern', 'Airy', 'Natural', 'Sophisticated'],
       ar: ['أنيق', 'عصري', 'خفيف', 'طبيعي', 'راقٍ'],
     },
-    width: 70, height: 100, price: 1799, quantity: 60, aspect: 1130 / 1600, image: 'summer-in-style.jpg',
+    width: 70, height: 100, price: 1800, quantity: 60, aspect: 1130 / 1600, image: 'summer-in-style.jpg',
   },
   {
     id: 'riviera-muse', collection: 'Nouvelle Collection',
@@ -200,7 +200,7 @@ export const PIECES: Piece[] = [
       en: ['Chic', 'Boho', 'Relaxed', 'Sunlit', 'Luxurious'],
       ar: ['شيك', 'بوهيمي', 'مريح', 'مشمس', 'فاخر'],
     },
-    width: 70, height: 100, price: 1799, quantity: 70, aspect: 1146 / 1600, image: 'riviera-muse.jpg',
+    width: 70, height: 100, price: 1800, quantity: 70, aspect: 1146 / 1600, image: 'riviera-muse.jpg',
   },
 ]
 
