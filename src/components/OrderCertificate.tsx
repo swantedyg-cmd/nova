@@ -44,11 +44,13 @@ export default function OrderCertificate({ data, onClose }: { data: CertificateD
   const { t, lang } = useLanguage()
   const c = t.commande
   const reduce = useReducedMotion() ?? false
-  const closeRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!data) return
-    closeRef.current?.focus()
+    // Focus the certificate itself (not the close button) so screen
+    // readers start at the top and no focus ring lands on the corner.
+    dialogRef.current?.focus()
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -72,9 +74,11 @@ export default function OrderCertificate({ data, onClose }: { data: CertificateD
             role="dialog"
             aria-modal="true"
             aria-labelledby="nova-cert-title"
+            ref={dialogRef}
+            tabIndex={-1}
             dir={lang === 'ar' ? 'rtl' : 'ltr'}
             onClick={(e) => e.stopPropagation()}
-            className="relative my-auto w-full max-w-md rounded-[20px] p-[1.5px] shadow-[0_40px_90px_-20px_rgba(26,10,13,0.55)]"
+            className="relative my-auto w-full max-w-md rounded-[20px] p-[1.5px] outline-none shadow-[0_40px_90px_-20px_rgba(26,10,13,0.55)]"
             style={{ background: 'linear-gradient(135deg, #F5D07A, #A67C00 35%, #F5D07A 55%, #D4A42E)' }}
             initial={reduce ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.92, filter: 'blur(12px)' }}
             animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
@@ -89,11 +93,10 @@ export default function OrderCertificate({ data, onClose }: { data: CertificateD
               <div aria-hidden="true" className="pointer-events-none absolute inset-2.5 rounded-[14px] border border-gold/35" />
 
               <button
-                ref={closeRef}
                 type="button"
                 onClick={onClose}
                 aria-label={c.thankClose}
-                className="absolute end-4 top-4 z-10 grid size-8 place-items-center rounded-full text-charcoal/45 transition-colors hover:bg-charcoal/5 hover:text-charcoal"
+                className="absolute end-4 top-4 z-10 grid size-8 place-items-center rounded-full text-charcoal/45 outline-none transition-colors hover:bg-charcoal/5 hover:text-charcoal focus-visible:ring-2 focus-visible:ring-gold/60"
               >
                 <X className="size-4" />
               </button>
