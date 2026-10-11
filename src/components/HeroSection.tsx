@@ -112,7 +112,7 @@ export default function HeroSection() {
   }, [isMobile])
 
   return (
-    <section className="relative w-full overflow-hidden bg-parchment">
+    <section className="relative w-full overflow-clip bg-parchment">
       {/* Ambient Strands layer — decorative backdrop behind text + gallery, desktop only */}
       {!isMobile && (
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
@@ -262,10 +262,15 @@ export default function HeroSection() {
           </motion.div>
         </motion.div>
 
-        {/* Gallery panel — masonry grid of framed pieces, stacked below the
-            text on narrow viewports, filling the remaining row on lg+ */}
-        <div className="relative z-10 flex-1 px-6 pb-16 lg:py-24 lg:px-0 lg:pe-16 lg:ps-4">
-          <HeroGallery />
+        {/* Single-frame slideshow — stacked below the text on narrow
+            viewports (extra bottom room so the scroll cue never sits on
+            the caption). On lg+ the text column runs taller than the
+            viewport, so the frame sticks near the top and stays on stage
+            while the headline and CTAs scroll past beside it. */}
+        <div className="relative z-10 flex flex-1 justify-center px-5 pt-4 pb-28 md:px-10 lg:self-stretch lg:py-24 lg:px-0 lg:pe-16 lg:ps-4">
+          <div className="w-full lg:sticky lg:top-24 lg:self-start">
+            <HeroGallery />
+          </div>
         </div>
       </div>
 

@@ -10,6 +10,7 @@ export const translations = {
       cta1: 'Explorer la Collection',
       cta2: 'Comment ça marche',
       scroll: 'Défiler',
+      slideshow: { label: 'La collection, pièce par pièce', pause: 'Mettre en pause le diaporama', play: 'Lire le diaporama', goTo: 'Afficher' },
     },
     philosophy: {
       eyebrow: 'Pourquoi la curation',
@@ -198,6 +199,7 @@ export const translations = {
       cta1: 'Explore the Collection',
       cta2: 'How It Works',
       scroll: 'Scroll',
+      slideshow: { label: 'The collection, piece by piece', pause: 'Pause slideshow', play: 'Play slideshow', goTo: 'Show' },
     },
     philosophy: {
       eyebrow: 'Why Curation',
@@ -386,6 +388,7 @@ export const translations = {
       cta1: 'استكشف المجموعة',
       cta2: 'كيف يعمل',
       scroll: 'مرّر',
+      slideshow: { label: 'المجموعة، قطعة تلو الأخرى', pause: 'إيقاف العرض مؤقتًا', play: 'تشغيل العرض', goTo: 'عرض' },
     },
     philosophy: {
       eyebrow: 'لماذا التنسيق',

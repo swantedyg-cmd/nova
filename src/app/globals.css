@@ -64,7 +64,10 @@ body {
   font-family: var(--font-dm-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
+  /* clip, not hidden: alongside html's own overflow-x, `hidden` turns body
+     into a (non-scrolling) scroll container, which silently breaks every
+     position: sticky element on the page (the hero frame relies on it). */
+  overflow-x: clip;
 }
 
 /* Gallery filter pill */
