@@ -520,7 +520,7 @@ export function CollectionCoverflow({
                           className="pointer-events-none absolute inset-0 overflow-hidden motion-reduce:hidden"
                         >
                           <div
-                            className="absolute inset-y-0 -left-1/2 w-1/3"
+                            className="absolute inset-y-0 left-0 w-1/3"
                             style={{
                               background:
                                 "linear-gradient(105deg, transparent 40%, rgba(245,208,122,0.25) 50%, transparent 60%)",

@@ -182,9 +182,12 @@ body {
 
 /* Coverflow — gold sweep across the active card's artwork. */
 @keyframes coverflowShimmer {
+  /* The band is a third of the card wide and starts just off its left
+     edge, so it must travel 4 of its own widths to clear the right edge —
+     the old 200% stopped it halfway across the painting. */
   0%   { transform: translateX(-100%); }
-  50%  { transform: translateX(200%); }
-  100% { transform: translateX(200%); }
+  55%  { transform: translateX(300%); }
+  100% { transform: translateX(300%); }
 }
 
 /* Coverflow — expanding pulse ring behind the active-card diamond badge. */
