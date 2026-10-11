@@ -7,6 +7,7 @@ import Header from '@/components/Header'
 import SiteBackground from '@/components/LazySiteBackground'
 import NovaIntro from '@/components/LazyNovaIntro'
 import StickyWhatsApp from '@/components/StickyWhatsApp'
+import StickyInstagram from '@/components/StickyInstagram'
 import CartFlyLayer from '@/components/CartFlyLayer'
 import CartControl from '@/components/CartControl'
 import './globals.css'
@@ -68,6 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <CartControl />
                 <LanguageSwitcher />
               </div>
+              <StickyInstagram />
               <StickyWhatsApp />
               <CartFlyLayer />
               {children}

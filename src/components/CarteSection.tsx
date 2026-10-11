@@ -9,6 +9,7 @@ import ElectricBorder from './ElectricBorder'
 import Tilt from './Tilt'
 import LazyStrands from './LazyStrands'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { INSTAGRAM_URL } from '@/data/social'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -145,6 +146,13 @@ export default function CarteSection() {
           sub={c.cardWhatsappSub}
           scanHint={c.scanHint}
           floatDelay="1.7s"
+        />
+        <QRCard
+          value={INSTAGRAM_URL}
+          label={c.cardInstagramLabel}
+          sub={c.cardInstagramSub}
+          scanHint={c.scanHint}
+          floatDelay="2.55s"
         />
         <QRCard
           value={`mailto:${EMAIL}`}

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLanguage } from '@/i18n/LanguageContext'
+import { INSTAGRAM_URL } from '@/data/social'
+import InstagramIcon from './InstagramIcon'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -111,17 +113,40 @@ export default function CtaSection() {
           {c.sub}
         </p>
 
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
         <a
           href={`https://wa.me/${PHONE_INTL}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-10 inline-flex items-center gap-2.5 rounded-sm border border-gold px-9 py-3.5 text-sm uppercase tracking-[0.08em] text-canvas transition-all duration-300 ease-out hover:bg-gold hover:text-charcoal-mid"
+          className="inline-flex items-center gap-2.5 rounded-sm border border-gold px-9 py-3.5 text-sm uppercase tracking-[0.08em] text-canvas transition-all duration-300 ease-out hover:bg-gold hover:text-charcoal-mid"
         >
           <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true">
             <path d="M17.6 6.32A7.85 7.85 0 0 0 12.05 4a7.94 7.94 0 0 0-6.9 11.9L4 20l4.2-1.1a7.9 7.9 0 0 0 3.85 1h.01a7.94 7.94 0 0 0 5.54-13.58zm-5.55 12.2h-.01a6.6 6.6 0 0 1-3.36-.92l-.24-.14-2.5.65.67-2.44-.16-.25a6.6 6.6 0 1 1 12.24-3.5 6.6 6.6 0 0 1-6.64 6.6zm3.62-4.94c-.2-.1-1.17-.58-1.35-.64s-.32-.1-.45.1-.5.64-.62.77-.23.15-.43.05a5.4 5.4 0 0 1-1.6-.98 6 6 0 0 1-1.1-1.38c-.12-.2 0-.3.09-.4.09-.1.2-.23.3-.35.1-.12.13-.2.2-.33a.36.36 0 0 0-.02-.35c-.05-.1-.45-1.08-.62-1.48s-.33-.33-.45-.34h-.38a.74.74 0 0 0-.53.25 2.24 2.24 0 0 0-.7 1.66c0 .98.71 1.93.81 2.06s1.4 2.14 3.4 3 2 .58 2.36.55c.36-.03 1.17-.48 1.34-.94s.17-.86.12-.94-.18-.14-.38-.24z" />
           </svg>
           {t.commande.whatsappCta}
         </a>
+
+        {/* Quieter sibling of the WhatsApp CTA — no border, and the
+            Instagram gradient only blooms through the glyph on hover. */}
+        <a
+          href={INSTAGRAM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={t.instagram.ariaLabel}
+          className="group relative inline-flex items-center gap-2.5 overflow-hidden rounded-sm px-7 py-3.5 text-sm uppercase tracking-[0.08em] text-canvas/75 transition-colors duration-300 ease-out hover:text-canvas"
+        >
+          <span className="relative grid h-6 w-6 place-items-center rounded-md transition-transform duration-500 ease-out group-hover:rotate-[-8deg] group-hover:scale-110">
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 rounded-md opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+              style={{ background: 'radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%)' }}
+            />
+            <InstagramIcon size={16} className="relative" />
+          </span>
+          {t.instagram.follow}
+          <span aria-hidden="true" className="absolute inset-x-7 bottom-2.5 h-px origin-center scale-x-0 bg-gold/70 transition-transform duration-500 ease-out group-hover:scale-x-100" />
+        </a>
+        </div>
 
         <p className="mt-9 text-xs uppercase tracking-[0.15em] text-canvas/40 font-body">
           {c.foot}

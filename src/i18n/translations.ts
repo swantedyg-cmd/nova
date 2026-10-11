@@ -132,6 +132,8 @@ export const translations = {
       cardWebsiteLabel: 'Nova',
       cardWebsiteSub: "Chaque toile, un fragment d'âme",
       cardWhatsappLabel: 'WhatsApp',
+      cardInstagramLabel: 'Instagram',
+      cardInstagramSub: '@nova_canvas_1',
       cardWhatsappSub: '0688873673',
       cardEmailLabel: 'Email',
       cardEmailSub: 'swantedyg@gmail.com',
@@ -155,6 +157,10 @@ export const translations = {
     },
     whatsapp: {
       ariaLabel: 'Discuter sur WhatsApp',
+    },
+    instagram: {
+      ariaLabel: 'Suivre Nova sur Instagram',
+      follow: 'Suivre sur Instagram',
     },
     showcase: {
       eyebrow: 'La Collection',
@@ -321,6 +327,8 @@ export const translations = {
       cardWebsiteLabel: 'Nova',
       cardWebsiteSub: 'Every canvas, a fragment of soul',
       cardWhatsappLabel: 'WhatsApp',
+      cardInstagramLabel: 'Instagram',
+      cardInstagramSub: '@nova_canvas_1',
       cardWhatsappSub: '0688873673',
       cardEmailLabel: 'Email',
       cardEmailSub: 'swantedyg@gmail.com',
@@ -344,6 +352,10 @@ export const translations = {
     },
     whatsapp: {
       ariaLabel: 'Chat on WhatsApp',
+    },
+    instagram: {
+      ariaLabel: 'Follow Nova on Instagram',
+      follow: 'Follow on Instagram',
     },
     showcase: {
       eyebrow: 'The Collection',
@@ -510,6 +522,8 @@ export const translations = {
       cardWebsiteLabel: 'Nova',
       cardWebsiteSub: 'كل لوحة، قطعة من الروح',
       cardWhatsappLabel: 'واتساب',
+      cardInstagramLabel: 'إنستغرام',
+      cardInstagramSub: '@nova_canvas_1',
       cardWhatsappSub: '0688873673',
       cardEmailLabel: 'البريد الإلكتروني',
       cardEmailSub: 'swantedyg@gmail.com',
@@ -533,6 +547,10 @@ export const translations = {
     },
     whatsapp: {
       ariaLabel: 'الدردشة عبر واتساب',
+    },
+    instagram: {
+      ariaLabel: 'تابع نوفا على إنستغرام',
+      follow: 'تابعنا على إنستغرام',
     },
     showcase: {
       eyebrow: 'المجموعة',

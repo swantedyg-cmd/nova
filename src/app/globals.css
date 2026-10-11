@@ -227,3 +227,33 @@ html[dir="rtl"] body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* StickyInstagram — orbiting ring + periodic glint (see component). */
+.ig-orbit {
+  background: conic-gradient(
+    from 0deg,
+    var(--color-nova-gold-light),
+    #fd5949,
+    #d6249f,
+    #285AEB,
+    var(--color-nova-gold),
+    var(--color-nova-gold-light)
+  );
+  animation: igOrbit 7s linear infinite;
+}
+@keyframes igOrbit {
+  to { transform: rotate(360deg); }
+}
+.ig-glint {
+  background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.55) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: igGlint 5.5s ease-in-out 2.4s infinite;
+}
+@keyframes igGlint {
+  0%, 72%  { transform: translateX(-120%); }
+  90%, 100% { transform: translateX(120%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ig-orbit, .ig-glint { animation: none; }
+  .ig-glint { display: none; }
+}
