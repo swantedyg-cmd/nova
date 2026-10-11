@@ -110,6 +110,8 @@ export default function NovaLogoAnimated({
         </motion.div>
       )}
 
+      {!reducedMotion && <ArtShimmer src="/nova-logo-icon.png" delay={SHIMMER_START} />}
+
       {!reducedMotion &&
         SPARKLES.map((s, i) => (
           <motion.div
@@ -134,16 +136,19 @@ export default function NovaLogoAnimated({
         // eslint-disable-next-line @next/next/no-img-element
         <img src="/nova-logo-word.png" alt="Nova" width={size} height={wordHeight} style={{ width: size, height: wordHeight }} />
       ) : (
-        <motion.img
-          src="/nova-logo-word.png"
-          alt="Nova"
-          width={size}
-          height={wordHeight}
+        <motion.div
+          className="relative"
           style={{ width: size, height: wordHeight }}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, ease: 'easeOut', delay: STROKE_DURATION }}
-        />
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/nova-logo-word.png" alt="Nova" width={size} height={wordHeight} style={{ width: size, height: wordHeight, display: 'block' }} />
+          {/* Trails the icon's sweep slightly, so one light travels
+              diagonally down through mark and word together. */}
+          <ArtShimmer src="/nova-logo-word.png" delay={SHIMMER_START + 0.28} />
+        </motion.div>
       )}
 
       {reducedMotion ? (
@@ -177,27 +182,6 @@ export default function NovaLogoAnimated({
 
       {!reducedMotion && (
         <>
-          {/* Gold shimmer sweep — white highlight overlay, loops every 4s */}
-          <motion.div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0"
-            style={{
-              mixBlendMode: 'overlay',
-              backgroundImage:
-                'linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.9) 50%, transparent 70%)',
-              backgroundSize: '250% 100%',
-            }}
-            initial={{ opacity: 0, backgroundPosition: '-40% 0%' }}
-            animate={{ opacity: [0, 0.6, 0], backgroundPosition: ['-40% 0%', '140% 0%'] }}
-            transition={{
-              duration: SHIMMER_SWEEP_DURATION,
-              repeat: Infinity,
-              repeatDelay: SHIMMER_CYCLE - SHIMMER_SWEEP_DURATION,
-              delay: SHIMMER_START,
-              ease: 'easeInOut',
-            }}
-          />
-
           {/* Floating gold sparkle dots, slow random-ish orbits */}
           {PARTICLES.map((p, i) => (
             <motion.div
@@ -227,9 +211,48 @@ export default function NovaLogoAnimated({
 
   if (!interactive) return content
 
+  // No Tilt gloss: with the logo floating on the page (no card behind it),
+  // the gloss layer's rectangular bounds would show as a box. The masked
+  // ArtShimmer already gives the gold its moving light.
   return (
-    <Tilt max={8} scale={1} glossColor="#F5D07A" glossMaxOpacity={0.15}>
+    <Tilt max={8} scale={1} gloss={false}>
       {content}
     </Tilt>
+  )
+}
+
+// Gold shimmer sweep, loops every SHIMMER_CYCLE seconds. Masked by the
+// art's own alpha, so the light only ever travels across the gold — never
+// across the transparent space around it, where an unmasked overlay
+// would show as a moving rectangle on the page.
+function ArtShimmer({ src, delay }: { src: string; delay: number }) {
+  const mask = {
+    WebkitMaskImage: `url(${src})`,
+    maskImage: `url(${src})`,
+    WebkitMaskSize: '100% 100%',
+    maskSize: '100% 100%',
+    WebkitMaskRepeat: 'no-repeat',
+    maskRepeat: 'no-repeat',
+  } as const
+  return (
+    <motion.div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0"
+      style={{
+        ...mask,
+        mixBlendMode: 'overlay',
+        backgroundImage: 'linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.95) 50%, transparent 70%)',
+        backgroundSize: '250% 100%',
+      }}
+      initial={{ opacity: 0, backgroundPosition: '-40% 0%' }}
+      animate={{ opacity: [0, 0.85, 0], backgroundPosition: ['-40% 0%', '140% 0%'] }}
+      transition={{
+        duration: SHIMMER_SWEEP_DURATION,
+        repeat: Infinity,
+        repeatDelay: SHIMMER_CYCLE - SHIMMER_SWEEP_DURATION,
+        delay,
+        ease: 'easeInOut',
+      }}
+    />
   )
 }

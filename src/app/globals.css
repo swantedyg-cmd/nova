@@ -257,3 +257,20 @@ html[dir="rtl"] body {
   .ig-orbit, .ig-glint { animation: none; }
   .ig-glint { display: none; }
 }
+
+/* Hero logo aura — warm light pooled behind the transparent mark,
+   breathing slowly so the gold reads as lit rather than pasted on. */
+.hero-logo-aura {
+  background:
+    radial-gradient(48% 40% at 50% 38%, color-mix(in srgb, var(--color-nova-gold-light) 34%, transparent), transparent 72%),
+    radial-gradient(55% 22% at 50% 80%, color-mix(in srgb, var(--color-nova-gold) 14%, transparent), transparent 75%);
+  animation: heroLogoAura 7s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+@keyframes heroLogoAura {
+  0%, 100% { opacity: 0.7; transform: scale(0.96); }
+  50%      { opacity: 1;   transform: scale(1.04); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-logo-aura { animation: none; }
+}

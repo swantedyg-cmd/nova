@@ -154,11 +154,13 @@ export default function HeroSection() {
           animate="show"
         >
           <motion.div variants={revealItem} className="mb-8 self-center lg:self-start">
-            {/* Its own textured ground, not the hero's — the logo is
-                designed to sit on the almond+weave "certificate" surface,
-                not float directly over the hero's parchment background
-                and ambient Strands. */}
-            <div className="nova-weave inline-block rounded-2xl px-6 py-8 md:px-10 md:py-12" style={{ backgroundColor: 'var(--color-nova-almond)' }}>
+            {/* The logo floats directly on the hero — no card behind it. Its
+                PNG layers are keyed clean of the source's white ground, and
+                a soft gold aura breathing behind it gives the mark its own
+                light instead of a surface. Same padding the old card had,
+                so the column's rhythm is unchanged. */}
+            <div className="relative inline-block px-6 py-8 md:px-10 md:py-12">
+              <span aria-hidden="true" className="hero-logo-aura pointer-events-none absolute inset-0" />
               <NovaLogoAnimated size={280} />
             </div>
           </motion.div>
