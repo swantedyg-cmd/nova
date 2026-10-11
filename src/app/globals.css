@@ -275,3 +275,19 @@ html[dir="rtl"] body {
 @media (prefers-reduced-motion: reduce) {
   .hero-logo-aura { animation: none; }
 }
+
+/* MobileSilkWaves — each ribbon is drawn two periods wide; sliding it by
+   half its own width loops it seamlessly. */
+.silk-ribbon {
+  animation-name: silkFlow;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+@keyframes silkFlow {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .silk-ribbon { animation: none; }
+}

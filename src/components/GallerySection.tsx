@@ -10,6 +10,7 @@ import { progressToIndex } from './galleryPath'
 import ElectricBorder from './ElectricBorder'
 import Tilt from './Tilt'
 import LazyStrands from './LazyStrands'
+import MobileSilkWaves from './MobileSilkWaves'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLanguage } from '@/i18n/LanguageContext'
 import { useCart } from '@/context/CartContext'
@@ -263,6 +264,7 @@ export default function GallerySection() {
   const sectionRef       = useRef<HTMLDivElement>(null)
   const headRef          = useRef<HTMLDivElement>(null)
   const stageRef         = useRef<HTMLDivElement>(null)
+  const mobileScrollRef  = useRef<HTMLDivElement>(null)
   const mouseRef         = useRef({ x: 0, y: 0 })
   const progressRef      = useRef(0)
   const scrollTriggerRef = useRef<ScrollTrigger | null>(null)
@@ -559,16 +561,21 @@ export default function GallerySection() {
       )}
 
       {/* ── Mobile / reduced-motion carousel ── */}
-      <div
-        className={`${!reducedMotion ? 'md:hidden' : ''} px-6 pb-24 overflow-x-auto`}
-        style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
-      >
-        <div className="flex gap-4 w-max pb-2">
-          {filtered.map((piece) => (
-            <div key={piece.id} style={{ scrollSnapAlign: 'start' }}>
-              <MobileCard piece={piece} onClick={() => handleFocus(piece.id)} />
-            </div>
-          ))}
+      <div className={`${!reducedMotion ? 'md:hidden' : ''} relative`}>
+        {/* Silk currents behind the cards (phone version of the 3D ones) */}
+        {!reducedMotion && <MobileSilkWaves scrollerRef={mobileScrollRef} />}
+        <div
+          ref={mobileScrollRef}
+          className="relative z-10 px-6 pb-24 overflow-x-auto"
+          style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
+        >
+          <div className="flex gap-4 w-max pb-2">
+            {filtered.map((piece) => (
+              <div key={piece.id} style={{ scrollSnapAlign: 'start' }}>
+                <MobileCard piece={piece} onClick={() => handleFocus(piece.id)} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
