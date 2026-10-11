@@ -276,8 +276,36 @@ html[dir="rtl"] body {
   .hero-logo-aura { animation: none; }
 }
 
-/* MobileSilkWaves — each ribbon is drawn two periods wide; sliding it by
-   half its own width loops it seamlessly. */
+/* MobileSilkWaves — a silk ceiling and floor tilted in 3D around the
+   phone carousel. Entrance: each plane folds open from edge-on and its
+   silk unrolls; then the ribbons flow and a gold light sweeps along. */
+.silk-stage { perspective: 520px; perspective-origin: 50% 50%; }
+.silk-plane {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  height: 6.75rem;
+  overflow: hidden;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transition:
+    transform 1.7s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 1.1s ease-out,
+    clip-path 2s cubic-bezier(0.77, 0, 0.175, 1) 0.35s;
+}
+.silk-plane--top    { top: 0;    transform-origin: 50% 100%; transform: rotateX(88deg); }
+.silk-plane--bottom { bottom: 0; transform-origin: 50% 0%;   transform: rotateX(-88deg); transition-delay: 0.15s, 0.15s, 0.5s; }
+.is-in .silk-plane { opacity: 1; clip-path: inset(0 0 0 0); }
+.is-in .silk-plane--top    { transform: rotateX(46deg); }
+.is-in .silk-plane--bottom { transform: rotateX(-46deg); }
+/* fade the far edge into the page, like the corridor's fog */
+.silk-plane--top    { mask-image: linear-gradient(to bottom, transparent, #000 45%); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 45%); }
+.silk-plane--bottom { mask-image: linear-gradient(to top, transparent, #000 45%);    -webkit-mask-image: linear-gradient(to top, transparent, #000 45%); }
+
+.silk-drift { position: absolute; inset: 0 auto 0 0; width: 300%; will-change: transform; }
+.silk-band  { position: absolute; inset: 0; }
+
+/* each ribbon is drawn two periods wide; sliding by half loops it */
 .silk-ribbon {
   animation-name: silkFlow;
   animation-timing-function: linear;
@@ -288,6 +316,12 @@ html[dir="rtl"] body {
   from { transform: translate3d(0, 0, 0); }
   to   { transform: translate3d(-50%, 0, 0); }
 }
+.silk-sheen { animation: silkSheen 5.5s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+@keyframes silkSheen {
+  0%       { transform: translateX(-320px); }
+  70%, 100% { transform: translateX(1220px); }
+}
 @media (prefers-reduced-motion: reduce) {
-  .silk-ribbon { animation: none; }
+  .silk-ribbon, .silk-sheen { animation: none; }
+  .silk-plane { transition: none; }
 }
