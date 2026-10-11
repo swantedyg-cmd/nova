@@ -20,16 +20,22 @@ import { useEffect, useRef, type RefObject } from 'react'
    doesn't mount this). */
 
 const W = 600 // one wave period, in SVG units
+// The SVG holds PERIODS waves; the plane shows WAVES_ON_SCREEN of them.
+// Coverage needed: what's visible + one period of flow + one of swipe
+// parallax (wrapped) — 1.6 + 1 + 1 < 6, so there is never an empty edge.
+const PERIODS = 6
+const WAVES_ON_SCREEN = 1.6
 const H = 140
-const STEPS = 60
+const DRIFT_STYLE = { width: `${(PERIODS / WAVES_ON_SCREEN) * 100}%` }
+const STEPS = 240
 
-/** Closed ribbon outline across two periods (so a one-period shift loops). */
+/** Closed ribbon outline across PERIODS waves (a one-period shift loops). */
 function ribbonPath(phase: number, amp: number, width: number) {
   const mid = H / 2
   const top: string[] = []
   const bottom: string[] = []
   for (let s = 0; s <= STEPS; s++) {
-    const x = (s / STEPS) * W * 2
+    const x = (s / STEPS) * W * PERIODS
     const t = (x / W) * Math.PI * 2
     const y = mid + Math.sin(t + phase) * amp
     // Twist: half-width breathes between a thin edge and the full face.
@@ -45,7 +51,7 @@ function edgePath(phase: number, amp: number, width: number, sign: 1 | -1) {
   const mid = H / 2
   const pts: string[] = []
   for (let s = 0; s <= STEPS; s++) {
-    const x = (s / STEPS) * W * 2
+    const x = (s / STEPS) * W * PERIODS
     const t = (x / W) * Math.PI * 2
     const y = mid + Math.sin(t + phase) * amp
     const hw = width * (0.12 + 0.88 * Math.abs(Math.cos(t * 0.5 + phase * 0.7)))
@@ -56,9 +62,9 @@ function edgePath(phase: number, amp: number, width: number, sign: 1 | -1) {
 
 const THIRD = (Math.PI * 2) / 3
 const BRAID = [
-  { phase: 0,         amp: 30, width: 13, dur: 16 },
-  { phase: THIRD,     amp: 26, width: 10, dur: 21 },
-  { phase: THIRD * 2, amp: 34, width: 8,  dur: 13 },
+  { phase: 0,         amp: 36, width: 20, dur: 16 },
+  { phase: THIRD,     amp: 32, width: 15, dur: 21 },
+  { phase: THIRD * 2, amp: 40, width: 11, dur: 13 },
 ].map((r) => ({
   ...r,
   body: ribbonPath(r.phase, r.amp, r.width),
@@ -74,7 +80,7 @@ function SilkBand({ id, place }: { id: string; place: 'top' | 'bottom' }) {
           key={i}
           className="silk-ribbon absolute inset-y-0 left-0 h-full w-full"
           style={{ animationDuration: `${r.dur}s`, animationDirection: place === 'top' ? 'reverse' : 'normal' }}
-          viewBox={`0 0 ${W * 2} ${H}`}
+          viewBox={`0 0 ${W * PERIODS} ${H}`}
           preserveAspectRatio="none"
         >
           <defs>
@@ -150,8 +156,11 @@ export default function MobileSilkWaves({ scrollerRef }: { scrollerRef: RefObjec
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(() => {
         const x = scroller.scrollLeft
-        top.style.transform = `translate3d(${-x * 0.14}px, 0, 0)`
-        bottom.style.transform = `translate3d(${-x * 0.3}px, 0, 0)`
+        // One wave period in px; the silk is periodic, so wrapping the
+        // shift by it is seamless — a long swipe never runs off the end.
+        const period = top.offsetWidth / PERIODS
+        top.style.transform = `translate3d(${-((x * 0.14) % period)}px, 0, 0)`
+        bottom.style.transform = `translate3d(${-((x * 0.3) % period)}px, 0, 0)`
       })
     }
     scroller.addEventListener('scroll', onScroll, { passive: true })
@@ -164,12 +173,12 @@ export default function MobileSilkWaves({ scrollerRef }: { scrollerRef: RefObjec
   return (
     <div ref={rootRef} aria-hidden="true" className="silk-stage pointer-events-none absolute inset-0">
       <div className="silk-plane silk-plane--top">
-        <div ref={topRef} className="silk-drift">
+        <div ref={topRef} className="silk-drift" style={DRIFT_STYLE}>
           <SilkBand id="silk-top" place="top" />
         </div>
       </div>
       <div className="silk-plane silk-plane--bottom">
-        <div ref={bottomRef} className="silk-drift">
+        <div ref={bottomRef} className="silk-drift" style={DRIFT_STYLE}>
           <SilkBand id="silk-bottom" place="bottom" />
         </div>
       </div>

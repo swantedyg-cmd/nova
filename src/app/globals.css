@@ -302,10 +302,10 @@ html[dir="rtl"] body {
 .silk-plane--top    { mask-image: linear-gradient(to bottom, transparent, #000 22%); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); }
 .silk-plane--bottom { mask-image: linear-gradient(to top, transparent, #000 22%);    -webkit-mask-image: linear-gradient(to top, transparent, #000 22%); }
 
-.silk-drift { position: absolute; inset: 0 auto 0 0; width: 300%; will-change: transform; }
+.silk-drift { position: absolute; inset: 0 auto 0 0; will-change: transform; } /* width set inline from PERIODS */
 .silk-band  { position: absolute; inset: 0; }
 
-/* each ribbon is drawn two periods wide; sliding by half loops it */
+/* each ribbon is drawn 6 periods wide; sliding by one period (1/6) loops it */
 .silk-ribbon {
   animation-name: silkFlow;
   animation-timing-function: linear;
@@ -314,12 +314,12 @@ html[dir="rtl"] body {
 }
 @keyframes silkFlow {
   from { transform: translate3d(0, 0, 0); }
-  to   { transform: translate3d(-50%, 0, 0); }
+  to   { transform: translate3d(-16.6667%, 0, 0); }
 }
-.silk-sheen { animation: silkSheen 5.5s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+.silk-sheen { animation: silkSheen 9s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
 @keyframes silkSheen {
   0%       { transform: translateX(-320px); }
-  70%, 100% { transform: translateX(1220px); }
+  70%, 100% { transform: translateX(3700px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .silk-ribbon, .silk-sheen { animation: none; }
