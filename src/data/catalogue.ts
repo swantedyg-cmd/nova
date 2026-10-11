@@ -8,6 +8,7 @@ export interface Piece {
   keywords: { fr: string[]; en: string[]; ar: string[] } // 5 evocative tags per language, from the official Nova catalog
   width: number   // cm
   height: number  // cm
+  depth: number   // cm — depth of the decorative wooden frame (stretcher bar) the canvas is mounted on
   price: number   // DH — official prices from the NOVA catalogue price list (2026-10-11)
   quantity: number // pieces remaining in this run — estimated within the historical range for its tier
   // Aspect ratio helpers
@@ -35,7 +36,7 @@ export const PIECES: Piece[] = [
       en: ['Floral', 'Elegant', 'Vibrant', 'Feminine', 'Traditional'],
       ar: ['زهري', 'أنيق', 'نابض بالحياة', 'أنثوي', 'تقليدي'],
     },
-    width: 80, height: 120, price: 2000, quantity: 80, aspect: 1007 / 1600, image: 'eclat-floral.jpg',
+    width: 80, height: 120, depth: 3.5, price: 2000, quantity: 80, aspect: 1007 / 1600, image: 'eclat-floral.jpg',
   },
   {
     id: 'rosee', collection: 'Nouvelle Collection',
@@ -50,7 +51,7 @@ export const PIECES: Piece[] = [
       en: ['Majestic', 'Romantic', 'Luxurious', 'Colorful', 'Refined'],
       ar: ['مهيب', 'رومانسي', 'فاخر', 'ملوّن', 'راقٍ'],
     },
-    width: 80, height: 120, price: 2000, quantity: 60, aspect: 1022 / 1600, image: 'rosee.jpg',
+    width: 80, height: 120, depth: 3.5, price: 2000, quantity: 60, aspect: 1022 / 1600, image: 'rosee.jpg',
   },
   {
     id: 'ame-nomade', collection: 'Nouvelle Collection',
@@ -65,7 +66,7 @@ export const PIECES: Piece[] = [
       en: ['Free', 'Expressive', 'Colorful', 'Cultural', 'Artistic'],
       ar: ['حر', 'معبّر', 'ملوّن', 'ثقافي', 'فني'],
     },
-    width: 90, height: 120, price: 1200, quantity: 80, aspect: 1178 / 1600, image: 'ame-nomade.jpg',
+    width: 60, height: 80, depth: 3.5, price: 1200, quantity: 80, aspect: 1178 / 1600, image: 'ame-nomade.jpg',
   },
   {
     id: 'serenite-doree', collection: 'Nouvelle Collection',
@@ -80,7 +81,7 @@ export const PIECES: Piece[] = [
       en: ['Spiritual', 'Graceful', 'Powerful', 'Luxurious', 'Soothing'],
       ar: ['روحاني', 'رشيق', 'قوي', 'فاخر', 'مهدّئ'],
     },
-    width: 80, height: 120, price: 1700, quantity: 60, aspect: 1044 / 1600, image: 'serenite-doree.jpg',
+    width: 80, height: 120, depth: 3.5, price: 1700, quantity: 60, aspect: 1044 / 1600, image: 'serenite-doree.jpg',
   },
   {
     id: 'reine-dor', collection: 'Nouvelle Collection',
@@ -95,7 +96,7 @@ export const PIECES: Piece[] = [
       en: ['Royal', 'Powerful', 'Golden', 'Luxurious', 'Intense'],
       ar: ['ملكي', 'قوي', 'ذهبي', 'فاخر', 'مؤثر'],
     },
-    width: 80, height: 120, price: 1400, quantity: 80, aspect: 1060 / 1600, image: 'reine-dor.jpg',
+    width: 70, height: 100, depth: 3.5, price: 1400, quantity: 80, aspect: 1060 / 1600, image: 'reine-dor.jpg',
   },
   {
     id: 'grace-doree', collection: 'Nouvelle Collection',
@@ -110,7 +111,7 @@ export const PIECES: Piece[] = [
       en: ['Contemplative', 'Radiant', 'Delicate', 'Elegant', 'Precious'],
       ar: ['متأمل', 'مشرق', 'رقيق', 'أنيق', 'ثمين'],
     },
-    width: 80, height: 120, price: 1700, quantity: 80, aspect: 994 / 1600, image: 'grace-doree.jpg',
+    width: 80, height: 120, depth: 3.5, price: 1700, quantity: 80, aspect: 994 / 1600, image: 'grace-doree.jpg',
   },
   {
     id: 'blooming-muse', collection: 'Nouvelle Collection',
@@ -125,7 +126,7 @@ export const PIECES: Piece[] = [
       en: ['Artistic', 'Floral', 'Refined', 'Serene', 'Opulent'],
       ar: ['فني', 'زهري', 'راقٍ', 'هادئ', 'باذخ'],
     },
-    width: 80, height: 120, price: 1300, quantity: 60, aspect: 1086 / 1600, image: 'blooming-muse.jpg',
+    width: 70, height: 120, depth: 3.5, price: 1300, quantity: 60, aspect: 1086 / 1600, image: 'blooming-muse.jpg',
   },
   {
     id: 'flower-crown', collection: 'Nouvelle Collection',
@@ -140,7 +141,7 @@ export const PIECES: Piece[] = [
       en: ['Dreamy', 'Feminine', 'Ethereal', 'Soft', 'Sophisticated'],
       ar: ['حالم', 'أنثوي', 'أثيري', 'ناعم', 'أنيق'],
     },
-    width: 80, height: 120, price: 1300, quantity: 70, aspect: 1086 / 1600, image: 'flower-crown.jpg',
+    width: 70, height: 120, depth: 3.5, price: 1300, quantity: 70, aspect: 1086 / 1600, image: 'flower-crown.jpg',
   },
   {
     id: 'wings-of-colors', collection: 'Nouvelle Collection',
@@ -155,7 +156,7 @@ export const PIECES: Piece[] = [
       en: ['Vibrant', 'Expressive', 'Colorful', 'Free', 'Dynamic'],
       ar: ['نابض', 'معبّر', 'ملوّن', 'حر', 'ديناميكي'],
     },
-    width: 60, height: 90, price: 1500, quantity: 60, aspect: 1024 / 1600, image: 'wings-of-colors.jpg',
+    width: 80, height: 120, depth: 3.5, price: 1500, quantity: 60, aspect: 1024 / 1600, image: 'wings-of-colors.jpg',
   },
   {
     id: 'ivory-blossom', collection: 'Nouvelle Collection',
@@ -170,7 +171,7 @@ export const PIECES: Piece[] = [
       en: ['Elegant', 'Floral', 'Delicate', 'Romantic', 'Timeless'],
       ar: ['أنيق', 'زهري', 'رقيق', 'رومانسي', 'خالد'],
     },
-    width: 90, height: 120, price: 1600, quantity: 60, aspect: 1187 / 1600, image: 'ivory-blossom.jpg',
+    width: 90, height: 120, depth: 3.5, price: 1600, quantity: 60, aspect: 1187 / 1600, image: 'ivory-blossom.jpg',
   },
   {
     id: 'summer-in-style', collection: 'Nouvelle Collection',
@@ -185,7 +186,7 @@ export const PIECES: Piece[] = [
       en: ['Elegant', 'Modern', 'Airy', 'Natural', 'Sophisticated'],
       ar: ['أنيق', 'عصري', 'خفيف', 'طبيعي', 'راقٍ'],
     },
-    width: 70, height: 100, price: 1800, quantity: 60, aspect: 1130 / 1600, image: 'summer-in-style.jpg',
+    width: 90, height: 120, depth: 3.5, price: 1800, quantity: 60, aspect: 1130 / 1600, image: 'summer-in-style.jpg',
   },
   {
     id: 'riviera-muse', collection: 'Nouvelle Collection',
@@ -200,7 +201,7 @@ export const PIECES: Piece[] = [
       en: ['Chic', 'Boho', 'Relaxed', 'Sunlit', 'Luxurious'],
       ar: ['شيك', 'بوهيمي', 'مريح', 'مشمس', 'فاخر'],
     },
-    width: 70, height: 100, price: 1800, quantity: 70, aspect: 1146 / 1600, image: 'riviera-muse.jpg',
+    width: 90, height: 120, depth: 3.5, price: 1800, quantity: 70, aspect: 1146 / 1600, image: 'riviera-muse.jpg',
   },
 ]
 
@@ -211,4 +212,12 @@ export const COLLECTIONS: Collection[] = [
 // Color palette per collection — used for placeholder canvases & UI accents
 export const COLLECTION_COLORS: Record<Collection, { from: string; to: string; accent: string }> = {
   'Nouvelle Collection': { from: '#E8D4B4', to: '#C99860', accent: '#A87838' },
+}
+
+/** "80 × 120 × 3,5 cm" — width × height × frame depth. Every size shown on
+ *  the site goes through here so the format never drifts between views.
+ *  French writes the decimal with a comma; English and Arabic with a dot. */
+export function formatSize(piece: Pick<Piece, 'width' | 'height' | 'depth'>, lang: 'fr' | 'en' | 'ar' = 'fr') {
+  const depth = lang === 'fr' ? String(piece.depth).replace('.', ',') : String(piece.depth)
+  return `${piece.width} × ${piece.height} × ${depth} cm`
 }

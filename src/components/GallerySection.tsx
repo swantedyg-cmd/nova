@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { PIECES, COLLECTIONS, COLLECTION_COLORS, type Collection } from '@/data/catalogue'
+import { PIECES, COLLECTIONS, COLLECTION_COLORS, formatSize, type Collection } from '@/data/catalogue'
 import { progressToIndex } from './galleryPath'
 import ElectricBorder from './ElectricBorder'
 import Tilt from './Tilt'
@@ -60,6 +60,7 @@ const GalleryScene = dynamic(() => import('./GalleryScene'), {
 function MobileCard({ piece, onClick }: { piece: typeof PIECES[0]; onClick: () => void }) {
   const { from, to, accent } = COLLECTION_COLORS[piece.collection]
   const isPortrait = piece.aspect < 1
+  const { lang } = useLanguage()
   return (
     <Tilt className="gallery-card-mobile flex-shrink-0 rounded-xl overflow-hidden shadow-sm border border-charcoal/8 w-56 md:w-64" max={7}>
       <button onClick={onClick} className="block w-full text-left">
@@ -90,7 +91,7 @@ function MobileCard({ piece, onClick }: { piece: typeof PIECES[0]; onClick: () =
             {piece.collection}
           </p>
           <p className="font-display text-sm font-medium text-charcoal leading-snug">{piece.theme}</p>
-          <p className="mt-1.5 text-xs text-charcoal/45 font-body">{piece.width}×{piece.height} cm</p>
+          <p className="mt-1.5 text-xs text-charcoal/45 font-body">{formatSize(piece, lang)}</p>
           <p className="mt-0.5 font-body text-sm font-medium text-charcoal">{piece.price.toLocaleString('fr-FR')} DH</p>
         </div>
       </button>
@@ -138,7 +139,7 @@ function DetailPanel({
               {piece.philosophy[lang]}
             </p>
             <div className="mt-3 flex items-center justify-between text-sm">
-              <span className="text-charcoal/50 font-body">{piece.width}×{piece.height} cm</span>
+              <span className="text-charcoal/50 font-body">{formatSize(piece, lang)}</span>
               <span className="font-body font-medium text-charcoal">{piece.price.toLocaleString('fr-FR')} DH</span>
             </div>
             <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-charcoal/35 font-body">
@@ -234,7 +235,7 @@ function MobileLightbox({
             {piece.philosophy[lang]}
           </p>
           <div className="mt-3 flex items-center justify-between text-sm">
-            <span className="text-charcoal/50 font-body">{piece.width}×{piece.height} cm</span>
+            <span className="text-charcoal/50 font-body">{formatSize(piece, lang)}</span>
             <span className="font-body font-medium text-charcoal">{piece.price.toLocaleString('fr-FR')} DH</span>
           </div>
           <p className="mt-1 text-[10px] uppercase tracking-[0.16em] text-charcoal/35 font-body">
@@ -273,7 +274,7 @@ export default function GallerySection() {
   const [currentIndex,   setCurrentIndex]   = useState(0)
   const [started,        setStarted]        = useState(false)
   const [stageVisible,   setStageVisible]   = useState(false)
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
   const { addToCart, removeFromCart, isInCart } = useCart()
 
   const currentSegment = useMemo(
@@ -432,6 +433,22 @@ export default function GallerySection() {
         <h2 className="font-display text-4xl md:text-5xl font-medium text-charcoal">
           {t.gallery.heading}
         </h2>
+
+        {/* The frame itself is part of the piece — named right under the
+            promise of uniqueness, set like a museum label: gold hairlines,
+            small caps, then two quiet lines on the wood and the handwork. */}
+        <div className="mt-5 mx-auto max-w-md">
+          <p className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.28em] text-gold font-body font-medium">
+            <span aria-hidden="true" className="h-px w-8 bg-gold/45" />
+            {t.gallery.frameLabel}
+            <span aria-hidden="true" className="h-px w-8 bg-gold/45" />
+          </p>
+          <p className="mt-3 text-[13px] md:text-sm italic text-charcoal/55 font-body font-light leading-relaxed">
+            {t.gallery.frameLine1}
+            <br className="hidden md:block" />{' '}
+            {t.gallery.frameLine2}
+          </p>
+        </div>
         <p className="mt-4 text-charcoal/50 font-body font-light max-w-sm mx-auto leading-relaxed text-sm md:text-base">
           {filteredCount(activeCol)} · {focusedId ? t.gallery.subFocused : t.gallery.subDefault}
         </p>
@@ -610,7 +627,7 @@ export default function GallerySection() {
                     {piece.collection}
                   </p>
                   <p className="font-display text-sm font-medium text-charcoal">{piece.theme}</p>
-                  <p className="mt-1 text-xs text-charcoal/45 font-body">{piece.width}×{piece.height} cm · {piece.price.toLocaleString('fr-FR')} DH</p>
+                  <p className="mt-1 text-xs text-charcoal/45 font-body">{formatSize(piece, lang)} · {piece.price.toLocaleString('fr-FR')} DH</p>
                 </div>
               </button>
             )

@@ -94,6 +94,9 @@ export const translations = {
     gallery: {
       eyebrow: 'La Collection',
       heading: 'Chaque Pièce, Unique',
+      frameLabel: 'Cadre en bois décoratif · 3,5 cm',
+      frameLine1: 'Bois sélectionné avec soin, d’une profondeur de 3,5 cm : un relief qui donne à chaque toile une vraie présence de galerie.',
+      frameLine2: 'Assemblé et tendu à la main, coin par coin, en atelier : un savoir-faire minutieux qui demande patience et précision.',
       subFocused: 'Cliquez une pièce pour voir les détails.',
       subDefault: 'Cliquez un cadre pour focaliser.',
       filterAll: 'Tout',
@@ -289,6 +292,9 @@ export const translations = {
     gallery: {
       eyebrow: 'The Collection',
       heading: 'Every Piece, Unique',
+      frameLabel: 'Decorative wooden frame · 3.5 cm',
+      frameLine1: 'Carefully selected wood, 3.5 cm deep: a relief that gives every canvas a true gallery presence.',
+      frameLine2: 'Assembled and stretched by hand, corner by corner, in the workshop: meticulous craft that takes patience and precision.',
       subFocused: 'Click a piece to see details.',
       subDefault: 'Click any frame to focus.',
       filterAll: 'All',
@@ -484,6 +490,9 @@ export const translations = {
     gallery: {
       eyebrow: 'المجموعة',
       heading: 'كل قطعة، فريدة',
+      frameLabel: 'إطار خشبي زخرفي · 3.5 سم',
+      frameLine1: 'خشب منتقى بعناية بعمق 3.5 سم: بروز يمنح كل لوحة حضورًا حقيقيًا كما في المعارض الفنية.',
+      frameLine2: 'يُجمَّع ويُشدّ يدويًا في الورشة، زاوية بزاوية: حِرفة دقيقة تتطلب الصبر والإتقان.',
       subFocused: 'انقر على القطعة لرؤية التفاصيل.',
       subDefault: 'انقر على أي إطار للتركيز.',
       filterAll: 'الكل',
