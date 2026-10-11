@@ -121,7 +121,7 @@ export const translations = {
       formZip: 'Code postal',
       formAddress: 'Adresse (optionnel)',
       formPiece: 'Pièce qui vous intéresse (optionnel)',
-      formPiecePlaceholder: 'ex. rosee',
+      formPiecePlaceholder: 'Choisissez une pièce',
       formSubmit: 'Envoyer sur WhatsApp',
     },
     carte: {
@@ -297,7 +297,7 @@ export const translations = {
       formZip: 'Postal code',
       formAddress: 'Address (optional)',
       formPiece: 'Piece you\'re interested in (optional)',
-      formPiecePlaceholder: 'e.g. rosee',
+      formPiecePlaceholder: 'Choose a piece',
       formSubmit: 'Send on WhatsApp',
     },
     carte: {
@@ -473,7 +473,7 @@ export const translations = {
       formZip: 'الرمز البريدي',
       formAddress: 'العنوان (اختياري)',
       formPiece: 'القطعة التي تهمك (اختياري)',
-      formPiecePlaceholder: 'مثال rosee',
+      formPiecePlaceholder: 'اختر قطعة',
       formSubmit: 'إرسال عبر واتساب',
     },
     carte: {

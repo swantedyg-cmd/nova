@@ -29,12 +29,11 @@ export default function CommandeSection() {
   const [city, setCity]       = useState('')
   const [zip, setZip]         = useState('')
   const [address, setAddress] = useState('')
-  const [piece, setPiece]     = useState('')
+  const [pieceId, setPieceId] = useState('')
 
   useEffect(() => {
     if (!selectedPieceId) return
-    const found = PIECES.find((p) => p.id === selectedPieceId)
-    if (found) setPiece(`${found.id} — ${found.theme}`)
+    setPieceId(selectedPieceId)
   }, [selectedPieceId])
 
   useEffect(() => {
@@ -58,13 +57,17 @@ export default function CommandeSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const pieceIndex = PIECES.findIndex((p) => p.id === pieceId)
+    const pieceLabel = pieceIndex >= 0
+      ? `${String(pieceIndex + 1).padStart(2, '0')} — ${PIECES[pieceIndex].theme}`
+      : ''
     const lines = [
       `Nova — ${c.formTitle}`,
       name && `${c.formName}: ${name}`,
       phone && `${c.formPhone}: ${phone}`,
       city && `${c.formCity}: ${city} (${zip})`,
       address && `${c.formAddress}: ${address}`,
-      piece && `${c.formPiece}: ${piece}`,
+      pieceLabel && `${c.formPiece}: ${pieceLabel}`,
     ].filter(Boolean).join('\n')
     window.open(`https://wa.me/${PHONE_INTL}?text=${encodeURIComponent(lines)}`, '_blank')
   }
@@ -188,7 +191,24 @@ export default function CommandeSection() {
 
             <Field label={c.formZip} value={zip} onChange={setZip} />
             <Field label={c.formAddress} value={address} onChange={setAddress} />
-            <Field label={c.formPiece} value={piece} onChange={setPiece} placeholder={c.formPiecePlaceholder} />
+
+            <div>
+              <label className="block text-xs uppercase tracking-wider text-charcoal/45 font-body mb-1.5">
+                {c.formPiece}
+              </label>
+              <select
+                value={pieceId}
+                onChange={(e) => setPieceId(e.target.value)}
+                className="w-full rounded-lg border border-charcoal/15 bg-canvas px-3.5 py-2.5 text-sm text-charcoal font-body focus:outline-none focus:border-gold/60 transition-colors"
+              >
+                <option value="">{c.formPiecePlaceholder}</option>
+                {PIECES.map((p, i) => (
+                  <option key={p.id} value={p.id}>
+                    {String(i + 1).padStart(2, '0')} — {p.theme}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <button
