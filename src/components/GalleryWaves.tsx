@@ -34,7 +34,7 @@ function srgb(hex: string) {
   return new THREE.Vector3(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255)
 }
 
-const OAT        = '#E4D3B1'
+const OAT        = '#D6C09A'
 const GOLD       = '#D4A42E'
 const GOLD_LIGHT = '#F5D07A'
 
@@ -115,7 +115,7 @@ const fragmentShader = /* glsl */ `
     float sheen = pow(1.0 - facing, 1.6);
 
     // Fine woven threads along the ribbon.
-    float threads = 0.9 + 0.1 * sin(vU * 70.0);
+    float threads = 0.96 + 0.04 * sin(vU * 120.0);
 
     // A gold shimmer travelling down the silk.
     float shimmer = pow(0.5 + 0.5 * sin(vI * 1.7 - uFlow * 2.2), 10.0);
@@ -124,14 +124,14 @@ const fragmentShader = /* glsl */ `
     float d = vI - uPresent;
     float glow = exp(-d * d * 1.2);
 
-    float goldMix = clamp(sheen * 0.85 + glow * 0.6 + uSurge * 0.2, 0.0, 1.0);
+    float goldMix = clamp(sheen * 0.62 + glow * 0.6 + uSurge * 0.2, 0.0, 1.0);
     vec3 col = mix(uOat, uGold, goldMix);
     col += uGoldLight * (shimmer * 0.4 + glow * 0.22);
     col *= threads;
 
     // Matches the scene fog's range, and clears out right at the lens so a
     // ribbon never smears across the camera.
-    float fade = smoothstep(uFadeFar, uFadeNear, vDepth) * smoothstep(0.5, 2.4, vDepth);
+    float fade = smoothstep(uFadeFar, uFadeNear, vDepth) * smoothstep(1.0, 3.4, vDepth);
 
     float a = uOpacity * edge * fade * (0.55 + 0.45 * facing + glow * 0.35) * uDim;
     if (a < 0.003) discard;
@@ -147,7 +147,7 @@ const CURRENTS = [
   { lane: 2.6,  baseY: -1.32, width: 0.24, amp: 0.13, drift: 0.2,  opacity: 0.7 },
   { lane: -2.6, baseY: -1.32, width: 0.24, amp: 0.13, drift: 0.2,  opacity: 0.7 },
   // A faint canopy overhead, closing the space.
-  { lane: 0,    baseY: 2.05,  width: 0.3,  amp: 0.18, drift: 0.7,  opacity: 0.32 },
+  { lane: 0,    baseY: 2.45,  width: 0.22, amp: 0.16, drift: 0.7,  opacity: 0.22 },
 ]
 const STRANDS = 3
 
