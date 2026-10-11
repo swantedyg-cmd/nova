@@ -15,7 +15,7 @@ gsap.registerPlugin(ScrollTrigger)
 
 const PHONE_INTL = '212688873673'
 const EMAIL = 'swantedyg@gmail.com'
-const SITE_URL = 'https://nova.vercel.app'
+const SITE_URL = 'https://rq3a.vercel.app'
 
 function QRCard({
   value, label, sub, scanHint, floatDelay, featured = false,
@@ -58,7 +58,7 @@ function QRCard({
                 bgColor="#FFFFFF"
                 fgColor="#5A1220"
                 imageSettings={{
-                  src: '/logo-mark.svg',
+                  src: '/qr-mark.png',
                   height: featured ? 38 : 34,
                   width: featured ? 38 : 34,
                   excavate: true,
