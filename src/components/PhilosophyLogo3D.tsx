@@ -77,13 +77,8 @@ function ForceSize({ size }: { size: number }) {
      - no ground plane / shadow-catcher (there's no "floor" in a
        compact embedded card), and shadows are off rather than sizing
        a shadow camera frustum for a presentation this small;
-     - a "made by Nour" signature, composited onto the artwork with the
-       same technique, font, size, color and position as the source
-       design's own artCanvas() (Great Vibes cursive, #0d0c0b, 108px on
-       a 2048px canvas, bottom-right at (S-150, S-175) with
-       textAlign:'right') — loaded here via a normal <link> + document.
-       fonts.load(), same as the design, since this is a client-only
-       component anyway. */
+     - no signature: the face carries the gold mark alone (the source
+       design's "made by Nour" script was removed by request). */
 
 const CW = 0.72
 const CH = 0.72
@@ -92,34 +87,21 @@ const GAP = 0.013
 const FB = 0.014
 const FD = 0.052
 
-const SIGNATURE_FONT = 'Great Vibes'
-const SIGNATURE_TEXT = 'made by Nour'
-
-/** Draws the artwork + signature onto a canvas, matching the source
- *  design's artCanvas() exactly (same size, font, color, position). */
-function useSignedArtTexture() {
+/** Draws the artwork onto an opaque 2048px canvas (same composition as the
+ *  source design's artCanvas(), minus its signature). */
+function useArtTexture() {
   const [texture, setTexture] = useState<THREE.CanvasTexture | null>(null)
 
   useEffect(() => {
     let cancelled = false
 
     const build = async () => {
-      const link = document.createElement('link')
-      link.rel = 'stylesheet'
-      link.href = 'https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap'
-      document.head.appendChild(link)
-
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {
         const i = new Image()
         i.onload = () => resolve(i)
         i.onerror = reject
         i.src = '/nova-logo-canvas-texture.png'
       })
-
-      try {
-        await document.fonts.load(`150px "${SIGNATURE_FONT}"`)
-        await document.fonts.ready
-      } catch {}
 
       if (cancelled) return
 
@@ -131,11 +113,6 @@ function useSignedArtTexture() {
       ctx.fillStyle = '#ffffff'
       ctx.fillRect(0, 0, S, S)
       ctx.drawImage(img, 0, 0, S, S)
-      ctx.fillStyle = '#0d0c0b'
-      ctx.textAlign = 'right'
-      ctx.textBaseline = 'alphabetic'
-      ctx.font = `150px "${SIGNATURE_FONT}", cursive`
-      ctx.fillText(SIGNATURE_TEXT, S - 170, S - 190)
 
       const tex = new THREE.CanvasTexture(canvas)
       tex.colorSpace = THREE.SRGBColorSpace
@@ -153,7 +130,7 @@ function useSignedArtTexture() {
 }
 
 function NovaPaintingModel() {
-  const texture = useSignedArtTexture()
+  const texture = useArtTexture()
 
   const model = useMemo(() => {
     if (!texture) return null
