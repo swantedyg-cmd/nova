@@ -1,12 +1,15 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLanguage } from '@/i18n/LanguageContext'
 import { useCart } from '@/context/CartContext'
 import { MOROCCO_CITIES } from '@/data/cities'
-import { PIECES } from '@/data/catalogue'
+import { PIECES, formatSize } from '@/data/catalogue'
+import { formatDH } from './CartDrawer'
+import OrderCertificate, { makeOrderReference, type CertificateData } from './OrderCertificate'
 import LazyStrands from './LazyStrands'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
@@ -29,6 +32,8 @@ export default function CommandeSection() {
   const [city, setCity]       = useState('')
   const [zip, setZip]         = useState('')
   const [address, setAddress] = useState('')
+  const [certificate, setCertificate] = useState<CertificateData | null>(null)
+  const closeCertificate = useCallback(() => setCertificate(null), [])
 
   const cartPieces = cartItems
     .map((id) => {
@@ -56,20 +61,27 @@ export default function CommandeSection() {
     setZip(match ? match.zip : '')
   }
 
+  const total = cartPieces.reduce((sum, p) => sum + p.price, 0)
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const reference = makeOrderReference()
     const pieceLines = cartPieces
-      .map((p) => `${String(p.index + 1).padStart(2, '0')} — ${p.theme} — ${p.price.toLocaleString('en-US')} DH`)
+      .map((p) => `• ${String(p.index + 1).padStart(2, '0')} — ${p.theme} — ${formatSize(p, lang)} — ${formatDH(p.price)}`)
       .join('\n')
     const lines = [
       `Nova — ${c.formTitle}`,
+      `${c.waRef} ${reference}\n`,
       name && `${c.formName}: ${name}`,
       phone && `${c.formPhone}: ${phone}`,
       city && `${c.formCity}: ${city} (${zip})`,
       address && `${c.formAddress}: ${address}`,
-      pieceLines && `${c.formPiece}:\n${pieceLines}`,
+      pieceLines && `\n${c.formPiece}:\n${pieceLines}`,
+      cartPieces.length > 0 && `${c.formTotal}: ${formatDH(total)}`,
     ].filter(Boolean).join('\n')
-    window.open(`https://wa.me/${PHONE_INTL}?text=${encodeURIComponent(lines)}`, '_blank')
+    const whatsappUrl = `https://wa.me/${PHONE_INTL}?text=${encodeURIComponent(lines)}`
+    window.open(whatsappUrl, '_blank')
+    setCertificate({ reference, date: new Date(), name, pieces: cartPieces, total, whatsappUrl })
   }
 
   return (
@@ -201,27 +213,41 @@ export default function CommandeSection() {
                   {c.formPiecePlaceholder}
                 </p>
               ) : (
-                <ul className="rounded-lg border border-charcoal/15 bg-canvas divide-y divide-charcoal/10 overflow-hidden">
-                  {cartPieces.map((p) => (
-                    <li key={p.id} className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-sm">
-                      <span className="text-charcoal font-body truncate">
-                        <span className="text-charcoal/40">{String(p.index + 1).padStart(2, '0')} — </span>
-                        {p.theme}
-                      </span>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <span className="text-xs text-gold font-body">{p.price.toLocaleString('en-US')} DH</span>
-                        <button
-                          type="button"
-                          onClick={() => removeFromCart(p.id)}
-                          aria-label={t.cart.remove}
-                          className="text-charcoal/30 hover:text-charcoal/70 transition-colors"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                <div className="rounded-lg border border-charcoal/15 bg-canvas overflow-hidden">
+                  <ul className="divide-y divide-charcoal/10">
+                    {cartPieces.map((p) => (
+                      <li key={p.id} className="flex items-center gap-3 px-3.5 py-2.5 text-sm">
+                        <div className="flex-shrink-0 rounded-[2px] bg-gold p-[2px]">
+                          <div className="relative h-11 w-8 overflow-hidden rounded-[1px]">
+                            {p.image && <Image src={`/images/${p.image}`} alt="" fill sizes="32px" className="object-cover" />}
+                          </div>
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-charcoal font-body truncate">
+                            <span className="text-charcoal/40">{String(p.index + 1).padStart(2, '0')} — </span>
+                            <span lang="fr">{p.theme}</span>
+                          </p>
+                          <p className="text-[11px] text-charcoal/45 font-body" dir="ltr">{formatSize(p, lang)}</p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-xs text-charcoal/80 font-body" dir="ltr">{formatDH(p.price)}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeFromCart(p.id)}
+                            aria-label={`${t.cart.remove} — ${p.theme}`}
+                            className="text-charcoal/30 hover:text-charcoal/70 transition-colors"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="flex items-baseline justify-between border-t border-dashed border-charcoal/15 bg-parchment/40 px-3.5 py-3">
+                    <span className="text-xs uppercase tracking-wider text-charcoal/50 font-body">{c.formTotal}</span>
+                    <span className="font-display text-lg text-charcoal" dir="ltr">{formatDH(total)}</span>
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -232,8 +258,11 @@ export default function CommandeSection() {
           >
             {c.formSubmit}
           </button>
+          <p className="mt-2.5 text-center text-[11px] text-charcoal/45 font-body">{c.formNote}</p>
         </form>
       </div>
+
+      <OrderCertificate data={certificate} onClose={closeCertificate} />
     </section>
   )
 }

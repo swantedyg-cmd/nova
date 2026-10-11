@@ -2,15 +2,24 @@
 
 import { AnimatePresence, motion } from 'motion/react'
 import Image from 'next/image'
-import { X } from 'lucide-react'
+import { Banknote, Frame, Truck, X } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
-import { PIECES } from '@/data/catalogue'
+import { PIECES, formatSize } from '@/data/catalogue'
 import { useLanguage } from '@/i18n/LanguageContext'
+
+const EXPO_OUT = [0.16, 1, 0.3, 1] as const
+const REASSURE_ICONS = [Frame, Banknote, Truck]
+
+export function formatDH(n: number) {
+  // Thin-space thousands, the way prices read on a printed label.
+  return `${n.toLocaleString('fr-FR').replace(/ | /g, ' ')} DH`
+}
 
 export default function CartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { cartItems, removeFromCart } = useCart()
   const { t, lang } = useLanguage()
   const c = t.cart
+  const rtl = lang === 'ar'
 
   const items = cartItems
     .map((id) => {
@@ -20,6 +29,7 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
     .filter((p): p is NonNullable<typeof p> => p !== null)
 
   const total = items.reduce((sum, p) => sum + p.price, 0)
+  const countLabel = items.length === 1 ? c.countOne : c.countMany.replace('{n}', String(items.length))
 
   const handleCheckout = () => {
     onClose()
@@ -44,74 +54,156 @@ export default function CartDrawer({ open, onClose }: { open: boolean; onClose: 
             role="dialog"
             aria-modal="true"
             aria-label={c.title}
-            dir={lang === 'ar' ? 'rtl' : 'ltr'}
-            className="fixed inset-y-0 end-0 z-[90] flex w-full max-w-sm flex-col bg-parchment shadow-2xl"
-            initial={{ x: lang === 'ar' ? '-100%' : '100%' }}
+            dir={rtl ? 'rtl' : 'ltr'}
+            className="fixed inset-y-0 end-0 z-[90] flex w-full max-w-md flex-col bg-parchment shadow-2xl"
+            initial={{ x: rtl ? '-100%' : '100%' }}
             animate={{ x: 0 }}
-            exit={{ x: lang === 'ar' ? '-100%' : '100%' }}
+            exit={{ x: rtl ? '-100%' : '100%' }}
             transition={{ type: 'spring', damping: 32, stiffness: 300 }}
           >
-            <div className="flex items-center justify-between border-b border-charcoal/10 px-6 py-5">
-              <p className="font-display text-lg font-medium text-charcoal">{c.title}</p>
-              <button
-                type="button"
-                onClick={onClose}
-                aria-label={c.closeAria}
-                className="text-charcoal/50 transition-colors hover:text-charcoal"
-              >
-                <X className="size-5" />
-              </button>
+            {/* Header — title, piece count, and a gold hairline like a museum label */}
+            <div className="relative px-6 pt-6 pb-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[10px] uppercase tracking-[0.32em] text-gold font-body">Nova</p>
+                  <p className="mt-1 font-display text-2xl font-medium text-charcoal">{c.title}</p>
+                  {items.length > 0 && (
+                    <p className="mt-0.5 font-body text-xs text-charcoal/45">{countLabel}</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  aria-label={c.closeAria}
+                  className="grid size-9 place-items-center rounded-full border border-charcoal/12 text-charcoal/55 transition-colors hover:border-charcoal/30 hover:text-charcoal"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+              <div className="absolute inset-x-6 bottom-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
             </div>
 
-            <div className="flex-1 overflow-y-auto px-6 py-4">
+            <div className="flex-1 overflow-y-auto px-6 py-5">
               {items.length === 0 ? (
-                <div className="flex h-full flex-col items-center justify-center gap-2 py-16 text-center">
-                  <p className="font-body text-sm text-charcoal/50">{c.empty}</p>
-                  <p className="font-body text-xs text-charcoal/35">{c.emptyHint}</p>
+                <div className="flex h-full flex-col items-center justify-center gap-3 py-16 text-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/nova-logo-icon.png" alt="" width={72} height={59} className="opacity-70" />
+                  <p className="font-display text-lg text-charcoal/70">{c.empty}</p>
+                  <p className="font-body text-xs text-charcoal/45">{c.emptyHint}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose()
+                      requestAnimationFrame(() => document.getElementById('gallery')?.scrollIntoView({ behavior: 'smooth' }))
+                    }}
+                    className="mt-3 rounded-full border border-charcoal/20 px-5 py-2 text-xs tracking-wide text-charcoal/70 transition-colors hover:border-charcoal/45 hover:text-charcoal"
+                  >
+                    {c.continue}
+                  </button>
                 </div>
               ) : (
-                <ul className="space-y-4">
-                  {items.map((p) => (
-                    <li key={p.id} className="flex items-center gap-3">
-                      <div className="relative h-16 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-charcoal/5">
-                        {p.image && (
-                          <Image src={`/images/${p.image}`} alt={p.theme} fill sizes="56px" className="object-cover" />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-body text-[10px] uppercase tracking-wider text-charcoal/40">
-                          {String(p.index + 1).padStart(2, '0')}
-                        </p>
-                        <p className="truncate font-display text-sm text-charcoal">{p.theme}</p>
-                        <p className="font-body text-xs text-gold">{p.price.toLocaleString('en-US')} DH</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeFromCart(p.id)}
-                        aria-label={c.remove}
-                        className="p-1 text-charcoal/30 transition-colors hover:text-charcoal/70"
+                <ul className="space-y-3">
+                  <AnimatePresence initial={false}>
+                    {items.map((p, i) => (
+                      <motion.li
+                        key={p.id}
+                        layout
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0, transition: { duration: 0.5, delay: i * 0.06, ease: EXPO_OUT } }}
+                        exit={{ opacity: 0, x: rtl ? -40 : 40, transition: { duration: 0.25 } }}
+                        className="flex gap-4 rounded-xl border border-charcoal/8 bg-canvas/70 p-3"
                       >
-                        <X className="size-4" />
-                      </button>
-                    </li>
-                  ))}
+                        {/* Thumbnail in a small gilded frame, echoing the real piece */}
+                        <div className="flex-shrink-0 rounded-[3px] bg-gold p-[3px] shadow-[0_6px_16px_rgba(90,18,32,0.14)]">
+                          <div className="relative h-24 w-[4.25rem] overflow-hidden rounded-[1px] bg-charcoal/10">
+                            {p.image && (
+                              <Image src={`/images/${p.image}`} alt={p.theme} fill sizes="68px" className="object-cover" />
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex min-w-0 flex-1 flex-col">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="font-body text-[10px] uppercase tracking-[0.22em] text-charcoal/40">
+                                N° {String(p.index + 1).padStart(2, '0')}
+                              </p>
+                              <p lang="fr" className="truncate font-display text-base text-charcoal">{p.theme}</p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => removeFromCart(p.id)}
+                              aria-label={`${c.remove} — ${p.theme}`}
+                              className="-m-1 p-1 text-charcoal/30 transition-colors hover:text-charcoal/70"
+                            >
+                              <X className="size-4" />
+                            </button>
+                          </div>
+
+                          <p className="mt-1 font-body text-xs text-charcoal/55" dir="ltr">{formatSize(p, lang)}</p>
+                          <p className="mt-0.5 inline-flex items-center gap-1.5 font-body text-[11px] text-charcoal/50">
+                            <Frame className="size-3 text-gold" aria-hidden="true" />
+                            {c.frameTag}
+                          </p>
+
+                          <div className="mt-auto flex items-end justify-between pt-2">
+                            <p className="font-body text-[10px] uppercase tracking-wider text-charcoal/35">
+                              {c.left.replace('{n}', String(p.quantity))}
+                            </p>
+                            <p className="font-display text-base text-charcoal" dir="ltr">{formatDH(p.price)}</p>
+                          </div>
+                        </div>
+                      </motion.li>
+                    ))}
+                  </AnimatePresence>
                 </ul>
               )}
             </div>
 
             {items.length > 0 && (
-              <div className="border-t border-charcoal/10 px-6 py-5">
-                <div className="mb-4 flex items-center justify-between">
-                  <span className="font-body text-xs uppercase tracking-wider text-charcoal/45">{c.total}</span>
-                  <span className="font-display text-lg text-gold">{total.toLocaleString('en-US')} DH</span>
-                </div>
+              <div className="border-t border-charcoal/10 bg-canvas/60 px-6 pt-5 pb-6">
+                {/* Order summary */}
+                <dl className="space-y-2 font-body text-sm">
+                  <div className="flex justify-between text-charcoal/60">
+                    <dt>{c.subtotal}</dt>
+                    <dd dir="ltr">{formatDH(total)}</dd>
+                  </div>
+                  <div className="flex justify-between text-charcoal/60">
+                    <dt>{c.delivery}</dt>
+                    <dd>{c.deliveryValue}</dd>
+                  </div>
+                  <div className="flex justify-between text-charcoal/60">
+                    <dt>{c.payment}</dt>
+                    <dd>{c.paymentValue}</dd>
+                  </div>
+                  <div className="flex items-baseline justify-between border-t border-dashed border-charcoal/15 pt-3">
+                    <dt className="text-xs uppercase tracking-[0.2em] text-charcoal/50">{c.total}</dt>
+                    <dd className="font-display text-2xl text-charcoal" dir="ltr">{formatDH(total)}</dd>
+                  </div>
+                </dl>
+
+                {/* Reassurance */}
+                <ul className="mt-4 grid grid-cols-3 gap-2">
+                  {c.reassure.map((label, i) => {
+                    const Icon = REASSURE_ICONS[i]
+                    return (
+                      <li key={label} className="flex flex-col items-center gap-1.5 rounded-lg bg-parchment/80 px-1.5 py-2.5 text-center">
+                        <Icon className="size-4 text-gold" aria-hidden="true" />
+                        <span className="font-body text-[10px] leading-tight text-charcoal/60">{label}</span>
+                      </li>
+                    )
+                  })}
+                </ul>
+
                 <button
                   type="button"
                   onClick={handleCheckout}
-                  className="w-full rounded-full bg-charcoal py-3 text-xs font-medium tracking-wide text-canvas transition-colors hover:bg-charcoal-mid active:scale-[0.98]"
+                  className="cart-cta group relative mt-5 w-full overflow-hidden rounded-full bg-charcoal py-3.5 text-sm font-medium tracking-wide text-canvas transition-colors hover:bg-charcoal-mid active:scale-[0.98]"
                 >
-                  {c.checkout}
+                  <span className="relative z-10">{c.checkout}</span>
+                  <span aria-hidden="true" className="cart-cta-sheen pointer-events-none absolute inset-0" />
                 </button>
+                <p className="mt-2.5 text-center font-body text-[11px] text-charcoal/45">{c.checkoutNote}</p>
               </div>
             )}
           </motion.div>

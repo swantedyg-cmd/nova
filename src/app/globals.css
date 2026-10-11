@@ -325,3 +325,17 @@ html[dir="rtl"] body {
   .silk-ribbon, .silk-sheen { animation: none; }
   .silk-plane { transition: none; }
 }
+
+/* Cart "Finaliser la commande" — a slow gold light crossing the button. */
+.cart-cta-sheen {
+  background: linear-gradient(105deg, transparent 35%, rgba(245, 208, 122, 0.45) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: cartSheen 3.8s ease-in-out 0.8s infinite;
+}
+@keyframes cartSheen {
+  0%, 55% { transform: translateX(-120%); }
+  85%, 100% { transform: translateX(120%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cart-cta-sheen { animation: none; display: none; }
+}
