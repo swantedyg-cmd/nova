@@ -15,7 +15,7 @@ const useIsoLayoutEffect =
 export interface CollectionPiece {
   /** Stable id — also used as the React key. */
   id: string;
-  /** Public path to the artwork image, e.g. "/images/JYO38053-N.jpg". */
+  /** Public path to the artwork image, e.g. "/images/eclat-floral.jpg". */
   src: string;
   alt: string;
   title: string;
@@ -28,6 +28,8 @@ export interface CollectionPiece {
   quantity: number;
   /** One or two sentences in the curator's voice — shown on the reveal. */
   philosophy: string;
+  /** Evocative one-word tags from the catalog (e.g. "Floral, Élégant, Vibrant") — shown on the reveal. */
+  keywords?: string[];
 }
 
 /** All user-facing strings — override to localize; defaults are French. */
@@ -553,6 +555,12 @@ export function CollectionCoverflow({
                       <h3 className="mt-2 font-serif text-[18px] italic leading-snug text-[#2C1810]">
                         {piece.title}
                       </h3>
+
+                      {piece.keywords && piece.keywords.length > 0 && (
+                        <p className="mt-1.5 text-[9px] uppercase tracking-[0.18em] text-[#2C1810]/45">
+                          {piece.keywords.slice(0, 3).join(' · ')}
+                        </p>
+                      )}
 
                       <div
                         className="mt-3 h-px bg-[#D4A42E]"

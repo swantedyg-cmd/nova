@@ -121,7 +121,7 @@ export const translations = {
       formZip: 'Code postal',
       formAddress: 'Adresse (optionnel)',
       formPiece: 'Pièce qui vous intéresse (optionnel)',
-      formPiecePlaceholder: 'ex. JYO37590-N',
+      formPiecePlaceholder: 'ex. rosee',
       formSubmit: 'Envoyer sur WhatsApp',
     },
     carte: {
@@ -157,7 +157,7 @@ export const translations = {
     },
     showcase: {
       eyebrow: 'La Collection',
-      heading: 'Quarante-trois pièces, choisies avec la même intention.',
+      heading: 'Douze pièces, choisies avec la même intention.',
       subheading: 'Touchez une œuvre pour découvrir sa philosophie, son prix et son édition.',
       ariaLabel: 'La collection Nova',
       uniquePiece: 'Pièce unique',
@@ -297,7 +297,7 @@ export const translations = {
       formZip: 'Postal code',
       formAddress: 'Address (optional)',
       formPiece: 'Piece you\'re interested in (optional)',
-      formPiecePlaceholder: 'e.g. JYO37590-N',
+      formPiecePlaceholder: 'e.g. rosee',
       formSubmit: 'Send on WhatsApp',
     },
     carte: {
@@ -333,7 +333,7 @@ export const translations = {
     },
     showcase: {
       eyebrow: 'The Collection',
-      heading: 'Forty-three pieces, chosen with the same intention.',
+      heading: 'Twelve pieces, chosen with the same intention.',
       subheading: 'Touch a piece to discover its philosophy, price, and edition.',
       ariaLabel: 'The Nova collection',
       uniquePiece: 'One of a kind',
@@ -473,7 +473,7 @@ export const translations = {
       formZip: 'الرمز البريدي',
       formAddress: 'العنوان (اختياري)',
       formPiece: 'القطعة التي تهمك (اختياري)',
-      formPiecePlaceholder: 'مثال JYO37590-N',
+      formPiecePlaceholder: 'مثال rosee',
       formSubmit: 'إرسال عبر واتساب',
     },
     carte: {
@@ -509,7 +509,7 @@ export const translations = {
     },
     showcase: {
       eyebrow: 'المجموعة',
-      heading: 'ثلاثٌ وأربعون قطعة، اختيرت بالعناية ذاتها.',
+      heading: 'اثنتا عشرة قطعة، اختيرت بالعناية ذاتها.',
       subheading: 'المس لوحة لاكتشاف فلسفتها وسعرها وطبعتها.',
       ariaLabel: 'مجموعة نوفا',
       uniquePiece: 'قطعة فريدة',

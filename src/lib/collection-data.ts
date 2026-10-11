@@ -17,5 +17,6 @@ export function getCollectionPieces(lang: Lang): CollectionPiece[] {
     price: piece.price,
     quantity: piece.quantity,
     philosophy: piece.philosophy[lang],
+    keywords: piece.keywords[lang],
   }))
 }

@@ -4,14 +4,12 @@ import Image from 'next/image'
 import { motion } from 'motion/react'
 import { PIECES, COLLECTION_COLORS } from '@/data/catalogue'
 
-// A few of the catalogue's "PW" run pieces have an estimated `aspect`
-// value far narrower than their own width/height implies (see the same
-// clamp in GallerySection.tsx, where this was first tracked down) —
-// PW-070, one of these seven hero pieces, is one of them: fed straight
-// into `paddingTop: ${(1/aspect)*100}%` it renders over 3.5x taller than
-// wide, which is barely noticeable buried in a 3-column desktop masonry
-// but dominates and breaks the rhythm of the single mobile column, where
-// it's the only thing in its row.
+// A piece with an unusually narrow `aspect` value, fed straight into
+// `paddingTop: ${(1/aspect)*100}%`, can render far taller than wide — barely
+// noticeable buried in a 3-column desktop masonry, but it dominates and
+// breaks the rhythm of the single mobile column, where it's the only thing
+// in its row (see the same clamp in GallerySection.tsx, where this was
+// first tracked down).
 const MIN_FRAME_ASPECT = 0.5
 function framePadding(aspect: number) {
   return `${(1 / Math.max(aspect, MIN_FRAME_ASPECT)) * 100}%`
@@ -26,17 +24,13 @@ function framePadding(aspect: number) {
 // stacked images.
 const TILT_DEG = [-1.6, 1.4, -1.2, 1.8, -1.5, 1.3, -1.7]
 
-// Same seven pieces the old floating 3D hero scene opened with — one per
-// collection, plus one extra — kept here so the hero's first impression
-// doesn't change, only how they're laid out (see HeroScene.tsx, now removed,
-// for the original INITIAL_INDICES this mirrors). Referenced by id rather
-// than array position — a fixed index into PIECES silently goes out of
-// bounds (or points at the wrong piece) the moment the catalogue is edited,
-// which is exactly what crashed this section in production. JYO37588-N was
-// one of the original seven and was since removed from the catalogue for
-// being out of focus; JYO37590-N is the only other Bouquets piece, so it
-// stands in for it here.
-const HERO_PIECE_IDS = ['JYO37608-NF', 'JYO37347-NF', 'PW-070', 'PW-073', 'JYO37590-N', 'JYO37320-NF', 'PW-010']
+// A mood-varied sample of seven from the 12-piece "New Collection
+// 2026-2027" — floral, golden-portrait, and sunlit pieces mixed together so
+// the hero reads as one gallery wall, not a single theme. Referenced by id
+// rather than array position — a fixed index into PIECES silently goes out
+// of bounds (or points at the wrong piece) the moment the catalogue is
+// edited, which is exactly what crashed this section in production once.
+const HERO_PIECE_IDS = ['eclat-floral', 'serenite-doree', 'ame-nomade', 'wings-of-colors', 'ivory-blossom', 'reine-dor', 'riviera-muse']
 
 export default function HeroGallery() {
   const pieces = HERO_PIECE_IDS.map((id) => PIECES.find((p) => p.id === id)).filter((p) => p !== undefined)

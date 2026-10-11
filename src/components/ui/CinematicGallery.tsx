@@ -12,21 +12,11 @@ const PHONE_INTL = '212688873673'
 
 const CATEGORIES: (Collection | 'Tout')[] = [
   'Tout',
-  'Portraits Fleuris',
-  'Bouquets',
-  'Papillons',
-  "Reines d'Or",
-  'Éclat Floral',
-  'Âme Nomade',
+  'Nouvelle Collection',
 ]
 
 const CATEGORY_GLOW: Record<Collection, string> = {
-  'Portraits Fleuris': 'rgba(180,120,120,0.08)',
-  'Bouquets': 'rgba(180,150,120,0.08)',
-  'Papillons': 'rgba(120,140,180,0.08)',
-  "Reines d'Or": 'rgba(180,150,80,0.08)',
-  'Éclat Floral': 'rgba(160,130,160,0.08)',
-  'Âme Nomade': 'rgba(120,160,140,0.08)',
+  'Nouvelle Collection': 'rgba(180,150,80,0.08)',
 }
 
 const WHEEL_DEBOUNCE_MS = 600

@@ -11,12 +11,7 @@ const PHONE_INTL = '212688873673'
 
 const CATEGORIES: (Collection | 'Tout')[] = [
   'Tout',
-  'Portraits Fleuris',
-  'Bouquets',
-  'Papillons',
-  "Reines d'Or",
-  'Éclat Floral',
-  'Âme Nomade',
+  'Nouvelle Collection',
 ]
 
 // index % 7 -> bento span, per spec. Assumes a 4-column base grid.

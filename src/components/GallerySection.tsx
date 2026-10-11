@@ -35,17 +35,15 @@ const COLLECTION_SEGMENTS = (() => {
 // total length of the pinned flythrough (scales with PIECES.length).
 const PIECES_PER_VIEWPORT = 5.5
 
-// A handful of the "PW" run's estimated aspect ratios (see the catalogue
-// comment on that run) come out far narrower than the piece's own
-// width/height would suggest — e.g. PW-075 is 0.17 (a card nearly 6x
-// taller than it is wide) where its 45x120cm dimensions imply ~0.38. Fed
-// straight into `paddingTop: ${(1/aspect)*100}%`, that one card would
-// render over 1000px tall in a 224px-wide mobile carousel slot, and
-// because the carousel's flex row default-stretches every card to match
-// its tallest sibling, that single bad value was inflating the entire
-// row — and the blank space below it — by close to a full screen height
-// on mobile. Clamping the floor here fixes it regardless of whether any
-// individual aspect value is itself correct.
+// A piece with an unusually narrow `aspect` value, fed straight into
+// `paddingTop: ${(1/aspect)*100}%`, can render far taller than its mobile
+// carousel slot is wide — and because the carousel's flex row
+// default-stretches every card to match its tallest sibling, one bad value
+// inflates the entire row (and the blank space below it) by close to a full
+// screen height on mobile. This shipped broken once already (an estimated
+// aspect far narrower than its own width/height implied). Clamping the
+// floor here fixes it regardless of whether any individual aspect value is
+// itself correct.
 const MIN_CARD_ASPECT = 0.5
 function cardAspectPadding(aspect: number) {
   return `${(1 / Math.max(aspect, MIN_CARD_ASPECT)) * 100}%`
@@ -418,24 +416,26 @@ export default function GallerySection() {
         </p>
       </div>
 
-      {/* ── Collection filter pills ── */}
-      <div className="flex items-center justify-center gap-2 flex-wrap px-6 mb-8 md:mb-10">
-        <button
-          className={`pill rounded-full px-4 py-1.5 text-xs font-body uppercase tracking-[0.16em] cursor-pointer ${activeCol === 'All' ? 'active' : ''}`}
-          onClick={() => jumpToCollection('All')}
-        >
-          {t.gallery.filterAll}
-        </button>
-        {COLLECTIONS.map((col) => (
+      {/* ── Collection filter pills — only worth showing once there's more than one collection to filter between ── */}
+      {COLLECTIONS.length > 1 && (
+        <div className="flex items-center justify-center gap-2 flex-wrap px-6 mb-8 md:mb-10">
           <button
-            key={col}
-            className={`pill rounded-full px-4 py-1.5 text-xs font-body uppercase tracking-[0.16em] cursor-pointer ${activeCol === col ? 'active' : ''}`}
-            onClick={() => jumpToCollection(col)}
+            className={`pill rounded-full px-4 py-1.5 text-xs font-body uppercase tracking-[0.16em] cursor-pointer ${activeCol === 'All' ? 'active' : ''}`}
+            onClick={() => jumpToCollection('All')}
           >
-            {col}
+            {t.gallery.filterAll}
           </button>
-        ))}
-      </div>
+          {COLLECTIONS.map((col) => (
+            <button
+              key={col}
+              className={`pill rounded-full px-4 py-1.5 text-xs font-body uppercase tracking-[0.16em] cursor-pointer ${activeCol === col ? 'active' : ''}`}
+              onClick={() => jumpToCollection(col)}
+            >
+              {col}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* ── 3D flythrough gallery (desktop) — pinned in place while scroll
            drives the camera down a winding corridor past all the pieces in
