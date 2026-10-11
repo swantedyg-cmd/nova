@@ -85,8 +85,8 @@ export const translations = {
       bio3: "Pas une marketplace. Un point de vue. Chaque pièce de cette collection est ici parce que je la mettrais dans ma propre maison.",
       sign: '— Curé avec intention.',
       stats: [
-        { val: '43', label: 'Pièces' },
-        { val: '6',  label: 'Collections' },
+        { val: '12', label: 'Pièces' },
+        { val: '2026', label: 'Nouvelle Collection' },
         { val: 'COD', label: 'Partout au Maroc' },
       ],
     },
@@ -120,8 +120,8 @@ export const translations = {
       formCitySelect: 'Choisissez votre ville',
       formZip: 'Code postal',
       formAddress: 'Adresse (optionnel)',
-      formPiece: 'Pièce qui vous intéresse (optionnel)',
-      formPiecePlaceholder: 'Choisissez une pièce',
+      formPiece: 'Pièces sélectionnées',
+      formPiecePlaceholder: 'Votre panier est vide — ajoutez une pièce depuis la collection.',
       formSubmit: 'Envoyer sur WhatsApp',
     },
     carte: {
@@ -174,6 +174,18 @@ export const translations = {
     },
     taglines: {
       eyebrow: 'Les mots sous le sceau',
+    },
+    cart: {
+      ariaLabel: 'Panier',
+      title: 'Votre Panier',
+      empty: 'Votre panier est vide.',
+      emptyHint: 'Ajoutez une pièce depuis la collection.',
+      remove: 'Retirer',
+      total: 'Total',
+      checkout: 'Finaliser la commande',
+      addToCart: 'Ajouter au panier',
+      inCart: 'Dans le panier',
+      closeAria: 'Fermer le panier',
     },
   },
 
@@ -261,8 +273,8 @@ export const translations = {
       bio3: 'Not a marketplace. A point of view. Every piece in this collection is here because I would put it in my own home.',
       sign: '— Curated with intention.',
       stats: [
-        { val: '43', label: 'Pieces' },
-        { val: '6',  label: 'Collections' },
+        { val: '12', label: 'Pieces' },
+        { val: '2026', label: 'New Collection' },
         { val: 'COD', label: 'Across Morocco' },
       ],
     },
@@ -296,8 +308,8 @@ export const translations = {
       formCitySelect: 'Choose your city',
       formZip: 'Postal code',
       formAddress: 'Address (optional)',
-      formPiece: 'Piece you\'re interested in (optional)',
-      formPiecePlaceholder: 'Choose a piece',
+      formPiece: 'Selected pieces',
+      formPiecePlaceholder: 'Your cart is empty — add a piece from the collection.',
       formSubmit: 'Send on WhatsApp',
     },
     carte: {
@@ -350,6 +362,18 @@ export const translations = {
     },
     taglines: {
       eyebrow: 'Words Under the Seal',
+    },
+    cart: {
+      ariaLabel: 'Cart',
+      title: 'Your Cart',
+      empty: 'Your cart is empty.',
+      emptyHint: 'Add a piece from the collection.',
+      remove: 'Remove',
+      total: 'Total',
+      checkout: 'Complete your order',
+      addToCart: 'Add to cart',
+      inCart: 'In cart',
+      closeAria: 'Close cart',
     },
   },
 
@@ -437,8 +461,8 @@ export const translations = {
       bio3: 'ليست منصة سوق. بل وجهة نظر. كل قطعة في هذه المجموعة هنا لأنني سأضعها في بيتي أنا.',
       sign: '— باختيار مدروس.',
       stats: [
-        { val: '٤٣', label: 'لوحة' },
-        { val: '٦',  label: 'مجموعات' },
+        { val: '١٢', label: 'لوحة' },
+        { val: '٢٠٢٦', label: 'مجموعة جديدة' },
         { val: 'COD', label: 'في جميع أنحاء المغرب' },
       ],
     },
@@ -472,8 +496,8 @@ export const translations = {
       formCitySelect: 'اختر مدينتك',
       formZip: 'الرمز البريدي',
       formAddress: 'العنوان (اختياري)',
-      formPiece: 'القطعة التي تهمك (اختياري)',
-      formPiecePlaceholder: 'اختر قطعة',
+      formPiece: 'القطع المختارة',
+      formPiecePlaceholder: 'سلتك فارغة — أضف قطعة من المجموعة.',
       formSubmit: 'إرسال عبر واتساب',
     },
     carte: {
@@ -526,6 +550,18 @@ export const translations = {
     },
     taglines: {
       eyebrow: 'كلمات تحت الختم',
+    },
+    cart: {
+      ariaLabel: 'السلة',
+      title: 'سلتك',
+      empty: 'سلتك فارغة.',
+      emptyHint: 'أضف قطعة من المجموعة.',
+      remove: 'إزالة',
+      total: 'المجموع',
+      checkout: 'إتمام الطلب',
+      addToCart: 'أضف إلى السلة',
+      inCart: 'في السلة',
+      closeAria: 'إغلاق السلة',
     },
   },
 }

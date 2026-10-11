@@ -1,12 +1,14 @@
 import type { Metadata } from 'next'
 import { Playfair_Display, DM_Sans, Cairo, Source_Serif_4 } from 'next/font/google'
 import { LanguageProvider } from '@/i18n/LanguageContext'
-import { OrderSelectionProvider } from '@/context/OrderSelectionContext'
+import { CartProvider } from '@/context/CartContext'
 import LanguageSwitcher from '@/components/LanguageSwitcher'
 import Header from '@/components/Header'
 import SiteBackground from '@/components/LazySiteBackground'
 import NovaIntro from '@/components/LazyNovaIntro'
 import StickyWhatsApp from '@/components/StickyWhatsApp'
+import CartFlyLayer from '@/components/CartFlyLayer'
+import CartControl from '@/components/CartControl'
 import './globals.css'
 
 const playfair = Playfair_Display({
@@ -53,17 +55,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="bg-parchment text-charcoal">
         <LanguageProvider>
-          <OrderSelectionProvider>
+          <CartProvider>
             {/* The homepage below isn't mounted at all until the intro video
                 has actually played (or been skipped) — see NovaIntro.tsx. */}
             <NovaIntro>
               <SiteBackground />
               <Header />
-              <LanguageSwitcher />
+              {/* Grouped together so both share one fixed top-right position —
+                  kept as siblings in the same row instead of two independently
+                  fixed elements that could overlap. */}
+              <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+                <CartControl />
+                <LanguageSwitcher />
+              </div>
               <StickyWhatsApp />
+              <CartFlyLayer />
               {children}
             </NovaIntro>
-          </OrderSelectionProvider>
+          </CartProvider>
         </LanguageProvider>
       </body>
     </html>

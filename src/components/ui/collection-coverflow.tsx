@@ -4,10 +4,11 @@
 import * as React from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Check } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { PhilosophyReveal } from "@/components/ui/philosophy-reveal";
+import { useCart } from "@/context/CartContext";
 
 const useIsoLayoutEffect =
   typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
@@ -45,6 +46,8 @@ export interface CollectionCoverflowLabels {
   numberPrefix: string;
   revealAria: string;
   hideAria: string;
+  addToCart: string;
+  inCart: string;
 }
 
 const DEFAULT_LABELS: CollectionCoverflowLabels = {
@@ -59,6 +62,8 @@ const DEFAULT_LABELS: CollectionCoverflowLabels = {
   numberPrefix: "N°",
   revealAria: "Voir la philosophie, le prix et la quantité",
   hideAria: "Masquer les informations",
+  addToCart: "Ajouter au panier",
+  inCart: "Dans le panier",
 };
 
 export interface CollectionCoverflowProps {
@@ -116,6 +121,7 @@ export function CollectionCoverflow({
 }: CollectionCoverflowProps) {
   const labels = { ...DEFAULT_LABELS, ...labelsProp };
   const count = pieces.length;
+  const { addToCart, removeFromCart, isInCart } = useCart();
 
   const frameRef = React.useRef<HTMLDivElement>(null);
   const cardRefs = React.useRef<(HTMLDivElement | null)[]>([]);
@@ -422,6 +428,7 @@ export function CollectionCoverflow({
               const isActive = index === selected;
               const isRevealed = isActive && revealed;
               const isLoaded = loadedIds.has(piece.id);
+              const inCart = isInCart(piece.id);
 
               return (
                 <div
@@ -439,8 +446,13 @@ export function CollectionCoverflow({
                     transformStyle: "preserve-3d",
                   }}
                 >
-                  <button
-                    type="button"
+                  {/* A <div role="button"> rather than a real <button> — the
+                      "Ajouter au panier" control lives inside the revealed
+                      back face, and a <button> can't legally nest another
+                      <button> (invalid HTML, React hydration error). Keyboard
+                      behavior is replicated manually below. */}
+                  <div
+                    role="button"
                     tabIndex={isActive ? 0 : -1}
                     aria-pressed={isRevealed}
                     aria-label={
@@ -451,8 +463,14 @@ export function CollectionCoverflow({
                         : piece.title
                     }
                     onClick={() => handleCardTap(index)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        handleCardTap(index);
+                      }
+                    }}
                     className={cn(
-                      "group relative h-full w-full rounded-[2px] text-left transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none",
+                      "group relative h-full w-full rounded-[2px] text-left transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] motion-reduce:transition-none cursor-pointer",
                       cardClassName,
                     )}
                     style={{
@@ -611,24 +629,37 @@ export function CollectionCoverflow({
                         {quantityLabel(piece.quantity, labels)}
                       </div>
 
-                      <a
-                        href={`https://wa.me/212688873673?text=${encodeURIComponent(
-                          `Bonjour, je suis intéressé(e) par "${piece.title}" — ${piece.size} — ${piece.price} DH (N° ${String(index + 1).padStart(2, "0")} / ${count})`,
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(event) => event.stopPropagation()}
-                        className="mt-3 flex w-full items-center justify-center gap-2 rounded-sm py-2.5 text-[9px] font-medium uppercase tracking-[0.2em] text-[#2C1810] transition-[filter,transform] duration-200 hover:scale-[1.01] hover:brightness-110"
-                        style={{ background: "linear-gradient(135deg, #D4A42E, #A67C00)" }}
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          const cardEl = cardRefs.current[index];
+                          if (!cardEl) return;
+                          if (inCart) {
+                            removeFromCart(piece.id);
+                          } else {
+                            addToCart(piece.id, piece.src, cardEl);
+                          }
+                        }}
+                        className={cn(
+                          "mt-3 flex w-full items-center justify-center gap-2 rounded-sm py-2.5 text-[9px] font-medium uppercase tracking-[0.2em] transition-[filter,transform] duration-200 hover:scale-[1.01] hover:brightness-110",
+                          inCart ? "border border-[#D4A42E]/60 text-[#2C1810]" : "text-[#2C1810]",
+                        )}
+                        style={
+                          inCart
+                            ? { background: "rgba(212,164,46,0.14)" }
+                            : { background: "linear-gradient(135deg, #D4A42E, #A67C00)" }
+                        }
                       >
-                        Commander sur WhatsApp
-                      </a>
+                        {inCart && <Check className="size-3.5" />}
+                        {inCart ? labels.inCart : labels.addToCart}
+                      </button>
 
                       <p className="mt-2 text-center text-[8px] uppercase tracking-[0.2em] text-[#2C1810]/30">
                         {labels.numberPrefix} {String(index + 1).padStart(2, "0")} / {count}
                       </p>
                     </div>
-                  </button>
+                  </div>
                 </div>
               );
             })}

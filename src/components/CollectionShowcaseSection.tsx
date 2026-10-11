@@ -43,6 +43,8 @@ export default function CollectionShowcaseSection() {
               numberPrefix: t.showcase.numberPrefix,
               revealAria: t.showcase.revealAria,
               hideAria: t.showcase.hideAria,
+              addToCart: t.cart.addToCart,
+              inCart: t.cart.inCart,
             }}
           />
         </div>

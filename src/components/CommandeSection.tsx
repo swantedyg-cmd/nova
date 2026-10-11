@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useLanguage } from '@/i18n/LanguageContext'
-import { useOrderSelection } from '@/context/OrderSelectionContext'
+import { useCart } from '@/context/CartContext'
 import { MOROCCO_CITIES } from '@/data/cities'
 import { PIECES } from '@/data/catalogue'
 import LazyStrands from './LazyStrands'
@@ -22,19 +22,20 @@ export default function CommandeSection() {
   const headRef    = useRef<HTMLDivElement>(null)
   const { t, lang } = useLanguage()
   const c = t.commande
-  const { selectedPieceId } = useOrderSelection()
+  const { cartItems, removeFromCart } = useCart()
 
   const [name, setName]       = useState('')
   const [phone, setPhone]     = useState('')
   const [city, setCity]       = useState('')
   const [zip, setZip]         = useState('')
   const [address, setAddress] = useState('')
-  const [pieceId, setPieceId] = useState('')
 
-  useEffect(() => {
-    if (!selectedPieceId) return
-    setPieceId(selectedPieceId)
-  }, [selectedPieceId])
+  const cartPieces = cartItems
+    .map((id) => {
+      const index = PIECES.findIndex((p) => p.id === id)
+      return index >= 0 ? { ...PIECES[index], index } : null
+    })
+    .filter((p): p is NonNullable<typeof p> => p !== null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -57,17 +58,16 @@ export default function CommandeSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const pieceIndex = PIECES.findIndex((p) => p.id === pieceId)
-    const pieceLabel = pieceIndex >= 0
-      ? `${String(pieceIndex + 1).padStart(2, '0')} — ${PIECES[pieceIndex].theme}`
-      : ''
+    const pieceLines = cartPieces
+      .map((p) => `${String(p.index + 1).padStart(2, '0')} — ${p.theme} — ${p.price.toLocaleString('en-US')} DH`)
+      .join('\n')
     const lines = [
       `Nova — ${c.formTitle}`,
       name && `${c.formName}: ${name}`,
       phone && `${c.formPhone}: ${phone}`,
       city && `${c.formCity}: ${city} (${zip})`,
       address && `${c.formAddress}: ${address}`,
-      pieceLabel && `${c.formPiece}: ${pieceLabel}`,
+      pieceLines && `${c.formPiece}:\n${pieceLines}`,
     ].filter(Boolean).join('\n')
     window.open(`https://wa.me/${PHONE_INTL}?text=${encodeURIComponent(lines)}`, '_blank')
   }
@@ -196,18 +196,33 @@ export default function CommandeSection() {
               <label className="block text-xs uppercase tracking-wider text-charcoal/45 font-body mb-1.5">
                 {c.formPiece}
               </label>
-              <select
-                value={pieceId}
-                onChange={(e) => setPieceId(e.target.value)}
-                className="w-full rounded-lg border border-charcoal/15 bg-canvas px-3.5 py-2.5 text-sm text-charcoal font-body focus:outline-none focus:border-gold/60 transition-colors"
-              >
-                <option value="">{c.formPiecePlaceholder}</option>
-                {PIECES.map((p, i) => (
-                  <option key={p.id} value={p.id}>
-                    {String(i + 1).padStart(2, '0')} — {p.theme}
-                  </option>
-                ))}
-              </select>
+              {cartPieces.length === 0 ? (
+                <p className="rounded-lg border border-dashed border-charcoal/20 bg-canvas px-3.5 py-3 text-sm text-charcoal/40 font-body">
+                  {c.formPiecePlaceholder}
+                </p>
+              ) : (
+                <ul className="rounded-lg border border-charcoal/15 bg-canvas divide-y divide-charcoal/10 overflow-hidden">
+                  {cartPieces.map((p) => (
+                    <li key={p.id} className="flex items-center justify-between gap-2 px-3.5 py-2.5 text-sm">
+                      <span className="text-charcoal font-body truncate">
+                        <span className="text-charcoal/40">{String(p.index + 1).padStart(2, '0')} — </span>
+                        {p.theme}
+                      </span>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className="text-xs text-gold font-body">{p.price.toLocaleString('en-US')} DH</span>
+                        <button
+                          type="button"
+                          onClick={() => removeFromCart(p.id)}
+                          aria-label={t.cart.remove}
+                          className="text-charcoal/30 hover:text-charcoal/70 transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
 

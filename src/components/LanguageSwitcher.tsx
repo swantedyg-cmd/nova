@@ -60,7 +60,7 @@ export default function LanguageSwitcher() {
 
   return (
     <div
-      className="fixed top-4 right-4 z-50 flex gap-0.5 rounded-full bg-canvas/85 backdrop-blur-md border border-charcoal/10 px-1 py-1 shadow-md"
+      className="flex gap-0.5 rounded-full bg-canvas/85 backdrop-blur-md border border-charcoal/10 px-1 py-1 shadow-md"
       role="group"
       aria-label="Language selector"
     >

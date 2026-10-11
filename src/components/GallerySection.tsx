@@ -12,7 +12,7 @@ import Tilt from './Tilt'
 import LazyStrands from './LazyStrands'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useLanguage } from '@/i18n/LanguageContext'
-import { useOrderSelection } from '@/context/OrderSelectionContext'
+import { useCart } from '@/context/CartContext'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -103,12 +103,14 @@ function DetailPanel({
   piece,
   onClose,
   onOrder,
-  commander,
+  inCart,
+  label,
 }: {
   piece: typeof PIECES[0]
   onClose: () => void
-  onOrder: () => void
-  commander: string
+  onOrder: (el: HTMLButtonElement) => void
+  inCart: boolean
+  label: string
 }) {
   const { from, to, accent } = COLLECTION_COLORS[piece.collection]
   const { lang } = useLanguage()
@@ -145,10 +147,14 @@ function DetailPanel({
             <div className="mt-4 flex gap-2">
               <button
                 type="button"
-                onClick={(e) => { e.stopPropagation(); onOrder() }}
-                className="flex-1 rounded-full bg-charcoal py-2.5 text-xs text-center font-medium tracking-wide text-canvas transition-all duration-150 active:scale-[0.97] hover:bg-charcoal-mid"
+                onClick={(e) => { e.stopPropagation(); onOrder(e.currentTarget) }}
+                className={`flex-1 rounded-full py-2.5 text-xs text-center font-medium tracking-wide transition-all duration-150 active:scale-[0.97] ${
+                  inCart
+                    ? 'border border-gold/60 text-charcoal bg-gold/10'
+                    : 'bg-charcoal text-canvas hover:bg-charcoal-mid'
+                }`}
               >
-                {commander}
+                {label}
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); onClose() }}
@@ -170,12 +176,14 @@ function MobileLightbox({
   piece,
   onClose,
   onOrder,
-  commander,
+  inCart,
+  label,
 }: {
   piece: typeof PIECES[0]
   onClose: () => void
-  onOrder: () => void
-  commander: string
+  onOrder: (el: HTMLButtonElement) => void
+  inCart: boolean
+  label: string
 }) {
   const { from, to, accent } = COLLECTION_COLORS[piece.collection]
   const { lang } = useLanguage()
@@ -234,10 +242,14 @@ function MobileLightbox({
           </p>
           <button
             type="button"
-            onClick={onOrder}
-            className="mt-4 w-full rounded-full bg-charcoal py-3 text-xs text-center font-medium tracking-wide text-canvas transition-all duration-150 active:scale-[0.97] hover:bg-charcoal-mid"
+            onClick={(e) => onOrder(e.currentTarget)}
+            className={`mt-4 w-full rounded-full py-3 text-xs text-center font-medium tracking-wide transition-all duration-150 active:scale-[0.97] ${
+              inCart
+                ? 'border border-gold/60 text-charcoal bg-gold/10'
+                : 'bg-charcoal text-canvas hover:bg-charcoal-mid'
+            }`}
           >
-            {commander}
+            {label}
           </button>
         </div>
       </div>
@@ -262,7 +274,7 @@ export default function GallerySection() {
   const [started,        setStarted]        = useState(false)
   const [stageVisible,   setStageVisible]   = useState(false)
   const { t } = useLanguage()
-  const { selectPieceForOrder } = useOrderSelection()
+  const { addToCart, removeFromCart, isInCart } = useCart()
 
   const currentSegment = useMemo(
     () => COLLECTION_SEGMENTS.find((s) => currentIndex >= s.start && currentIndex <= s.end) ?? COLLECTION_SEGMENTS[0],
@@ -273,6 +285,15 @@ export default function GallerySection() {
 
   const handleFocus = useCallback((id: string | null) => setFocusedId(id), [])
   const clearFocus  = useCallback(() => setFocusedId(null), [])
+
+  const handleOrderToggle = useCallback((piece: typeof PIECES[0], el: HTMLButtonElement) => {
+    if (isInCart(piece.id)) {
+      removeFromCart(piece.id)
+    } else {
+      addToCart(piece.id, piece.image ? `/images/${piece.image}` : '', el)
+    }
+    clearFocus()
+  }, [isInCart, addToCart, removeFromCart, clearFocus])
 
   // Escape key clears focus
   useEffect(() => {
@@ -512,8 +533,9 @@ export default function GallerySection() {
             <DetailPanel
               piece={focusedPiece}
               onClose={clearFocus}
-              onOrder={() => { selectPieceForOrder(focusedPiece.id); clearFocus() }}
-              commander={t.gallery.commander}
+              onOrder={(el) => handleOrderToggle(focusedPiece, el)}
+              inCart={isInCart(focusedPiece.id)}
+              label={isInCart(focusedPiece.id) ? t.cart.inCart : t.cart.addToCart}
             />
           )}
         </>
@@ -538,8 +560,9 @@ export default function GallerySection() {
         <MobileLightbox
           piece={focusedPiece}
           onClose={clearFocus}
-          onOrder={() => { selectPieceForOrder(focusedPiece.id); clearFocus() }}
-          commander={t.gallery.commander}
+          onOrder={(el) => handleOrderToggle(focusedPiece, el)}
+          inCart={isInCart(focusedPiece.id)}
+          label={isInCart(focusedPiece.id) ? t.cart.inCart : t.cart.addToCart}
         />
       )}
 
@@ -548,12 +571,21 @@ export default function GallerySection() {
         <div className="hidden md:grid grid-cols-3 lg:grid-cols-4 gap-6 px-8 md:px-16 pb-24 max-w-6xl mx-auto">
           {filtered.map((piece) => {
             const { from, to, accent } = COLLECTION_COLORS[piece.collection]
+            const inCart = isInCart(piece.id)
             return (
               <button
                 key={piece.id}
                 type="button"
-                onClick={() => selectPieceForOrder(piece.id)}
-                className="gallery-card-mobile rounded-xl overflow-hidden shadow-sm border border-charcoal/8 text-left"
+                onClick={(e) => {
+                  if (inCart) {
+                    removeFromCart(piece.id)
+                  } else {
+                    addToCart(piece.id, piece.image ? `/images/${piece.image}` : '', e.currentTarget)
+                  }
+                }}
+                className={`gallery-card-mobile rounded-xl overflow-hidden shadow-sm border text-left transition-colors ${
+                  inCart ? 'border-gold/60' : 'border-charcoal/8'
+                }`}
               >
                 <div
                   className="w-full"
