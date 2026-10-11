@@ -438,12 +438,12 @@ export default function GallerySection() {
             promise of uniqueness, set like a museum label: gold hairlines,
             small caps, then two quiet lines on the wood and the handwork. */}
         <div className="mt-5 mx-auto max-w-md">
-          <p className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.28em] text-gold font-body font-medium">
-            <span aria-hidden="true" className="h-px w-8 bg-gold/45" />
+          <p className="inline-flex items-center gap-3 text-[11px] uppercase tracking-[0.28em] text-[var(--color-nova-gold-deep)] font-body font-semibold">
+            <span aria-hidden="true" className="h-px w-8 bg-[var(--color-nova-gold-deep)]/50" />
             {t.gallery.frameLabel}
-            <span aria-hidden="true" className="h-px w-8 bg-gold/45" />
+            <span aria-hidden="true" className="h-px w-8 bg-[var(--color-nova-gold-deep)]/50" />
           </p>
-          <p className="mt-3 text-[13px] md:text-sm italic text-charcoal/55 font-body font-light leading-relaxed">
+          <p className="mt-3 text-[13px] md:text-sm italic text-charcoal/75 font-body leading-relaxed">
             {t.gallery.frameLine1}
             <br className="hidden md:block" />{' '}
             {t.gallery.frameLine2}
