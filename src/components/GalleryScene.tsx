@@ -75,6 +75,18 @@ const REVEAL_APPROACH    = 3.2 * SPACING // gradual brighten-up as a piece is ap
 // — a graceful, gradual fade instead of an abrupt one.
 const REVEAL_EXIT        = REVEAL_APPROACH
 
+// Symmetric presentation. The camera's lateral/vertical position is taken
+// from the rail at the point where pieces peak (REVEAL_PEAK_AHEAD), and it
+// looks straight down the corridor — so at its moment of presentation every
+// piece sits exactly ±WALL_OFFSET from the view axis and level with the eye,
+// left and right mirror images of each other. (Previously the camera aimed
+// along the bend of the sweep, so left pieces landed much nearer centre
+// than right ones wherever the corridor curved, and the eye floated above
+// the lift line.) The corridor still winds — the camera sways with it.
+const PEAK_INDEX_AHEAD = REVEAL_PEAK_AHEAD / SPACING
+// Frame height in world units (width follows each piece's aspect).
+const FRAME_H = 1.85
+
 function sweepX(i: number) {
   return Math.sin((i / SWEEP_PERIOD) * Math.PI * 2) * SWEEP_AMPLITUDE
 }
@@ -116,7 +128,11 @@ function RealArtworkMesh({ image, frameW, frameH, visible }: { image: string; fr
   // At full res that's 2GB+ of textures, which crashes mobile Safari's
   // WebGL context ("This page couldn't load") well before it OOMs desktop.
   const texture = useLoader(THREE.TextureLoader, `/images-gallery/${image}`)
+  const gl = useThree((s) => s.gl)
   texture.colorSpace = THREE.SRGBColorSpace
+  // Frames are seen at an angle; anisotropic filtering keeps brushwork crisp
+  // there instead of letting the mipmaps smear it.
+  texture.anisotropy = gl.capabilities.getMaxAnisotropy()
   return (
     <mesh position={[0, 0, 0.04]}>
       <planeGeometry args={[frameW, frameH]} />
@@ -157,7 +173,7 @@ function FloatingFrame({ idx, collection, aspect, image, isFocused, anyFocused, 
   const forward   = useRef(new THREE.Vector3())
 
   const { from, to } = COLLECTION_COLORS[collection]
-  const frameH = 1.55
+  const frameH = FRAME_H
   const frameW = frameH * aspect
 
   useFrame((state, delta) => {
@@ -267,14 +283,24 @@ function CameraRig({ progressRef, mouseRef }: { progressRef: React.MutableRefObj
     // perfectly in sync at every progress value.
     const index = progressToIndex(progressRef.current)
 
-    railPoint(index, posTmp.current)
+    // Lateral/vertical from the rail at the presentation point, depth from
+    // the current index — see PEAK_INDEX_AHEAD above.
+    railPoint(index + PEAK_INDEX_AHEAD, posTmp.current)
+    posTmp.current.z = -index * SPACING
+    const eyeX = posTmp.current.x
+    const eyeY = posTmp.current.y
     posTmp.current.x += mouseRef.current.x * 0.35
+    // Eye sits a touch above the pieces (as it always has — it's what lets
+    // the gilded frames catch the key light) and looks down onto their line.
     posTmp.current.y += mouseRef.current.y * 0.22 + 0.15
     camera.position.copy(posTmp.current)
 
-    railPoint(index + LOOKAHEAD, lookTmp.current)
-    lookTmp.current.x += mouseRef.current.x * 0.5
-    lookTmp.current.y += mouseRef.current.y * 0.3
+    // Straight down the corridor (mouse parallax aside), never along the bend.
+    lookTmp.current.set(
+      eyeX + mouseRef.current.x * 0.5,
+      eyeY + mouseRef.current.y * 0.3,
+      posTmp.current.z - LOOKAHEAD * SPACING,
+    )
     camera.lookAt(lookTmp.current)
 
     if (lightRef.current) {
