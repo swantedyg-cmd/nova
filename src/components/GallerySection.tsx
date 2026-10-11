@@ -566,7 +566,7 @@ export default function GallerySection() {
         {!reducedMotion && <MobileSilkWaves scrollerRef={mobileScrollRef} />}
         <div
           ref={mobileScrollRef}
-          className={`relative z-10 px-6 overflow-x-auto ${reducedMotion ? 'pb-24' : 'pt-24 pb-28'}`}
+          className={`relative z-10 px-6 overflow-x-auto ${reducedMotion ? 'pb-24' : 'pt-28 pb-28'}`}
           style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch' }}
         >
           <div className="flex gap-4 w-max pb-2">

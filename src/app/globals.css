@@ -284,7 +284,7 @@ html[dir="rtl"] body {
   position: absolute;
   left: -20%;
   right: -20%;
-  height: 6.75rem;
+  height: 7.5rem;
   overflow: hidden;
   opacity: 0;
   clip-path: inset(0 100% 0 0);
@@ -296,11 +296,11 @@ html[dir="rtl"] body {
 .silk-plane--top    { top: 0;    transform-origin: 50% 100%; transform: rotateX(88deg); }
 .silk-plane--bottom { bottom: 0; transform-origin: 50% 0%;   transform: rotateX(-88deg); transition-delay: 0.15s, 0.15s, 0.5s; }
 .is-in .silk-plane { opacity: 1; clip-path: inset(0 0 0 0); }
-.is-in .silk-plane--top    { transform: rotateX(46deg); }
-.is-in .silk-plane--bottom { transform: rotateX(-46deg); }
+.is-in .silk-plane--top    { transform: rotateX(30deg); }
+.is-in .silk-plane--bottom { transform: rotateX(-30deg); }
 /* fade the far edge into the page, like the corridor's fog */
-.silk-plane--top    { mask-image: linear-gradient(to bottom, transparent, #000 45%); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 45%); }
-.silk-plane--bottom { mask-image: linear-gradient(to top, transparent, #000 45%);    -webkit-mask-image: linear-gradient(to top, transparent, #000 45%); }
+.silk-plane--top    { mask-image: linear-gradient(to bottom, transparent, #000 22%); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 22%); }
+.silk-plane--bottom { mask-image: linear-gradient(to top, transparent, #000 22%);    -webkit-mask-image: linear-gradient(to top, transparent, #000 22%); }
 
 .silk-drift { position: absolute; inset: 0 auto 0 0; width: 300%; will-change: transform; }
 .silk-band  { position: absolute; inset: 0; }
