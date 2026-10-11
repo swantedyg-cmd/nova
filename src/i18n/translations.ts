@@ -136,7 +136,7 @@ export const translations = {
       cardInstagramSub: '@nova_canvas_1',
       cardWhatsappSub: '0688873673',
       cardEmailLabel: 'Email',
-      cardEmailSub: 'swantedyg@gmail.com',
+      cardEmailSub: 'contact@novagallery.world',
       scanHint: 'Scannez — ou touchez pour ouvrir',
     },
     footer: {
@@ -331,7 +331,7 @@ export const translations = {
       cardInstagramSub: '@nova_canvas_1',
       cardWhatsappSub: '0688873673',
       cardEmailLabel: 'Email',
-      cardEmailSub: 'swantedyg@gmail.com',
+      cardEmailSub: 'contact@novagallery.world',
       scanHint: 'Scan — or tap to open',
     },
     footer: {
@@ -526,7 +526,7 @@ export const translations = {
       cardInstagramSub: '@nova_canvas_1',
       cardWhatsappSub: '0688873673',
       cardEmailLabel: 'البريد الإلكتروني',
-      cardEmailSub: 'swantedyg@gmail.com',
+      cardEmailSub: 'contact@novagallery.world',
       scanHint: 'امسح — أو اضغط للفتح',
     },
     footer: {

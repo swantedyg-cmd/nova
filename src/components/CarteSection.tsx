@@ -14,8 +14,8 @@ import { INSTAGRAM_URL } from '@/data/social'
 gsap.registerPlugin(ScrollTrigger)
 
 const PHONE_INTL = '212688873673'
-const EMAIL = 'swantedyg@gmail.com'
-const SITE_URL = 'https://rq3a.vercel.app'
+const EMAIL = 'contact@novagallery.world'
+const SITE_URL = 'https://novagallery.world'
 
 function QRCard({
   value, label, sub, scanHint, floatDelay, featured = false,

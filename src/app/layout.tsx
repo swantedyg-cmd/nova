@@ -42,6 +42,9 @@ const sourceSerif = Source_Serif_4({
 })
 
 export const metadata: Metadata = {
+  // Official domain — makes link previews and canonical URLs resolve to
+  // novagallery.world instead of whichever Vercel alias served the page.
+  metadataBase: new URL('https://novagallery.world'),
   title: 'Nova — Art, Chosen With Intention',
   description:
     'Curated canvas wall art for Moroccan homes. International pieces sourced with care, shipped across Morocco, cash on delivery.',
