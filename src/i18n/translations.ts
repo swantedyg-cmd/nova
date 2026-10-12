@@ -173,6 +173,7 @@ export const translations = {
     },
     footer: {
       tagline: 'Art curé pour les foyers marocains · نوفا',
+      navWall: 'Sur le mur',
       navCollection: 'Collection',
       navWhy: 'Pourquoi',
       navCommande: 'Commander',
@@ -412,6 +413,7 @@ export const translations = {
     },
     footer: {
       tagline: 'Art curated for Moroccan homes · نوفا',
+      navWall: 'On the wall',
       navCollection: 'Collection',
       navWhy: 'Why',
       navCommande: 'Order',
@@ -651,6 +653,7 @@ export const translations = {
     },
     footer: {
       tagline: 'فن منتقى للبيوت المغربية · نوفا',
+      navWall: 'على الجدار',
       navCollection: 'المجموعة',
       navWhy: 'لماذا',
       navCommande: 'اطلب',

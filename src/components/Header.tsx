@@ -5,6 +5,7 @@ import { useLanguage } from '@/i18n/LanguageContext'
 import NovaLogoAnimated from './NovaLogoAnimated'
 
 const LINKS = [
+  { href: '#sur-votre-mur', key: 'navWall' },
   { href: '#gallery', key: 'navCollection' },
   { href: '#why', key: 'navWhy' },
   { href: '#commande', key: 'navCommande' },
