@@ -116,10 +116,10 @@ export default function CarnetCurateur() {
 
       {/* The scroll track — tall, so the turns follow the reader's scroll */}
       <div ref={trackRef} className="relative" style={{ height: reduce ? 'auto' : '280vh' }}>
-        <div className={`${reduce ? '' : 'sticky top-0 h-screen'} flex flex-col items-center justify-center py-10`}>
+        <div className={`${reduce ? '' : 'sticky top-0 h-screen pt-20'} flex flex-col items-center justify-center py-10`}>
           <div
             dir="ltr"
-            className="relative mx-auto aspect-[3/4.4] w-[min(88vw,420px)] md:aspect-[16/10.5] md:w-[min(92vw,900px)]"
+            className="relative mx-auto aspect-[3/4.4] w-[min(88vw,420px)] md:aspect-[16/10.5] md:w-[min(92vw,900px,calc((100vh-190px)*16/10.5))]"
             style={{ perspective: '2200px' }}
           >
             {/* cover / left page (laptop) */}
