@@ -238,13 +238,17 @@ export default function GalleryWaves({
     // Scroll speed in pieces/second → a surge that rises fast, settles slow.
     const speed = lastIndex.current === null ? 0 : Math.abs(index - lastIndex.current) / Math.max(dt, 1e-3)
     lastIndex.current = index
-    const target = Math.min(speed * 0.45, 1.6)
-    const rate = target > surge.current ? 6 : 1.6
+    // Wheel input arrives in bursts, so the raw speed spikes; the surge
+    // swells gently and lets go even more slowly, turning those spikes into
+    // one long, smooth breath of the silk.
+    const target = Math.min(speed * 0.38, 1.1)
+    const rate = target > surge.current ? 2.2 : 0.9
     surge.current += (target - surge.current) * (1 - Math.exp(-dt * rate))
 
     u.uSurge.value = surge.current
-    u.uFlow.value += dt * (0.55 + surge.current * 2.8)
-    u.uPresent.value = index + peakIndexAhead
+    u.uFlow.value += dt * (0.5 + surge.current * 1.9)
+    // The gold glow drifts after the presented piece rather than snapping.
+    u.uPresent.value += (index + peakIndexAhead - u.uPresent.value) * (1 - Math.exp(-dt * 4))
     u.uDim.value += ((dimmed ? 0.22 : 1) - u.uDim.value) * (1 - Math.exp(-dt * 5))
   })
 

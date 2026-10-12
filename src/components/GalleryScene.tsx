@@ -86,7 +86,7 @@ const REVEAL_EXIT        = REVEAL_APPROACH
 // the lift line.) The corridor still winds — the camera sways with it.
 const PEAK_INDEX_AHEAD = REVEAL_PEAK_AHEAD / SPACING
 // Frame height in world units (width follows each piece's aspect).
-const FRAME_H = 1.85
+const FRAME_H = 2.05
 
 function sweepX(i: number) {
   return Math.sin((i / SWEEP_PERIOD) * Math.PI * 2) * SWEEP_AMPLITUDE

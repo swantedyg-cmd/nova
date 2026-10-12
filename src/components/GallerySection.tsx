@@ -63,7 +63,7 @@ function MobileCard({ piece, onClick }: { piece: typeof PIECES[0]; onClick: () =
   const isPortrait = piece.aspect < 1
   const { lang } = useLanguage()
   return (
-    <Tilt className="gallery-card-mobile flex-shrink-0 rounded-xl overflow-hidden shadow-sm border border-charcoal/8 w-56 md:w-64" max={7}>
+    <Tilt className="gallery-card-mobile flex-shrink-0 rounded-xl overflow-hidden shadow-sm border border-charcoal/8 w-64" max={7}>
       <button onClick={onClick} className="block w-full text-left">
         {/* Artwork */}
         <div
@@ -361,7 +361,9 @@ export default function GallerySection() {
         start: 'top top+=76',
         end: () => `+=${(PIECES.length / PIECES_PER_VIEWPORT) * 100}%`,
         pin: true,
-        scrub: 1,
+        // A longer scrub lets the camera glide into each piece and ease out
+        // of it, instead of tracking every notch of the wheel.
+        scrub: 1.6,
         anticipatePin: 1,
         onUpdate: (self) => {
           progressRef.current = self.progress
