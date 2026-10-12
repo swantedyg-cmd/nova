@@ -8,12 +8,14 @@ import CommandeSection from '@/components/CommandeSection'
 import CarteSection from '@/components/CarteSection'
 import CuratorSection from '@/components/CuratorSection'
 import CtaSection from '@/components/CtaSection'
+import SurVotreMurSection from '@/components/SurVotreMurSection'
 import Footer from '@/components/Footer'
 
 export default function Home() {
   return (
     <main>
       <HeroSection />
+      <SurVotreMurSection />
       <GallerySection />
       <TaglineSection />
       <CollectionShowcaseSection />

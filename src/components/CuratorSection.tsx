@@ -8,7 +8,6 @@ import { useLanguage } from '@/i18n/LanguageContext'
 import Tilt from './Tilt'
 import TrueFocus from './TrueFocus'
 import LazyStrands from './LazyStrands'
-import SurVotreMur from './SurVotreMur'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -136,7 +135,6 @@ export default function CuratorSection() {
           </div>
         </div>
 
-        <SurVotreMur />
       </div>
     </section>
   )

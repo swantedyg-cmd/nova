@@ -211,7 +211,7 @@ function stageBox(vw: number, vh: number, room: Room, phone: boolean) {
   return { w, h, left, top }
 }
 
-export default function SurVotreMur() {
+export default function SurVotreMur({ className = '' }: { className?: string }) {
   const { t, lang } = useLanguage()
   const w = t.wall
   const isMobile = useIsMobile()
@@ -241,12 +241,12 @@ export default function SurVotreMur() {
   const go = (by: number) => setIndex((i) => (i + by + PIECES.length) % PIECES.length)
 
   return (
-    <div className="mt-28 md:mt-36">
+    <div className={className}>
       <div className="text-center">
         <p className="text-xs uppercase tracking-[0.38em] text-gold font-body">{w.eyebrow}</p>
-        <h3 className="mt-4 font-display text-3xl md:text-4xl font-medium text-charcoal leading-snug">
+        <h2 className="mt-4 font-display text-4xl md:text-5xl font-medium text-charcoal leading-snug">
           {w.title} <em className="italic font-normal text-gold">{w.titleItalic}</em>
-        </h3>
+        </h2>
         <p className="mt-4 mx-auto max-w-lg text-sm md:text-base text-charcoal/55 font-body font-light leading-relaxed">
           {w.body}
         </p>
