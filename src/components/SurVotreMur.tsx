@@ -45,6 +45,8 @@ interface Room {
   shadow: [number, number]
   /** light falling across the canvas face, matched to the photo */
   light: string
+  /** optional gallery spotlight washing the wall around the canvas */
+  glow?: string
   ink: string
 }
 
@@ -92,6 +94,7 @@ const ROOMS: Room[] = [
     focus: { desk: [0.5, 0.42, 1.35], phone: [0.5, 0.42, 1] },
     shadow: [0, 4],
     light: 'radial-gradient(120% 80% at 50% 0%, rgba(255,240,210,0.16), transparent 60%), linear-gradient(rgba(0,30,28,0.18), rgba(0,30,28,0.18))',
+    glow: 'radial-gradient(closest-side, rgba(255,232,190,0.30), rgba(255,232,190,0.10) 55%, transparent)',
     ink: 'rgba(240,250,246,0.8)',
   },
 ]
@@ -185,6 +188,22 @@ export default function SurVotreMur() {
               className="select-none object-cover"
               draggable={false}
             />
+
+            {room.glow && (
+              <div
+                className="pointer-events-none absolute -translate-x-1/2 transition-opacity duration-[2200ms] ease-out"
+                style={{
+                  left: `${room.hangX * 100}%`,
+                  bottom: `calc(${(1 - room.hangY) * 100}% - ${cm(40)})`,
+                  width: cm(260),
+                  height: cm(230),
+                  background: room.glow,
+                  mixBlendMode: 'screen',
+                  opacity: lit ? 1 : 0,
+                  transitionDelay: lit ? '600ms' : '0ms',
+                }}
+              />
+            )}
 
             {/* The canvas — real size, wooden frame, shadow cast by the room's light */}
             <div
