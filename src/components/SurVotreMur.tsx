@@ -65,15 +65,16 @@ const ROOMS: Room[] = [
     wallCm: 366,
     ref: 'sofa',
     refCm: 250,
-    // Centred in the moulded panel nearest the middle of the sofa, so the
-    // canvas sits symmetrically in the panelling instead of straddling a seam.
-    hangX: 0.583,
-    anchor: 'center',
-    hangY: 0.224,
+    // Centred on the middle one of the wall's three moulded panels, so the
+    // canvas sits symmetrically in the panelling instead of straddling a
+    // seam; 20 cm above the sofa back.
+    hangX: 0.381,
+    anchor: 'bottom',
+    hangY: 0.477,
     labelX: 0.51,
     labelY: 0.915,
     deskAspect: 2000 / 1500,
-    focus: { desk: [0.5, 0.5, 1], phone: [0.56, 0.5, 1] },
+    focus: { desk: [0.5, 0.5, 1], phone: [0.45, 0.5, 1] },
     shadow: [-1.6, 3.2],
     light: 'linear-gradient(255deg, rgba(255,255,255,0.16), transparent 55%, rgba(20,20,30,0.10))',
     ink: 'rgba(44,24,16,0.7)',
