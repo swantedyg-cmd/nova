@@ -32,7 +32,9 @@ const FRAME_CM = 2.5     // visible face of the decorative wooden frame
 // The sofa stands a little in front of the wall, so its feet sit on the
 // floor below the skirting line.
 const SOFA_BOTTOM = FLOOR_CM - 12
-const CANVAS_BOTTOM = SOFA_BOTTOM + SOFA_H + HANG_GAP
+// The sofa drawing's back cushion starts 12 cm below its box top.
+const SOFA_BACK_TOP = SOFA_BOTTOM + SOFA_H - 12
+const CANVAS_BOTTOM = SOFA_BACK_TOP + HANG_GAP
 
 /** `n` centimetres, in pixels. */
 const cm = (n: number) => `calc(var(--cm) * ${n})`
@@ -167,7 +169,7 @@ export default function SurVotreMur() {
             style={{
               opacity: lit ? 1 : 0.25,
               background:
-                'radial-gradient(120% 90% at 50% 100%, transparent 40%, rgba(30,18,8,0.18) 100%), linear-gradient(to bottom, rgba(30,18,8,0.12), transparent 35%)',
+                'radial-gradient(120% 90% at 50% 100%, transparent 40%, rgba(30,18,8,0.18) 100%), linear-gradient(to bottom, rgba(30,18,8,0.07), transparent 35%)',
             }}
           />
           {/* Dim room before the light comes on */}
