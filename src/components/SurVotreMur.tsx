@@ -52,14 +52,17 @@ interface Room {
   shadow: [number, number]
   /** light falling across the canvas face, matched to the photo */
   light: string
-  /** optional gallery spotlight washing the wall around the canvas */
+  /** picture light washing the wall around the canvas (a soft default otherwise) */
   glow?: string
+  /** colour grade so the painting takes the room's light, white balance and contrast */
+  grade: string
   ink: string
 }
 
 const ROOMS: Room[] = [
   {
     id: 'haussmann',
+    grade: 'brightness(1.03) contrast(1.03) saturate(0.97)',
     src: '/rooms/haussmann.jpg',
     aspect: 2000 / 1500,
     wallCm: 366,
@@ -81,6 +84,7 @@ const ROOMS: Room[] = [
   },
   {
     id: 'doree',
+    grade: 'sepia(0.1) saturate(1.06) brightness(1.01)',
     src: '/rooms/doree.jpg',
     aspect: 2000 / 1800,
     wallCm: 297,
@@ -99,6 +103,7 @@ const ROOMS: Room[] = [
   },
   {
     id: 'emeraude',
+    grade: 'brightness(0.94) contrast(1.08) saturate(1.04)',
     src: '/rooms/emeraude.jpg',
     aspect: 2000 / 1125,
     wallCm: 580,
@@ -118,6 +123,7 @@ const ROOMS: Room[] = [
   },
   {
     id: 'bureau',
+    grade: 'sepia(0.05) brightness(1.02) contrast(1.02)',
     src: '/rooms/bureau.jpg',
     aspect: 2000 / 1333,
     wallCm: 372,
@@ -138,6 +144,7 @@ const ROOMS: Room[] = [
   },
   {
     id: 'chambre',
+    grade: 'brightness(1.05) contrast(0.98) saturate(0.95)',
     src: '/rooms/chambre.jpg',
     aspect: 2000 / 1333,
     wallCm: 448,
@@ -157,6 +164,7 @@ const ROOMS: Room[] = [
   },
   {
     id: 'galerie',
+    grade: 'saturate(0.9) contrast(1.05) brightness(1.02)',
     src: '/rooms/galerie.jpg',
     aspect: 2000 / 1469,
     wallCm: 519,
@@ -180,6 +188,18 @@ const FRAME_CM = 2.5 // visible face of the decorative wooden frame
 
 /** `n` centimetres, in pixels (inside a stage that sets --cm). */
 const cm = (n: number) => `calc(var(--cm) * ${n})`
+
+/** A 3.5 cm deep frame's shadow on the wall: a tight contact line, a soft
+    mid shadow and a wide ambient one, all cast away from the room's light.
+    `k` scales the throw — small while the canvas is still being hung. */
+function shadowLayers([x, y]: [number, number], k: number, px: number) {
+  const p = (n: number) => `${(n * px).toFixed(2)}px`
+  return [
+    `${p(x * 0.15 * k)} ${p(y * 0.15 * k)} ${p(0.6)} rgba(20,12,4,${0.5 * k})`,
+    `${p(x * 0.55 * k)} ${p(y * 0.55 * k)} ${p(3)} rgba(20,12,4,${0.3 * k})`,
+    `${p(x * 1.2 * k)} ${p(y * 1.4 * k)} ${p(10)} rgba(20,12,4,${0.22 * k})`,
+  ].join(', ')
+}
 
 /** Cover-crop the photo into the viewport around a focal point, zoomed. */
 function stageBox(vw: number, vh: number, room: Room, phone: boolean) {
@@ -217,6 +237,7 @@ export default function SurVotreMur() {
   const piece = PIECES[index]
   const inCart = isInCart(piece.id)
   const box = stageBox(size.vw, size.vh, room, isMobile)
+  const cmPx = box.w / room.wallCm
   const go = (by: number) => setIndex((i) => (i + by + PIECES.length) % PIECES.length)
 
   return (
@@ -249,7 +270,7 @@ export default function SurVotreMur() {
               top: box.top,
               width: box.w,
               height: box.h,
-              ['--cm' as string]: `${box.w / room.wallCm}px`,
+              ['--cm' as string]: `${cmPx}px`,
             } as CSSProperties}
             initial={{ opacity: 0, scale: 1.04 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -266,93 +287,126 @@ export default function SurVotreMur() {
               draggable={false}
             />
 
-            {room.glow && (
-              <div
-                className="pointer-events-none absolute -translate-x-1/2 transition-opacity duration-[2200ms] ease-out"
-                style={{
-                  left: `${room.hangX * 100}%`,
-                  bottom: `calc(${(1 - room.hangY) * 100}% - ${cm(40)})`, // emerald room only (bottom-anchored)
-                  width: cm(260),
-                  height: cm(230),
-                  background: room.glow,
-                  mixBlendMode: 'screen',
-                  opacity: lit ? 1 : 0,
-                  transitionDelay: lit ? '600ms' : '0ms',
-                }}
-              />
-            )}
-
-            {/* The canvas — real size, wooden frame, shadow cast by the room's light */}
+            {/* The canvas. A zero-size anchor sits at the hanging point;
+                each piece is hung from it at its real size, so changing piece
+                is a real re-hang — the old canvas lifts away and the new one
+                is lowered onto the wall, its shadow settling as it touches. */}
             <div
-              className="absolute -translate-x-1/2 transition-[width,height] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-              style={{
-                left: `${room.hangX * 100}%`,
-                ...(room.anchor === 'bottom'
-                  ? { bottom: `${(1 - room.hangY) * 100}%` }
-                  : { top: `${room.hangY * 100}%`, transform: 'translateY(-50%)' }), // x is centred by the translate-x class
-                width: cm(piece.width),
-                height: cm(piece.height),
-              }}
+              className="absolute"
+              style={{ left: `${room.hangX * 100}%`, top: `${room.hangY * 100}%`, width: 0, height: 0 }}
             >
-              <div
-                className="absolute inset-0"
-                style={{
-                  padding: cm(FRAME_CM),
-                  background: 'linear-gradient(135deg, #A8845A 0%, #7A5A38 30%, #B08D62 55%, #6E5033 80%, #94714A 100%)',
-                  // The 3.5 cm depth throws a real shadow onto the wall.
-                  boxShadow: `${cm(room.shadow[0])} ${cm(room.shadow[1])} ${cm(7)} rgba(20,12,4,0.42), ${cm(room.shadow[0] * 0.3)} ${cm(room.shadow[1] * 0.3)} ${cm(1.2)} rgba(20,12,4,0.35), inset 0 0 0 1px rgba(255,240,210,0.18)`,
-                }}
-              >
-                <div className="relative h-full w-full overflow-hidden bg-[#2C1810] shadow-[inset_0_0_6px_rgba(0,0,0,0.45)]">
-                  <AnimatePresence initial={false}>
-                    <motion.div
-                      key={piece.id}
-                      className="absolute inset-0"
-                      initial={{ opacity: 0, scale: 1.06, filter: 'blur(6px)' }}
-                      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              <AnimatePresence initial={false}>
+                <motion.div
+                  key={piece.id}
+                  className="absolute"
+                  style={{
+                    width: cm(piece.width),
+                    height: cm(piece.height),
+                    left: `calc(${cm(piece.width)} * -0.5)`,
+                    top: `calc(${cm(piece.height)} * ${room.anchor === 'bottom' ? -1 : -0.5})`,
+                  }}
+                  initial={{ opacity: 0, y: -18 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10, transition: { duration: 0.35, ease: 'easeIn' } }}
+                  transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {/* Picture light: a warm wash on the wall around the canvas */}
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute transition-opacity duration-[2200ms] ease-out"
+                    style={{
+                      inset: '-38% -55% -30%',
+                      background: room.glow ?? 'radial-gradient(closest-side, rgba(255,240,214,0.20), rgba(255,240,214,0.06) 60%, transparent)',
+                      mixBlendMode: 'screen',
+                      opacity: lit ? 1 : 0,
+                    }}
+                  />
+
+                  {/* Frame — 2.5 cm wooden face, lit from above, 3.5 cm deep */}
+                  <motion.div
+                    className="absolute inset-0"
+                    style={{
+                      padding: cm(FRAME_CM),
+                      background: 'linear-gradient(135deg, #A8845A 0%, #7A5A38 30%, #B08D62 55%, #6E5033 80%, #94714A 100%)',
+                    }}
+                    // The shadow grows as the canvas meets the wall.
+                    initial={{ boxShadow: shadowLayers(room.shadow, 0.35, cmPx) }}
+                    animate={{ boxShadow: shadowLayers(room.shadow, 1, cmPx) }}
+                    transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <div
+                      className="relative h-full w-full overflow-hidden bg-[#2C1810]"
+                      // The frame's inner lip shades the edge of the painting.
+                      style={{ boxShadow: `inset 0 0 ${cm(1.4)} rgba(0,0,0,0.45)` }}
                     >
                       {piece.image && (
                         <Image
                           src={`/images/${piece.image}`}
                           alt={piece.theme}
                           fill
-                          sizes="(max-width: 768px) 45vw, 280px"
+                          quality={90}
+                          sizes="(max-width: 768px) 60vw, 420px"
                           className="object-cover"
+                          style={{ filter: room.grade }}
                         />
                       )}
-                    </motion.div>
-                  </AnimatePresence>
-                  {/* the room's own light across the canvas face */}
-                  <div className="pointer-events-none absolute inset-0" style={{ background: room.light }} />
-                </div>
-              </div>
+                      {/* linen weave — it reads as paint on canvas, not a screen */}
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 opacity-60 mix-blend-soft-light"
+                        style={{
+                          backgroundImage:
+                            'repeating-linear-gradient(0deg, rgba(255,255,255,0.10) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(0,0,0,0.10) 0 1px, transparent 1px 3px)',
+                        }}
+                      />
+                      {/* the room's own light across the canvas face */}
+                      <div className="pointer-events-none absolute inset-0" style={{ background: room.light }} />
+                      {/* one slow gallery sheen as the canvas settles */}
+                      <motion.div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-y-0 w-1/2 mix-blend-soft-light"
+                        style={{ background: 'linear-gradient(100deg, transparent, rgba(255,246,226,0.55), transparent)' }}
+                        initial={{ left: '-60%' }}
+                        animate={{ left: lit ? '120%' : '-60%' }}
+                        transition={{ duration: 1.8, delay: 0.5, ease: [0.4, 0, 0.2, 1] }}
+                      />
+                    </div>
+                    {/* bevel: light catching the frame's top edge, shade on its underside */}
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0"
+                      style={{
+                        boxShadow: `inset 0 ${cm(0.5)} 0 rgba(255,236,200,0.28), inset 0 calc(${cm(0.5)} * -1) 0 rgba(30,16,4,0.30), inset 0 0 0 1px rgba(255,240,210,0.16)`,
+                      }}
+                    />
+                  </motion.div>
 
-              {/* Measurements */}
-              <div
-                className="pointer-events-none transition-opacity duration-500"
-                style={{ opacity: showMeasures && lit ? 1 : 0, color: room.ink }}
-              >
-                <div className="absolute inset-x-0 flex items-center" style={{ bottom: cm(-9) }}>
-                  <span className="h-[7px] w-px bg-current" />
-                  <span className="h-px flex-1 bg-current opacity-70" />
-                  <span className="px-1.5 font-body text-[10px] md:text-[11px] tracking-[0.12em] tabular-nums whitespace-nowrap">
-                    {piece.width} cm
-                  </span>
-                  <span className="h-px flex-1 bg-current opacity-70" />
-                  <span className="h-[7px] w-px bg-current" />
-                </div>
-                <div className="absolute inset-y-0 flex flex-col items-center" style={{ right: cm(-10) }}>
-                  <span className="h-px w-[7px] bg-current" />
-                  <span className="w-px flex-1 bg-current opacity-70" />
-                  <span className="py-1.5 font-body text-[10px] md:text-[11px] tracking-[0.12em] tabular-nums whitespace-nowrap [writing-mode:vertical-rl] rotate-180">
-                    {piece.height} cm
-                  </span>
-                  <span className="w-px flex-1 bg-current opacity-70" />
-                  <span className="h-px w-[7px] bg-current" />
-                </div>
-              </div>
+                  {/* Measurements */}
+                  <div
+                    className="pointer-events-none transition-opacity duration-500"
+                    style={{ opacity: showMeasures && lit ? 1 : 0, color: room.ink }}
+                  >
+                    <div className="absolute inset-x-0 flex items-center" style={{ bottom: cm(-9) }}>
+                      <span className="h-[7px] w-px bg-current" />
+                      <span className="h-px flex-1 bg-current opacity-70" />
+                      <span className="px-1.5 font-body text-[10px] md:text-[11px] tracking-[0.12em] tabular-nums whitespace-nowrap">
+                        {piece.width} cm
+                      </span>
+                      <span className="h-px flex-1 bg-current opacity-70" />
+                      <span className="h-[7px] w-px bg-current" />
+                    </div>
+                    <div className="absolute inset-y-0 flex flex-col items-center" style={{ right: cm(-10) }}>
+                      <span className="h-px w-[7px] bg-current" />
+                      <span className="w-px flex-1 bg-current opacity-70" />
+                      <span className="py-1.5 font-body text-[10px] md:text-[11px] tracking-[0.12em] tabular-nums whitespace-nowrap [writing-mode:vertical-rl] rotate-180">
+                        {piece.height} cm
+                      </span>
+                      <span className="w-px flex-1 bg-current opacity-70" />
+                      <span className="h-px w-[7px] bg-current" />
+                    </div>
+                  </div>
+                </motion.div>
+              </AnimatePresence>
             </div>
 
             {/* Width of the room's reference furniture — the scale */}
