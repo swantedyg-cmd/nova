@@ -115,7 +115,7 @@ const ROOMS: Room[] = [
     labelX: 0.5,
     labelY: 0.765,
     deskAspect: 16 / 10,
-    focus: { desk: [0.5, 0.42, 1.35], phone: [0.5, 0.42, 1] },
+    focus: { desk: [0.5, 0.37, 1.3], phone: [0.5, 0.4, 1] },
     shadow: [0, 4],
     light: 'radial-gradient(120% 80% at 50% 0%, rgba(255,240,210,0.16), transparent 60%), linear-gradient(rgba(0,30,28,0.18), rgba(0,30,28,0.18))',
     glow: 'radial-gradient(closest-side, rgba(255,232,190,0.30), rgba(255,232,190,0.10) 55%, transparent)',
