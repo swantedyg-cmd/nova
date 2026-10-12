@@ -9,6 +9,7 @@ import CarteSection from '@/components/CarteSection'
 import CuratorSection from '@/components/CuratorSection'
 import CtaSection from '@/components/CtaSection'
 import SurVotreMurSection from '@/components/SurVotreMurSection'
+import LettreNova from '@/components/LettreNova'
 import Footer from '@/components/Footer'
 
 export default function Home() {
@@ -24,6 +25,10 @@ export default function Home() {
       <CommandeSection />
       <CarteSection />
       <CuratorSection />
+      {/* La lettre Nova — its own quiet section after Philosophie */}
+      <section id="lettre" className="relative bg-parchment/80 px-6 pb-28 pt-10 md:pb-36">
+        <LettreNova />
+      </section>
       <CtaSection />
       <Footer />
     </main>

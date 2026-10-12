@@ -8,6 +8,7 @@ import { useLanguage } from '@/i18n/LanguageContext'
 import Tilt from './Tilt'
 import TrueFocus from './TrueFocus'
 import LazyStrands from './LazyStrands'
+import CarnetCurateur from './CarnetCurateur'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -135,6 +136,7 @@ export default function CuratorSection() {
           </div>
         </div>
 
+        <CarnetCurateur />
       </div>
     </section>
   )
