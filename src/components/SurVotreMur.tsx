@@ -37,6 +37,8 @@ interface Room {
   hangY: number
   /** where the sofa's width label sits on the floor */
   labelY: number
+  /** laptop frame shape — the whole photo where it fits, a crop where it is very wide */
+  deskAspect: number
   /** focal point and zoom of the stage crop, laptop / phone */
   focus: { desk: [number, number, number]; phone: [number, number, number] }
   /** cast shadow direction in cm (x, y), following the room's light */
@@ -56,7 +58,8 @@ const ROOMS: Room[] = [
     hangX: 0.515,
     hangY: 0.477,
     labelY: 0.915,
-    focus: { desk: [0.5, 0.46, 1], phone: [0.515, 0.5, 1] },
+    deskAspect: 2000 / 1500,
+    focus: { desk: [0.5, 0.5, 1], phone: [0.515, 0.5, 1] },
     shadow: [-1.6, 3.2],
     light: 'linear-gradient(255deg, rgba(255,255,255,0.16), transparent 55%, rgba(20,20,30,0.10))',
     ink: 'rgba(44,24,16,0.7)',
@@ -70,7 +73,8 @@ const ROOMS: Room[] = [
     hangX: 0.525,
     hangY: 0.564,
     labelY: 0.965,
-    focus: { desk: [0.52, 0.5, 1], phone: [0.525, 0.5, 1] },
+    deskAspect: 2000 / 1800,
+    focus: { desk: [0.5, 0.5, 1], phone: [0.525, 0.5, 1] },
     shadow: [2, 3],
     light: 'linear-gradient(110deg, rgba(255,214,150,0.18), transparent 50%, rgba(80,40,10,0.12)), linear-gradient(rgba(255,190,120,0.06), rgba(255,190,120,0.06))',
     ink: 'rgba(60,36,16,0.72)',
@@ -84,6 +88,7 @@ const ROOMS: Room[] = [
     hangX: 0.5,
     hangY: 0.45,
     labelY: 0.765,
+    deskAspect: 16 / 10,
     focus: { desk: [0.5, 0.42, 1.35], phone: [0.5, 0.42, 1] },
     shadow: [0, 4],
     light: 'radial-gradient(120% 80% at 50% 0%, rgba(255,240,210,0.16), transparent 60%), linear-gradient(rgba(0,30,28,0.18), rgba(0,30,28,0.18))',
@@ -150,7 +155,10 @@ export default function SurVotreMur() {
       <div
         ref={viewRef}
         dir="ltr"
-        className="relative mx-auto mt-10 aspect-[4/5] max-w-[900px] overflow-hidden rounded-2xl bg-[#1E1208] shadow-[0_40px_80px_-40px_rgba(44,24,16,0.5)] ring-1 ring-charcoal/10 md:aspect-[16/10]"
+        className="relative mx-auto mt-10 aspect-[4/5] w-full overflow-hidden rounded-2xl bg-[#1E1208] shadow-[0_40px_80px_-40px_rgba(44,24,16,0.5)] ring-1 ring-charcoal/10 md:transition-[width] md:duration-700 md:ease-[cubic-bezier(0.22,1,0.36,1)]"
+        // On laptop the frame takes each room's own shape at a height that
+        // fits the screen, so the photo is never cropped above the canvas.
+        style={isMobile ? undefined : { aspectRatio: room.deskAspect, width: `min(100%, 900px, calc(min(560px, 100vh - 120px) * ${room.deskAspect}))` }}
       >
         <AnimatePresence initial={false}>
           <motion.div
