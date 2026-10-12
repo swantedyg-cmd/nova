@@ -77,6 +77,20 @@ export const translations = {
       ],
     },
 
+    wall: {
+      eyebrow: 'Sur votre mur',
+      title: 'Voyez-la chez vous,',
+      titleItalic: 'à sa vraie taille.',
+      body: "Choisissez une œuvre et la couleur de votre mur : elle s'affiche à l'échelle réelle, au-dessus d'un canapé de 200 cm.",
+      wallLabel: 'Couleur du mur',
+      walls: ['Blanc cassé', 'Beige', 'Terracotta', 'Vert sauge'],
+      pieceLabel: 'Œuvre',
+      sofa: 'Canapé · 200 cm',
+      measures: 'Mesures',
+      prev: 'Œuvre précédente',
+      next: 'Œuvre suivante',
+      note: 'Échelle réelle · accrochée 20 cm au-dessus du dossier, comme le conseillent les décorateurs.',
+    },
     curator: {
       eyebrow: 'Philosophie',
       headline1: 'Un regard pour le',
@@ -302,6 +316,20 @@ export const translations = {
       ],
     },
 
+    wall: {
+      eyebrow: 'On your wall',
+      title: 'See it at home,',
+      titleItalic: 'at its true size.',
+      body: 'Choose a piece and your wall colour: it appears at real scale, above a 200 cm sofa.',
+      wallLabel: 'Wall colour',
+      walls: ['Off-white', 'Beige', 'Terracotta', 'Sage green'],
+      pieceLabel: 'Piece',
+      sofa: 'Sofa · 200 cm',
+      measures: 'Measurements',
+      prev: 'Previous piece',
+      next: 'Next piece',
+      note: 'Real scale · hung 20 cm above the sofa back, as interior designers recommend.',
+    },
     curator: {
       eyebrow: 'Philosophy',
       headline1: 'An eye for the',
@@ -527,6 +555,20 @@ export const translations = {
       ],
     },
 
+    wall: {
+      eyebrow: 'على جدارك',
+      title: 'شاهدها في بيتك،',
+      titleItalic: 'بحجمها الحقيقي.',
+      body: 'اختر عملاً ولون جدارك: يظهر بمقاسه الحقيقي فوق أريكة بطول 200 سم.',
+      wallLabel: 'لون الجدار',
+      walls: ['أبيض عاجي', 'بيج', 'تيراكوتا', 'أخضر مريمي'],
+      pieceLabel: 'العمل',
+      sofa: 'أريكة · 200 سم',
+      measures: 'المقاسات',
+      prev: 'العمل السابق',
+      next: 'العمل التالي',
+      note: 'مقياس حقيقي · معلّقة على ارتفاع 20 سم فوق ظهر الأريكة، كما ينصح مصممو الديكور.',
+    },
     curator: {
       eyebrow: 'الفلسفة',
       headline1: 'عين ترى',
