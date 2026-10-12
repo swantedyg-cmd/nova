@@ -220,6 +220,9 @@ export default function SurVotreMur({ className = '' }: { className?: string }) 
   const [index, setIndex] = useState(0)
   const [showMeasures, setShowMeasures] = useState(true)
   const [size, setSize] = useState({ vw: 0, vh: 0 })
+  // A room only fades in once its photo has decoded — never a canvas
+  // floating on an empty stage while the picture is still on its way.
+  const [loadedRooms, setLoadedRooms] = useState<ReadonlySet<string>>(() => new Set())
   const viewRef = useRef<HTMLDivElement>(null)
   const lit = useInView(viewRef, { once: true, amount: 0.4 })
 
@@ -273,11 +276,13 @@ export default function SurVotreMur({ className = '' }: { className?: string }) 
               ['--cm' as string]: `${cmPx}px`,
             } as CSSProperties}
             initial={{ opacity: 0, scale: 1.04 }}
-            animate={{ opacity: 1, scale: 1 }}
+            animate={loadedRooms.has(room.id) ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.04 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
           >
             <Image
+              loading="eager"
+              onLoad={() => setLoadedRooms((s) => (s.has(room.id) ? s : new Set(s).add(room.id)))}
               src={room.src}
               alt=""
               fill
