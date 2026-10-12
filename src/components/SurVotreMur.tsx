@@ -1,140 +1,138 @@
 'use client'
 
-import { useRef, useState, type CSSProperties } from 'react'
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import Image from 'next/image'
 import { AnimatePresence, motion, useInView } from 'motion/react'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react'
 import { PIECES, formatSize } from '@/data/catalogue'
 import { useLanguage } from '@/i18n/LanguageContext'
 import { useCart } from '@/context/CartContext'
+import { useIsMobile } from '@/hooks/useIsMobile'
 import { formatDH } from './CartDrawer'
 
-/* ─── "Sur votre mur" — a softly lit room drawn to real scale, so a client
-   can see what 80 × 120 cm actually means above a sofa.
+/* ─── "Sur votre mur" — the chosen canvas hung, at its real size, in a
+   photographed interior (/public/rooms — Unsplash licence: Jason Wang,
+   Zhang liven, Tokenstreet; the golden room's wall extended upward).
 
-   Everything is measured in centimetres. The room is a CSS container and
-   `--cm` is one centimetre in pixels (container width ÷ how many cm of
-   wall are on show), so the canvas, its wooden frame, the sofa, the lamp
-   and the plant all share one scale, at every screen size. ─────────────── */
+   Each room was measured once: the sofa's known width gives how many
+   centimetres of wall the photo spans (`wallCm`), and the sofa back's
+   height in the photo gives where a canvas hangs (20 cm above it, the
+   decorators' rule). From there, `--cm` (one centimetre in pixels) sizes
+   the canvas, its wooden frame and its shadow on every screen.
 
-const WALLS = [
-  { hex: '#F2ECE1', ink: 'rgba(44,24,16,0.62)' }, // blanc cassé
-  { hex: '#E2D0B4', ink: 'rgba(44,24,16,0.62)' }, // beige
-  { hex: '#C47A5A', ink: 'rgba(255,248,236,0.85)' }, // terracotta
-  { hex: '#A7B398', ink: 'rgba(44,24,16,0.66)' }, // vert sauge
+   All positions are fractions of the photo (0–1), so the stage can crop
+   and zoom the photo per screen shape around `focus` without anything
+   drifting off the sofa. ─────────────────────────────────────────────── */
+
+interface Room {
+  id: string
+  src: string
+  /** width / height of the photo */
+  aspect: number
+  /** centimetres of wall across the full photo width */
+  wallCm: number
+  sofaCm: number
+  /** canvas centre x, and its bottom edge y (20 cm above the sofa back) */
+  hangX: number
+  hangY: number
+  /** where the sofa's width label sits on the floor */
+  labelY: number
+  /** focal point and zoom of the stage crop, laptop / phone */
+  focus: { desk: [number, number, number]; phone: [number, number, number] }
+  /** cast shadow direction in cm (x, y), following the room's light */
+  shadow: [number, number]
+  /** light falling across the canvas face, matched to the photo */
+  light: string
+  ink: string
+}
+
+const ROOMS: Room[] = [
+  {
+    id: 'haussmann',
+    src: '/rooms/haussmann.jpg',
+    aspect: 2000 / 1500,
+    wallCm: 366,
+    sofaCm: 250,
+    hangX: 0.515,
+    hangY: 0.477,
+    labelY: 0.915,
+    focus: { desk: [0.5, 0.46, 1], phone: [0.515, 0.5, 1] },
+    shadow: [-1.6, 3.2],
+    light: 'linear-gradient(255deg, rgba(255,255,255,0.16), transparent 55%, rgba(20,20,30,0.10))',
+    ink: 'rgba(44,24,16,0.7)',
+  },
+  {
+    id: 'doree',
+    src: '/rooms/doree.jpg',
+    aspect: 2000 / 1800,
+    wallCm: 297,
+    sofaCm: 220,
+    hangX: 0.525,
+    hangY: 0.564,
+    labelY: 0.965,
+    focus: { desk: [0.52, 0.5, 1], phone: [0.525, 0.5, 1] },
+    shadow: [2, 3],
+    light: 'linear-gradient(110deg, rgba(255,214,150,0.18), transparent 50%, rgba(80,40,10,0.12)), linear-gradient(rgba(255,190,120,0.06), rgba(255,190,120,0.06))',
+    ink: 'rgba(60,36,16,0.72)',
+  },
+  {
+    id: 'emeraude',
+    src: '/rooms/emeraude.jpg',
+    aspect: 2000 / 1125,
+    wallCm: 580,
+    sofaCm: 180,
+    hangX: 0.5,
+    hangY: 0.45,
+    labelY: 0.765,
+    focus: { desk: [0.5, 0.42, 1.35], phone: [0.5, 0.42, 1] },
+    shadow: [0, 4],
+    light: 'radial-gradient(120% 80% at 50% 0%, rgba(255,240,210,0.16), transparent 60%), linear-gradient(rgba(0,30,28,0.18), rgba(0,30,28,0.18))',
+    ink: 'rgba(240,250,246,0.8)',
+  },
 ]
 
-const FLOOR_CM = 30      // depth of floor shown in front of the wall
-const SOFA_W = 200
-const SOFA_H = 85
-const HANG_GAP = 20      // canvas hangs this far above the sofa back
-const FRAME_CM = 2.5     // visible face of the decorative wooden frame
-// The sofa stands a little in front of the wall, so its feet sit on the
-// floor below the skirting line.
-const SOFA_BOTTOM = FLOOR_CM - 12
-// The sofa drawing's back cushion starts 12 cm below its box top.
-const SOFA_BACK_TOP = SOFA_BOTTOM + SOFA_H - 12
-const CANVAS_BOTTOM = SOFA_BACK_TOP + HANG_GAP
+const FRAME_CM = 2.5 // visible face of the decorative wooden frame
 
-/** `n` centimetres, in pixels. */
+/** `n` centimetres, in pixels (inside a stage that sets --cm). */
 const cm = (n: number) => `calc(var(--cm) * ${n})`
 
-function Sofa() {
-  return (
-    <svg viewBox={`0 0 ${SOFA_W} ${SOFA_H}`} className="block h-full w-full" aria-hidden="true">
-      <defs>
-        <linearGradient id="svm-fabric" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#7A6D63" />
-          <stop offset="1" stopColor="#564B43" />
-        </linearGradient>
-        <linearGradient id="svm-seat" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#857669" />
-          <stop offset="1" stopColor="#5E5249" />
-        </linearGradient>
-      </defs>
-      {/* back */}
-      <rect x="10" y="12" width="180" height="42" rx="9" fill="url(#svm-fabric)" />
-      <line x1="100" y1="16" x2="100" y2="50" stroke="#4A4039" strokeWidth="0.6" opacity="0.6" />
-      {/* cushions — oat and gold, the house colours */}
-      <g transform="rotate(-8 42 40)">
-        <rect x="26" y="26" width="32" height="28" rx="7" fill="#D6C09A" />
-      </g>
-      <g transform="rotate(7 158 40)">
-        <rect x="142" y="27" width="30" height="27" rx="7" fill="#C89B3C" />
-      </g>
-      <g transform="rotate(4 128 44)">
-        <rect x="116" y="33" width="24" height="21" rx="6" fill="#EADCC0" />
-      </g>
-      {/* seat */}
-      <rect x="14" y="50" width="172" height="20" rx="5" fill="url(#svm-seat)" />
-      <line x1="100" y1="51" x2="100" y2="69" stroke="#4A4039" strokeWidth="0.6" opacity="0.5" />
-      {/* arms */}
-      <rect x="0" y="32" width="19" height="44" rx="8" fill="url(#svm-fabric)" />
-      <rect x="181" y="32" width="19" height="44" rx="8" fill="url(#svm-fabric)" />
-      {/* base + oak legs */}
-      <rect x="4" y="70" width="192" height="8" rx="3" fill="#4F453E" />
-      <rect x="16" y="78" width="4" height="7" rx="1" fill="#8C6A47" />
-      <rect x="180" y="78" width="4" height="7" rx="1" fill="#8C6A47" />
-    </svg>
-  )
-}
-
-function FloorLamp() {
-  // 160 cm tall arc-free linen lamp, lit.
-  return (
-    <svg viewBox="0 0 44 160" className="block h-full w-full overflow-visible" aria-hidden="true">
-      <defs>
-        <radialGradient id="svm-lamp-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0" stopColor="#FFE9B8" stopOpacity="0.75" />
-          <stop offset="1" stopColor="#FFE9B8" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <ellipse cx="22" cy="22" rx="60" ry="55" fill="url(#svm-lamp-glow)" />
-      <path d="M8 4 H36 L42 34 H2 Z" fill="#F4E9D2" stroke="#D9C7A4" strokeWidth="0.6" />
-      <rect x="21" y="34" width="2" height="122" fill="#A67C00" />
-      <ellipse cx="22" cy="157" rx="12" ry="3" fill="#7A5B1E" />
-    </svg>
-  )
-}
-
-function OliveTree() {
-  // ~125 cm potted olive tree.
-  return (
-    <svg viewBox="0 0 60 125" className="block h-full w-full overflow-visible" aria-hidden="true">
-      <path d="M30 88 C28 70 33 60 29 44 M30 70 C36 62 40 56 44 46 M29 60 C22 54 18 48 15 40" stroke="#6B5136" strokeWidth="2" fill="none" strokeLinecap="round" />
-      <g fill="#7F8C64">
-        <ellipse cx="29" cy="30" rx="17" ry="14" />
-        <ellipse cx="15" cy="40" rx="12" ry="9" />
-        <ellipse cx="45" cy="42" rx="13" ry="10" />
-        <ellipse cx="38" cy="22" rx="11" ry="9" />
-      </g>
-      <g fill="#97A47A" opacity="0.85">
-        <ellipse cx="24" cy="24" rx="9" ry="6" />
-        <ellipse cx="44" cy="38" rx="7" ry="5" />
-        <ellipse cx="12" cy="37" rx="6" ry="4" />
-      </g>
-      <path d="M14 88 H46 L42 125 H18 Z" fill="#EDE3D2" />
-      <path d="M14 88 H46 L45.4 93 H14.6 Z" fill="#D8CBB4" />
-    </svg>
-  )
+/** Cover-crop the photo into the viewport around a focal point, zoomed. */
+function stageBox(vw: number, vh: number, room: Room, phone: boolean) {
+  const [fx, fy, zoom] = phone ? room.focus.phone : room.focus.desk
+  const w = Math.max(vw, vh * room.aspect) * zoom
+  const h = w / room.aspect
+  const left = Math.min(0, Math.max(vw - w, vw / 2 - fx * w))
+  const top = Math.min(0, Math.max(vh - h, vh / 2 - fy * h))
+  return { w, h, left, top }
 }
 
 export default function SurVotreMur() {
   const { t, lang } = useLanguage()
   const w = t.wall
+  const isMobile = useIsMobile()
   const { addToCart, removeFromCart, isInCart } = useCart()
-  const [wall, setWall] = useState(0)
+  const [roomIndex, setRoomIndex] = useState(0)
   const [index, setIndex] = useState(0)
   const [showMeasures, setShowMeasures] = useState(true)
-  const roomRef = useRef<HTMLDivElement>(null)
-  const lit = useInView(roomRef, { once: true, amount: 0.4 })
+  const [size, setSize] = useState({ vw: 0, vh: 0 })
+  const viewRef = useRef<HTMLDivElement>(null)
+  const lit = useInView(viewRef, { once: true, amount: 0.4 })
 
+  useLayoutEffect(() => {
+    const el = viewRef.current
+    if (!el) return
+    const measure = () => setSize({ vw: el.clientWidth, vh: el.clientHeight })
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const room = ROOMS[roomIndex]
   const piece = PIECES[index]
   const inCart = isInCart(piece.id)
-  const ink = WALLS[wall].ink
-  const go = (by: number) => {
-    setIndex((i) => (i + by + PIECES.length) % PIECES.length)
-  }
+  const box = stageBox(size.vw, size.vh, room, isMobile)
+  const go = (by: number) => setIndex((i) => (i + by + PIECES.length) % PIECES.length)
 
   return (
     <div className="mt-28 md:mt-36">
@@ -149,219 +147,149 @@ export default function SurVotreMur() {
       </div>
 
       {/* ── The room ── */}
-      <div className="mt-10 mx-auto max-w-[960px] [container-type:inline-size]" dir="ltr">
+      <div
+        ref={viewRef}
+        dir="ltr"
+        className="relative mx-auto mt-10 aspect-[4/5] max-w-[900px] overflow-hidden rounded-2xl bg-[#1E1208] shadow-[0_40px_80px_-40px_rgba(44,24,16,0.5)] ring-1 ring-charcoal/10 md:aspect-[16/10]"
+      >
+        <AnimatePresence initial={false}>
+          <motion.div
+            key={room.id}
+            className="absolute"
+            style={{
+              left: box.left,
+              top: box.top,
+              width: box.w,
+              height: box.h,
+              ['--cm' as string]: `${box.w / room.wallCm}px`,
+            } as CSSProperties}
+            initial={{ opacity: 0, scale: 1.04 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Image
+              src={room.src}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 220vw, 1200px"
+              quality={85}
+              className="select-none object-cover"
+              draggable={false}
+            />
+
+            {/* The canvas — real size, wooden frame, shadow cast by the room's light */}
+            <div
+              className="absolute -translate-x-1/2 transition-[width,height] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
+              style={{
+                left: `${room.hangX * 100}%`,
+                bottom: `${(1 - room.hangY) * 100}%`,
+                width: cm(piece.width),
+                height: cm(piece.height),
+              }}
+            >
+              <div
+                className="absolute inset-0"
+                style={{
+                  padding: cm(FRAME_CM),
+                  background: 'linear-gradient(135deg, #A8845A 0%, #7A5A38 30%, #B08D62 55%, #6E5033 80%, #94714A 100%)',
+                  // The 3.5 cm depth throws a real shadow onto the wall.
+                  boxShadow: `${cm(room.shadow[0])} ${cm(room.shadow[1])} ${cm(7)} rgba(20,12,4,0.42), ${cm(room.shadow[0] * 0.3)} ${cm(room.shadow[1] * 0.3)} ${cm(1.2)} rgba(20,12,4,0.35), inset 0 0 0 1px rgba(255,240,210,0.18)`,
+                }}
+              >
+                <div className="relative h-full w-full overflow-hidden bg-[#2C1810] shadow-[inset_0_0_6px_rgba(0,0,0,0.45)]">
+                  <AnimatePresence initial={false}>
+                    <motion.div
+                      key={piece.id}
+                      className="absolute inset-0"
+                      initial={{ opacity: 0, scale: 1.06, filter: 'blur(6px)' }}
+                      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                      {piece.image && (
+                        <Image
+                          src={`/images/${piece.image}`}
+                          alt={piece.theme}
+                          fill
+                          sizes="(max-width: 768px) 45vw, 280px"
+                          className="object-cover"
+                        />
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                  {/* the room's own light across the canvas face */}
+                  <div className="pointer-events-none absolute inset-0" style={{ background: room.light }} />
+                </div>
+              </div>
+
+              {/* Measurements */}
+              <div
+                className="pointer-events-none transition-opacity duration-500"
+                style={{ opacity: showMeasures && lit ? 1 : 0, color: room.ink }}
+              >
+                <div className="absolute inset-x-0 flex items-center" style={{ bottom: cm(-9) }}>
+                  <span className="h-[7px] w-px bg-current" />
+                  <span className="h-px flex-1 bg-current opacity-70" />
+                  <span className="px-1.5 font-body text-[10px] md:text-[11px] tracking-[0.12em] tabular-nums whitespace-nowrap">
+                    {piece.width} cm
+                  </span>
+                  <span className="h-px flex-1 bg-current opacity-70" />
+                  <span className="h-[7px] w-px bg-current" />
+                </div>
+                <div className="absolute inset-y-0 flex flex-col items-center" style={{ right: cm(-10) }}>
+                  <span className="h-px w-[7px] bg-current" />
+                  <span className="w-px flex-1 bg-current opacity-70" />
+                  <span className="py-1.5 font-body text-[10px] md:text-[11px] tracking-[0.12em] tabular-nums whitespace-nowrap [writing-mode:vertical-rl] rotate-180">
+                    {piece.height} cm
+                  </span>
+                  <span className="w-px flex-1 bg-current opacity-70" />
+                  <span className="h-px w-[7px] bg-current" />
+                </div>
+              </div>
+            </div>
+
+            {/* Sofa width — the scale reference */}
+            <p
+              className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-white/55 px-3 py-1 font-body text-[9px] md:text-[10px] uppercase tracking-[0.22em] text-charcoal/75 backdrop-blur-sm transition-opacity duration-500"
+              style={{ left: `${room.hangX * 100}%`, top: `${room.labelY * 100}%`, opacity: showMeasures && lit ? 1 : 0 }}
+            >
+              {w.sofa} · {room.sofaCm} cm
+            </p>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Lights coming on as the room scrolls into view */}
         <div
-          ref={roomRef}
-          className="relative overflow-hidden rounded-2xl shadow-[0_40px_80px_-40px_rgba(44,24,16,0.45)] ring-1 ring-charcoal/10 [--room-w:250] [--room-h:290] md:[--room-w:470] md:[--room-h:272]"
-          style={{
-            ['--cm' as string]: 'calc(100cqw / var(--room-w))',
-            height: 'calc(var(--cm) * var(--room-h))',
-          } as CSSProperties}
-        >
-          {/* Wall */}
-          <div
-            className="absolute inset-0 transition-colors duration-1000 ease-out"
-            style={{ backgroundColor: WALLS[wall].hex }}
-          />
-          {/* Ambient light — darker toward the ceiling and the corners */}
-          <div
-            className="pointer-events-none absolute inset-0 transition-opacity duration-[1800ms]"
-            style={{
-              opacity: lit ? 1 : 0.25,
-              background:
-                'radial-gradient(120% 90% at 50% 100%, transparent 40%, rgba(30,18,8,0.18) 100%), linear-gradient(to bottom, rgba(30,18,8,0.07), transparent 35%)',
-            }}
-          />
-          {/* Dim room before the light comes on */}
-          <div
-            className="pointer-events-none absolute inset-0 bg-[#1E1208] transition-opacity duration-[1800ms] ease-out"
-            style={{ opacity: lit ? 0 : 0.42 }}
-          />
-          {/* Picture-light wash on the wall around the canvas */}
-          <div
-            className="pointer-events-none absolute left-1/2 -translate-x-1/2 transition-opacity duration-[2200ms] ease-out"
-            style={{
-              opacity: lit ? 1 : 0,
-              transitionDelay: lit ? '500ms' : '0ms',
-              width: cm(230),
-              height: cm(190),
-              bottom: cm(CANVAS_BOTTOM - 45),
-              background: 'radial-gradient(closest-side, rgba(255,236,190,0.5), rgba(255,236,190,0.16) 55%, transparent 100%)',
-              mixBlendMode: 'soft-light',
-            }}
-          />
-
-          {/* Skirting board */}
-          <div
-            className="absolute inset-x-0"
-            style={{ bottom: cm(FLOOR_CM), height: cm(9), background: 'linear-gradient(#F7F1E6, #E6DCCB)', boxShadow: '0 -1px 0 rgba(44,24,16,0.08)' }}
-          />
-          {/* Oak floor */}
-          <div
-            className="absolute inset-x-0 bottom-0"
-            style={{
-              height: cm(FLOOR_CM),
-              background:
-                `linear-gradient(to bottom, rgba(30,18,8,0.28), transparent 45%), repeating-linear-gradient(90deg, rgba(60,36,16,0.16) 0 1px, transparent 1px ${cm(22)}), linear-gradient(#B98F62, #9C7348)`,
-            }}
-          />
-
-          {/* Floor lamp — left, laptop only (outside the phone's wall width) */}
-          <div
-            className="absolute hidden md:block transition-opacity duration-1000"
-            style={{ left: `calc(50% - ${cm(178)})`, bottom: cm(FLOOR_CM - 8), width: cm(44), height: cm(160), opacity: lit ? 1 : 0.6 }}
-          >
-            <FloorLamp />
-          </div>
-
-          {/* Olive tree — right, laptop only */}
-          <div
-            className="absolute hidden md:block"
-            style={{ left: `calc(50% + ${cm(122)})`, bottom: cm(FLOOR_CM - 10), width: cm(60), height: cm(125) }}
-          >
-            <OliveTree />
-          </div>
-
-          {/* Sofa — 200 cm, the scale reference */}
-          <div
-            className="absolute left-1/2 -translate-x-1/2"
-            style={{ bottom: cm(SOFA_BOTTOM), width: cm(SOFA_W), height: cm(SOFA_H) }}
-          >
-            <div className="absolute inset-x-[4%] -bottom-[3%] h-[10%] rounded-[50%] bg-black/25 blur-md" />
-            <div className="relative h-full w-full">
-              <Sofa />
-            </div>
-          </div>
-
-          {/* The canvas — wooden frame, real size, depth shadow */}
-          <div
-            className="absolute left-1/2 -translate-x-1/2 transition-[width,height] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-            style={{
-              bottom: cm(CANVAS_BOTTOM),
-              width: cm(piece.width),
-              height: cm(piece.height),
-            }}
-          >
-            {/* Picture light — brass bar above the frame */}
-            <div
-              className="absolute left-1/2 -translate-x-1/2 rounded-full"
-              style={{
-                top: cm(-11),
-                width: cm(Math.min(46, piece.width * 0.55)),
-                height: cm(3),
-                background: 'linear-gradient(#E8C46A, #A67C00)',
-                boxShadow: lit ? '0 0 calc(var(--cm) * 6) rgba(255,226,150,0.8)' : 'none',
-                transition: 'box-shadow 1.6s ease 0.4s',
-              }}
-            />
-            <div
-              className="absolute left-1/2 -translate-x-1/2 bg-[#8A6A1C]"
-              style={{ top: cm(-8), width: cm(1), height: cm(8) }}
-            />
-
-            {/* Frame */}
-            <div
-              className="absolute inset-0"
-              style={{
-                padding: cm(FRAME_CM),
-                background: 'linear-gradient(135deg, #A8845A 0%, #7A5A38 30%, #B08D62 55%, #6E5033 80%, #94714A 100%)',
-                // The 3.5 cm depth throws a real shadow onto the wall.
-                boxShadow: `${cm(1.2)} ${cm(3.5)} ${cm(7)} rgba(30,18,8,0.38), inset 0 0 0 1px rgba(255,240,210,0.18)`,
-              }}
-            >
-              <div className="relative h-full w-full overflow-hidden bg-[#2C1810] shadow-[inset_0_0_6px_rgba(0,0,0,0.45)]">
-                <AnimatePresence initial={false}>
-                  <motion.div
-                    key={piece.id}
-                    className="absolute inset-0"
-                    initial={{ opacity: 0, scale: 1.06, filter: 'blur(6px)' }}
-                    animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    {piece.image && (
-                      <Image
-                        src={`/images/${piece.image}`}
-                        alt={piece.theme}
-                        fill
-                        sizes="(max-width: 768px) 40vw, 260px"
-                        className="object-cover"
-                      />
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-                {/* light falling from the brass bar */}
-                <div
-                  className="pointer-events-none absolute inset-0 transition-opacity duration-[1600ms]"
-                  style={{
-                    opacity: lit ? 1 : 0,
-                    background: 'radial-gradient(90% 55% at 50% 0%, rgba(255,236,190,0.28), transparent 70%)',
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Measurements */}
-            <div
-              className="pointer-events-none transition-opacity duration-500"
-              style={{ opacity: showMeasures && lit ? 1 : 0, color: ink }}
-            >
-              {/* width — under the frame */}
-              <div className="absolute inset-x-0 flex items-center" style={{ bottom: cm(-10) }}>
-                <span className="h-[7px] w-px bg-current" />
-                <span className="h-px flex-1 bg-current opacity-70" />
-                <span className="px-1.5 font-body text-[10px] md:text-[11px] tracking-[0.12em] tabular-nums whitespace-nowrap">
-                  {piece.width} cm
-                </span>
-                <span className="h-px flex-1 bg-current opacity-70" />
-                <span className="h-[7px] w-px bg-current" />
-              </div>
-              {/* height — right of the frame */}
-              <div className="absolute inset-y-0 flex flex-col items-center" style={{ right: cm(-11) }}>
-                <span className="h-px w-[7px] bg-current" />
-                <span className="w-px flex-1 bg-current opacity-70" />
-                <span className="py-1.5 font-body text-[10px] md:text-[11px] tracking-[0.12em] tabular-nums whitespace-nowrap [writing-mode:vertical-rl] rotate-180">
-                  {piece.height} cm
-                </span>
-                <span className="w-px flex-1 bg-current opacity-70" />
-                <span className="h-px w-[7px] bg-current" />
-              </div>
-            </div>
-          </div>
-
-          {/* Sofa label, on the floor */}
-          <p
-            className="pointer-events-none absolute left-1/2 -translate-x-1/2 font-body text-[9px] md:text-[10px] uppercase tracking-[0.22em] text-[#FFF8EC]/80 transition-opacity duration-500 whitespace-nowrap"
-            style={{ bottom: cm(5), opacity: showMeasures && lit ? 1 : 0 }}
-          >
-            {w.sofa}
-          </p>
-        </div>
+          className="pointer-events-none absolute inset-0 bg-[#140C05] transition-opacity duration-[1800ms] ease-out"
+          style={{ opacity: lit ? 0 : 0.55 }}
+        />
+        {/* soft lens vignette */}
+        <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_80px_rgba(20,12,4,0.25)]" />
       </div>
 
       {/* ── Controls ── */}
-      <div className="mx-auto mt-8 grid max-w-[960px] gap-8 md:grid-cols-[1fr_auto_1fr] md:items-center" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-        {/* Wall colour */}
+      <div className="mx-auto mt-8 grid max-w-[900px] gap-8 md:grid-cols-[1fr_auto_1fr] md:items-center" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+        {/* Interior */}
         <div>
           <p className="text-[10px] uppercase tracking-[0.24em] text-charcoal/45 font-body text-center md:text-start">{w.wallLabel}</p>
           <div className="mt-3 flex justify-center md:justify-start gap-3">
-            {WALLS.map((wl, i) => (
+            {ROOMS.map((r, i) => (
               <button
-                key={wl.hex}
+                key={r.id}
                 type="button"
-                onClick={() => setWall(i)}
-                aria-pressed={wall === i}
-                aria-label={w.walls[i]}
-                title={w.walls[i]}
-                className="group flex flex-col items-center gap-1.5 outline-none"
+                onClick={() => setRoomIndex(i)}
+                aria-pressed={roomIndex === i}
+                className="group flex w-[4.75rem] flex-col items-center gap-1.5 outline-none"
               >
                 <span
-                  className={`block size-9 rounded-full transition-all duration-300 group-focus-visible:ring-2 group-focus-visible:ring-gold/60 ${
-                    wall === i ? 'ring-2 ring-gold ring-offset-2 ring-offset-parchment scale-110' : 'ring-1 ring-charcoal/15 group-hover:scale-105'
+                  className={`relative block h-11 w-full overflow-hidden rounded-md transition-all duration-300 group-focus-visible:ring-2 group-focus-visible:ring-gold/60 ${
+                    roomIndex === i ? 'ring-2 ring-gold ring-offset-2 ring-offset-parchment' : 'ring-1 ring-charcoal/15 opacity-75 group-hover:opacity-100'
                   }`}
-                  style={{ backgroundColor: wl.hex, boxShadow: 'inset 0 -6px 10px rgba(0,0,0,0.08)' }}
-                />
-                <span className={`text-[10px] font-body transition-colors ${wall === i ? 'text-charcoal' : 'text-charcoal/45'}`}>
+                >
+                  <Image src={r.src} alt="" fill sizes="80px" className="object-cover" />
+                </span>
+                <span className={`text-center text-[10px] leading-tight font-body transition-colors ${roomIndex === i ? 'text-charcoal' : 'text-charcoal/45'}`}>
                   {w.walls[i]}
                 </span>
               </button>
