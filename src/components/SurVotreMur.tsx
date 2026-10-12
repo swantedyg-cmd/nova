@@ -31,11 +31,18 @@ interface Room {
   aspect: number
   /** centimetres of wall across the full photo width */
   wallCm: number
-  sofaCm: number
-  /** canvas centre x, and its bottom edge y (20 cm above the sofa back) */
+  /** the piece of furniture that gives the scale, and its width */
+  ref: 'sofa' | 'desk' | 'bed'
+  refCm: number
+  /** canvas centre x */
   hangX: number
+  /** 'bottom': hangY is the canvas's bottom edge (20 cm above the furniture);
+      'center': hangY is its centre — for walls with a moulded panel or a
+      symmetrical composition the canvas belongs in the middle of */
+  anchor: 'bottom' | 'center'
   hangY: number
-  /** where the sofa's width label sits on the floor */
+  /** where the reference width label sits */
+  labelX: number
   labelY: number
   /** laptop frame shape — the whole photo where it fits, a crop where it is very wide */
   deskAspect: number
@@ -56,12 +63,17 @@ const ROOMS: Room[] = [
     src: '/rooms/haussmann.jpg',
     aspect: 2000 / 1500,
     wallCm: 366,
-    sofaCm: 250,
-    hangX: 0.515,
-    hangY: 0.477,
+    ref: 'sofa',
+    refCm: 250,
+    // Centred in the moulded panel nearest the middle of the sofa, so the
+    // canvas sits symmetrically in the panelling instead of straddling a seam.
+    hangX: 0.583,
+    anchor: 'center',
+    hangY: 0.224,
+    labelX: 0.51,
     labelY: 0.915,
     deskAspect: 2000 / 1500,
-    focus: { desk: [0.5, 0.5, 1], phone: [0.515, 0.5, 1] },
+    focus: { desk: [0.5, 0.5, 1], phone: [0.56, 0.5, 1] },
     shadow: [-1.6, 3.2],
     light: 'linear-gradient(255deg, rgba(255,255,255,0.16), transparent 55%, rgba(20,20,30,0.10))',
     ink: 'rgba(44,24,16,0.7)',
@@ -71,9 +83,12 @@ const ROOMS: Room[] = [
     src: '/rooms/doree.jpg',
     aspect: 2000 / 1800,
     wallCm: 297,
-    sofaCm: 220,
+    ref: 'sofa',
+    refCm: 220,
     hangX: 0.525,
+    anchor: 'bottom',
     hangY: 0.564,
+    labelX: 0.525,
     labelY: 0.965,
     deskAspect: 2000 / 1800,
     focus: { desk: [0.5, 0.5, 1], phone: [0.525, 0.5, 1] },
@@ -86,9 +101,12 @@ const ROOMS: Room[] = [
     src: '/rooms/emeraude.jpg',
     aspect: 2000 / 1125,
     wallCm: 580,
-    sofaCm: 180,
+    ref: 'sofa',
+    refCm: 180,
     hangX: 0.5,
+    anchor: 'bottom',
     hangY: 0.45,
+    labelX: 0.5,
     labelY: 0.765,
     deskAspect: 16 / 10,
     focus: { desk: [0.5, 0.42, 1.35], phone: [0.5, 0.42, 1] },
@@ -96,6 +114,64 @@ const ROOMS: Room[] = [
     light: 'radial-gradient(120% 80% at 50% 0%, rgba(255,240,210,0.16), transparent 60%), linear-gradient(rgba(0,30,28,0.18), rgba(0,30,28,0.18))',
     glow: 'radial-gradient(closest-side, rgba(255,232,190,0.30), rgba(255,232,190,0.10) 55%, transparent)',
     ink: 'rgba(240,250,246,0.8)',
+  },
+  {
+    id: 'bureau',
+    src: '/rooms/bureau.jpg',
+    aspect: 2000 / 1333,
+    wallCm: 372,
+    ref: 'desk',
+    refCm: 136,
+    // Dead centre between the two arched cabinets and their sconces; high
+    // enough to clear the bouquet on the desk.
+    hangX: 0.5,
+    anchor: 'bottom',
+    hangY: 0.6225,
+    labelX: 0.5,
+    labelY: 0.835,
+    deskAspect: 2000 / 1333,
+    focus: { desk: [0.5, 0.5, 1], phone: [0.5, 0.48, 1] },
+    shadow: [0, 3],
+    light: 'linear-gradient(90deg, rgba(255,226,180,0.14), transparent 30%, transparent 70%, rgba(255,226,180,0.14))',
+    ink: 'rgba(44,24,16,0.7)',
+  },
+  {
+    id: 'chambre',
+    src: '/rooms/chambre.jpg',
+    aspect: 2000 / 1333,
+    wallCm: 448,
+    ref: 'bed',
+    refCm: 160,
+    // Centred in the moulded frame above the headboard.
+    hangX: 0.525,
+    anchor: 'center',
+    hangY: 0.375,
+    labelX: 0.45,
+    labelY: 0.86,
+    deskAspect: 2000 / 1333,
+    focus: { desk: [0.5, 0.5, 1], phone: [0.53, 0.45, 1] },
+    shadow: [2.2, 3],
+    light: 'linear-gradient(75deg, rgba(255,255,255,0.18), transparent 55%, rgba(30,20,10,0.08))',
+    ink: 'rgba(44,24,16,0.7)',
+  },
+  {
+    id: 'galerie',
+    src: '/rooms/galerie.jpg',
+    aspect: 2000 / 1469,
+    wallCm: 519,
+    ref: 'sofa',
+    refCm: 184,
+    // Under the middle spotlight, centred over the sofa.
+    hangX: 0.498,
+    anchor: 'bottom',
+    hangY: 0.643,
+    labelX: 0.498,
+    labelY: 0.935,
+    deskAspect: 2000 / 1469,
+    focus: { desk: [0.5, 0.55, 1], phone: [0.5, 0.55, 1] },
+    shadow: [0, 4.5],
+    light: 'radial-gradient(120% 70% at 50% 0%, rgba(255,255,255,0.14), transparent 60%), linear-gradient(rgba(40,40,44,0.08), rgba(40,40,44,0.08))',
+    ink: 'rgba(30,30,34,0.7)',
   },
 ]
 
@@ -194,7 +270,7 @@ export default function SurVotreMur() {
                 className="pointer-events-none absolute -translate-x-1/2 transition-opacity duration-[2200ms] ease-out"
                 style={{
                   left: `${room.hangX * 100}%`,
-                  bottom: `calc(${(1 - room.hangY) * 100}% - ${cm(40)})`,
+                  bottom: `calc(${(1 - room.hangY) * 100}% - ${cm(40)})`, // emerald room only (bottom-anchored)
                   width: cm(260),
                   height: cm(230),
                   background: room.glow,
@@ -210,7 +286,9 @@ export default function SurVotreMur() {
               className="absolute -translate-x-1/2 transition-[width,height] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
               style={{
                 left: `${room.hangX * 100}%`,
-                bottom: `${(1 - room.hangY) * 100}%`,
+                ...(room.anchor === 'bottom'
+                  ? { bottom: `${(1 - room.hangY) * 100}%` }
+                  : { top: `${room.hangY * 100}%`, transform: 'translateY(-50%)' }), // x is centred by the translate-x class
                 width: cm(piece.width),
                 height: cm(piece.height),
               }}
@@ -276,12 +354,12 @@ export default function SurVotreMur() {
               </div>
             </div>
 
-            {/* Sofa width — the scale reference */}
+            {/* Width of the room's reference furniture — the scale */}
             <p
               className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded-full bg-white/55 px-3 py-1 font-body text-[9px] md:text-[10px] uppercase tracking-[0.22em] text-charcoal/75 backdrop-blur-sm transition-opacity duration-500"
-              style={{ left: `${room.hangX * 100}%`, top: `${room.labelY * 100}%`, opacity: showMeasures && lit ? 1 : 0 }}
+              style={{ left: `${room.labelX * 100}%`, top: `${room.labelY * 100}%`, opacity: showMeasures && lit ? 1 : 0 }}
             >
-              {w.sofa} · {room.sofaCm} cm
+              {w.refs[room.ref]} · {room.refCm} cm
             </p>
           </motion.div>
         </AnimatePresence>
@@ -300,7 +378,7 @@ export default function SurVotreMur() {
         {/* Interior */}
         <div>
           <p className="text-[10px] uppercase tracking-[0.24em] text-charcoal/45 font-body text-center md:text-start">{w.wallLabel}</p>
-          <div className="mt-3 flex justify-center md:justify-start gap-3">
+          <div className="mt-3 mx-auto grid w-max grid-cols-3 gap-x-3 gap-y-3 md:mx-0">
             {ROOMS.map((r, i) => (
               <button
                 key={r.id}
