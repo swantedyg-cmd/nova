@@ -186,7 +186,7 @@ export default function SurVotreMur() {
               width: cm(230),
               height: cm(190),
               bottom: cm(CANVAS_BOTTOM - 45),
-              background: 'radial-gradient(50% 55% at 50% 30%, rgba(255,236,190,0.55), rgba(255,236,190,0.18) 55%, transparent 75%)',
+              background: 'radial-gradient(closest-side, rgba(255,236,190,0.5), rgba(255,236,190,0.16) 55%, transparent 100%)',
               mixBlendMode: 'soft-light',
             }}
           />
