@@ -276,6 +276,9 @@ export default function GallerySection() {
   const [currentIndex,   setCurrentIndex]   = useState(0)
   const [started,        setStarted]        = useState(false)
   const [stageVisible,   setStageVisible]   = useState(false)
+  // The fixed "Scroll" hint belongs to the flythrough only — without this
+  // it would also float over whatever section sits above the stage.
+  const [stageOnScreen,  setStageOnScreen]  = useState(false)
   const { t, lang } = useLanguage()
   const { addToCart, removeFromCart, isInCart } = useCart()
 
@@ -318,6 +321,13 @@ export default function GallerySection() {
   // running full-tilt for however long it takes to actually scroll here.
   // Deferring the mount until the stage is nearly in view means that cost
   // is only ever paid once a visitor is actually about to see it.
+  useEffect(() => {
+    if (isMobile || reducedMotion || !stageRef.current) return
+    const io = new IntersectionObserver(([entry]) => setStageOnScreen(entry.isIntersecting), { threshold: 0.5 })
+    io.observe(stageRef.current)
+    return () => io.disconnect()
+  }, [isMobile, reducedMotion])
+
   useEffect(() => {
     if (isMobile || reducedMotion || !stageRef.current) return
     const el = stageRef.current
@@ -539,7 +549,7 @@ export default function GallerySection() {
               live outside that subtree. */}
           <div
             className="pointer-events-none fixed inset-x-0 bottom-8 z-10 hidden md:flex flex-col items-center gap-2 transition-opacity duration-500"
-            style={{ opacity: started ? 0 : 1 }}
+            style={{ opacity: started || !stageOnScreen ? 0 : 1 }}
           >
             <span className="text-[10px] uppercase tracking-[0.3em] text-charcoal/40 font-body">Scroll</span>
             <svg className="gallery-scroll-hint" width="16" height="16" viewBox="0 0 16 16" fill="none">
